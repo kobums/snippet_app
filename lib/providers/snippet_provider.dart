@@ -4,11 +4,17 @@ import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/snippet.dart';
 import '../models/snippet_archive.dart';
+import '../models/user_book.dart';
+import 'book_provider.dart';
 
-final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
 final storageServiceProvider = Provider<StorageService>(
   (ref) => StorageService(),
 );
+
+final apiServiceProvider = Provider<ApiService>((ref) {
+  final storage = ref.read(storageServiceProvider);
+  return ApiService(storage);
+});
 
 final archiveProvider = FutureProvider<List<SnippetArchive>>((ref) async {
   final storage = ref.read(storageServiceProvider);
@@ -57,6 +63,10 @@ class SnippetNotifier extends Notifier<SnippetState> {
       final top = state.snippets.first;
       await HomeWidget.saveWidgetData<String>('snippet_text', top.text);
       await HomeWidget.saveWidgetData<String>('snippet_tag', top.tag);
+
+      // Add reading statistics for enhanced widget
+      await _updateReadingStats();
+
       await HomeWidget.updateWidget(
         name: 'SnippetWidgetProvider',
         iOSName: 'snippetWidget',
@@ -64,6 +74,34 @@ class SnippetNotifier extends Notifier<SnippetState> {
       print('Widget manually updated with text: ${top.text}');
     } catch (e) {
       print('Widget update error: $e');
+    }
+  }
+
+  Future<void> _updateReadingStats() async {
+    try {
+      // Get book provider data
+      final bookState = ref.read(bookProvider);
+
+      // Calculate completed books this month
+      final completedThisMonth = bookState.books
+          .where((b) => b.status == BookStatus.completed)
+          .length;
+
+      // Get current reading progress
+      final readingBooks = bookState.books
+          .where((b) => b.status == BookStatus.reading)
+          .toList();
+      final currentProgress = readingBooks.isNotEmpty
+          ? (readingBooks.first.progress * 100).toInt()
+          : 0;
+
+      // Save to widget
+      await HomeWidget.saveWidgetData<int>('completed_count', completedThisMonth);
+      await HomeWidget.saveWidgetData<int>('current_progress', currentProgress);
+
+      print('Widget stats updated: $completedThisMonth books, $currentProgress% progress');
+    } catch (e) {
+      print('Widget stats update error: $e');
     }
   }
 
