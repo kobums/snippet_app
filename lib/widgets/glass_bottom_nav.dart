@@ -33,7 +33,9 @@ class GlassBottomNav extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildTab(context, 0, '스와이프', '◇', currentIndex == 0, accentColor, tertiaryColor),
-              _buildTab(context, 1, '보관함', '♡', currentIndex == 1, accentColor, tertiaryColor),
+              _buildTab(context, 1, '대시보드', '☰', currentIndex == 1, accentColor, tertiaryColor),
+              _buildTab(context, 2, '기록', '✎', currentIndex == 2, accentColor, tertiaryColor),
+              _buildTab(context, 3, '보관함', '♡', currentIndex == 3, accentColor, tertiaryColor),
             ],
           ),
         ),

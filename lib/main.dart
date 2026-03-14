@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme.dart';
-import 'screens/main_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: SnippetApp()));
@@ -15,7 +15,7 @@ class SnippetApp extends StatelessWidget {
     return MaterialApp(
       title: 'Snippet',
       theme: AppTheme.lightTheme,
-      home: const MainScreen(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
