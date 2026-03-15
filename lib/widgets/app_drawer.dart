@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../screens/stats_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/books/books_have_screen.dart';
+import '../screens/books/books_borrow_screen.dart';
+import '../screens/books/books_wishlist_screen.dart';
+import '../screens/mypage_screen.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -76,28 +80,71 @@ class AppDrawer extends ConsumerWidget {
                         );
                       },
                     ),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      child: Text(
+                        '도서 관리',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1,
+                          color: Colors.black.withValues(alpha: 0.4),
+                        ),
+                      ),
+                    ),
                     _buildMenuItem(
                       context: context,
-                      icon: Icons.person_outline,
-                      title: '프로필',
+                      icon: Icons.library_books,
+                      title: '소장한 책',
                       onTap: () {
                         Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('프로필 화면은 Phase 5에서 구현됩니다'),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const BooksHaveScreen(),
                           ),
                         );
                       },
                     ),
                     _buildMenuItem(
                       context: context,
-                      icon: Icons.settings_outlined,
-                      title: '설정',
+                      icon: Icons.auto_stories,
+                      title: '빌린 책',
                       onTap: () {
                         Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('설정 화면은 Phase 5에서 구현됩니다'),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const BooksBorrowScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.favorite_border,
+                      title: '위시리스트',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const BooksWishlistScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.person_outline,
+                      title: '프로필',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const MyPageScreen(),
                           ),
                         );
                       },
