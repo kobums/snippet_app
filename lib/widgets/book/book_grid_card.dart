@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 
+/// Fintech Style Book Grid Card
+/// 세련된 북 카드 with 디자인 토큰
 class BookGridCard extends StatelessWidget {
   final UserBookDto book;
   final VoidCallback onTap;
@@ -15,15 +19,15 @@ class BookGridCard extends StatelessWidget {
   Color _getStatusColor(BookStatus status) {
     switch (status) {
       case BookStatus.waiting:
-        return Colors.grey;
+        return DesignTokens.neutral500;
       case BookStatus.reading:
-        return const Color(0xFF7C5CBF);
+        return DesignTokens.primaryMain;
       case BookStatus.completed:
-        return const Color(0xFF34C759);
+        return DesignTokens.success;
       case BookStatus.dropped:
-        return Colors.orange;
+        return DesignTokens.warning;
       default:
-        return Colors.grey;
+        return DesignTokens.neutral500;
     }
   }
 
@@ -47,6 +51,7 @@ class BookGridCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
+        padding: const EdgeInsets.all(DesignTokens.space12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -55,7 +60,7 @@ class BookGridCard extends StatelessWidget {
               child: Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                     child: Image.network(
                       book.coverUrl,
                       width: double.infinity,
@@ -65,11 +70,14 @@ class BookGridCard extends StatelessWidget {
                         return Container(
                           width: double.infinity,
                           height: double.infinity,
-                          color: Colors.grey.withValues(alpha: 0.3),
+                          decoration: BoxDecoration(
+                            color: DesignTokens.neutral200,
+                            borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                          ),
                           child: Icon(
-                            Icons.book,
-                            size: 48,
-                            color: Colors.grey.withValues(alpha: 0.5),
+                            Icons.book_outlined,
+                            size: DesignTokens.icon2xl,
+                            color: DesignTokens.neutral400,
                           ),
                         );
                       },
@@ -77,23 +85,23 @@ class BookGridCard extends StatelessWidget {
                   ),
                   // Status badge
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: DesignTokens.space8,
+                    right: DesignTokens.space8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: DesignTokens.space8,
+                        vertical: DesignTokens.space4,
                       ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(book.status),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                        boxShadow: DesignTokens.shadowSm,
                       ),
                       child: Text(
                         _getStatusText(book.status),
-                        style: const TextStyle(
+                        style: AppTypography.captionSmall.copyWith(
                           color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: DesignTokens.fontMedium,
                         ),
                       ),
                     ),
@@ -101,53 +109,48 @@ class BookGridCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: DesignTokens.space12),
 
             // Book title
             Text(
               book.title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
+              style: AppTypography.labelMedium.copyWith(
+                color: DesignTokens.textPrimary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: DesignTokens.space4),
 
             // Author
             Text(
               book.author,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
-                color: Colors.black.withValues(alpha: 0.5),
+              style: AppTypography.caption.copyWith(
+                color: DesignTokens.textSecondary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 8),
 
             // Progress bar (if reading)
             if (book.status == BookStatus.reading) ...[
+              const SizedBox(height: DesignTokens.space8),
               ClipRRect(
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
                 child: LinearProgressIndicator(
                   value: book.progress,
                   minHeight: 4,
-                  backgroundColor: Colors.grey.withValues(alpha: 0.2),
+                  backgroundColor: DesignTokens.neutral200,
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF7C5CBF),
+                    DesignTokens.primaryMain,
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: DesignTokens.space4),
               Text(
                 '${(book.progress * 100).toInt()}%',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.black.withValues(alpha: 0.4),
+                style: AppTypography.captionSmall.copyWith(
+                  color: DesignTokens.textTertiary,
                 ),
               ),
             ],

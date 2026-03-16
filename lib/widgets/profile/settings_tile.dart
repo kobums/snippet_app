@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 
+/// Fintech Style Settings Tile
+/// 세련된 설정 타일 with 디자인 토큰
 class SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -16,62 +20,68 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
-        child: Row(
-          children: [
-            // Icon with background
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF7C5CBF).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+        splashColor: DesignTokens.primaryMain.withValues(alpha: 0.1),
+        highlightColor: DesignTokens.primaryMain.withValues(alpha: 0.05),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: DesignTokens.space12,
+            horizontal: DesignTokens.space4,
+          ),
+          child: Row(
+            children: [
+              // Icon with background
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: DesignTokens.primaryMain.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                ),
+                child: Icon(
+                  icon,
+                  color: DesignTokens.primaryMain,
+                  size: DesignTokens.iconMd,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF7C5CBF),
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 16),
+              const SizedBox(width: DesignTokens.space16),
 
-            // Title and subtitle
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
+              // Title and subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.5),
+                      title,
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: DesignTokens.textPrimary,
                       ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: DesignTokens.space4),
+                      Text(
+                        subtitle!,
+                        style: AppTypography.caption.copyWith(
+                          color: DesignTokens.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
 
-            // Chevron icon
-            Icon(
-              Icons.chevron_right,
-              color: Colors.black.withValues(alpha: 0.3),
-            ),
-          ],
+              // Chevron icon
+              Icon(
+                Icons.chevron_right,
+                color: DesignTokens.textTertiary,
+                size: DesignTokens.iconMd,
+              ),
+            ],
+          ),
         ),
       ),
     );

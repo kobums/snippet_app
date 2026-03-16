@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/record.dart';
 import '../../providers/record_provider.dart';
 import '../glass_container.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 import 'edit_record_bottom_sheet.dart';
 
+/// Fintech Style Record Card
+/// 세련된 기록 카드 with 디자인 토큰
 class RecordCard extends ConsumerWidget {
   final RecordDto record;
 
@@ -25,7 +29,7 @@ class RecordCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: DesignTokens.space12),
       child: Dismissible(
         key: Key('record_${record.id}'),
         direction: DismissDirection.endToStart,
@@ -33,19 +37,33 @@ class RecordCard extends ConsumerWidget {
           return await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('기록 삭제'),
-              content: const Text('이 기록을 삭제하시겠습니까?'),
+              title: Text(
+                '기록 삭제',
+                style: AppTypography.h3,
+              ),
+              content: Text(
+                '이 기록을 삭제하시겠습니까?',
+                style: AppTypography.bodyMedium,
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('취소'),
+                  child: Text(
+                    '취소',
+                    style: AppTypography.labelMedium,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF3B30),
+                    foregroundColor: DesignTokens.error,
                   ),
-                  child: const Text('삭제'),
+                  child: Text(
+                    '삭제',
+                    style: AppTypography.labelMedium.copyWith(
+                      color: DesignTokens.error,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -57,9 +75,9 @@ class RecordCard extends ConsumerWidget {
 
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('기록이 삭제되었습니다'),
-                  backgroundColor: Color(0xFF34C759),
+                SnackBar(
+                  content: const Text('기록이 삭제되었습니다'),
+                  backgroundColor: DesignTokens.success,
                 ),
               );
             }
@@ -68,7 +86,7 @@ class RecordCard extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(e.toString().replaceAll('Exception: ', '')),
-                  backgroundColor: const Color(0xFFFF3B30),
+                  backgroundColor: DesignTokens.error,
                 ),
               );
             }
@@ -76,14 +94,19 @@ class RecordCard extends ConsumerWidget {
         },
         background: Container(
           alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
+          padding: const EdgeInsets.only(right: DesignTokens.space20),
           decoration: BoxDecoration(
-            color: const Color(0xFFFF3B30).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            color: DesignTokens.error.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+            border: Border.all(
+              color: DesignTokens.error.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
           child: const Icon(
             Icons.delete_outline,
-            color: Color(0xFFFF3B30),
+            color: DesignTokens.error,
+            size: DesignTokens.iconLg,
           ),
         ),
         child: GestureDetector(
@@ -96,6 +119,7 @@ class RecordCard extends ConsumerWidget {
             );
           },
           child: GlassContainer(
+            padding: const EdgeInsets.all(DesignTokens.space16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -107,19 +131,18 @@ class RecordCard extends ConsumerWidget {
                     if (record.tag != null && record.tag!.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                          horizontal: DesignTokens.space12,
+                          vertical: DesignTokens.space4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF7C5CBF).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                         ),
                         child: Text(
                           '#${record.tag}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF7C5CBF),
-                            fontWeight: FontWeight.w500,
+                          style: AppTypography.caption.copyWith(
+                            color: DesignTokens.primaryMain,
+                            fontWeight: DesignTokens.fontMedium,
                           ),
                         ),
                       )
@@ -132,20 +155,16 @@ class RecordCard extends ConsumerWidget {
                         if (record.relatedPage != null) ...[
                           Text(
                             'p.${record.relatedPage}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black.withValues(alpha: 0.4),
-                              fontWeight: FontWeight.w300,
+                            style: AppTypography.caption.copyWith(
+                              color: DesignTokens.textTertiary,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: DesignTokens.space8),
                         ],
                         Text(
                           _formatDate(record.createDate),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black.withValues(alpha: 0.4),
-                            fontWeight: FontWeight.w300,
+                          style: AppTypography.caption.copyWith(
+                            color: DesignTokens.textTertiary,
                           ),
                         ),
                       ],
@@ -153,15 +172,14 @@ class RecordCard extends ConsumerWidget {
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: DesignTokens.space12),
 
                 // Text content
                 Text(
                   record.text,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.6,
-                    fontWeight: FontWeight.w300,
+                  style: AppTypography.bodyMedium.copyWith(
+                    height: DesignTokens.lineHeightRelaxed,
+                    color: DesignTokens.textPrimary,
                   ),
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,

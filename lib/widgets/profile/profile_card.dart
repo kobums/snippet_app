@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/user.dart';
 import '../glass_container.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 import 'profile_field.dart';
 
+/// Fintech Style Profile Card
+/// 세련된 프로필 카드 with 디자인 토큰
 class ProfileCard extends StatelessWidget {
   final User user;
 
@@ -19,64 +23,74 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassContainer(
+      padding: const EdgeInsets.all(DesignTokens.space24),
       child: Column(
         children: [
           // Avatar
           Container(
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF7C5CBF),
-                  Color(0xFFB794F4),
+                  DesignTokens.primaryLight,
+                  DesignTokens.primaryMain,
                 ],
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: DesignTokens.primaryMain,
+                  blurRadius: 20,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
             child: Center(
               child: Text(
                 _getInitial(user.name),
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w300,
+                style: AppTypography.displaySmall.copyWith(
                   color: Colors.white,
-                  letterSpacing: 1,
+                  fontWeight: DesignTokens.fontLight,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: DesignTokens.space20),
 
           // User name
           Text(
             user.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 1.5,
+            style: AppTypography.h2.copyWith(
+              color: DesignTokens.textPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: DesignTokens.space8),
 
           // Email
           Text(
             user.email,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-              color: Colors.black.withValues(alpha: 0.5),
+            style: AppTypography.bodyMedium.copyWith(
+              color: DesignTokens.textSecondary,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: DesignTokens.space24),
+
+          // Divider
+          Container(
+            height: 1,
+            color: DesignTokens.neutral200,
+          ),
+          const SizedBox(height: DesignTokens.space20),
 
           // Profile fields
           ProfileField(
             label: '이름',
             value: user.name,
           ),
+          const SizedBox(height: DesignTokens.space12),
           ProfileField(
             label: '이메일',
             value: user.email,

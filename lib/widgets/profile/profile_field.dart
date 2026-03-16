@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 
+/// Fintech Style Profile Field
+/// 세련된 프로필 필드 with 디자인 토큰
 class ProfileField extends StatelessWidget {
   final String label;
   final String value;
@@ -12,37 +16,29 @@ class ProfileField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Divider(height: 1),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black.withValues(alpha: 0.6),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  textAlign: TextAlign.right,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: DesignTokens.space8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTypography.labelMedium.copyWith(
+              color: DesignTokens.textSecondary,
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Text(
+              value,
+              style: AppTypography.bodyMedium.copyWith(
+                color: DesignTokens.textPrimary,
+              ),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

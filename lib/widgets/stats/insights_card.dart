@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../models/stats.dart';
 import '../glass_container.dart';
+import '../../core/design_tokens.dart';
+import '../../core/typography.dart';
 
+/// Fintech Style Insights Card
+/// 세련된 인사이트 카드 with 디자인 토큰
 class InsightsCard extends StatelessWidget {
   final ReadingInsightsDto? insights;
 
@@ -14,12 +18,12 @@ class InsightsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (insights == null) {
       return GlassContainer(
+        padding: const EdgeInsets.all(DesignTokens.space32),
         child: Center(
           child: Text(
             '데이터가 없습니다',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black.withValues(alpha: 0.5),
+            style: AppTypography.bodyMedium.copyWith(
+              color: DesignTokens.textSecondary,
             ),
           ),
         ),
@@ -29,28 +33,28 @@ class InsightsCard extends StatelessWidget {
     return Column(
       children: [
         _buildInsightItem(
-          icon: Icons.timelapse,
+          icon: Icons.timelapse_outlined,
           title: '평균 독서 기간',
           value: '${insights!.averageReadingDays.toStringAsFixed(1)}일',
           description: '한 권을 읽는데 걸리는 평균 시간',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: DesignTokens.space12),
         _buildInsightItem(
-          icon: Icons.category,
+          icon: Icons.category_outlined,
           title: '선호 카테고리',
           value: insights!.topCategory,
           description: '가장 많이 읽은 카테고리',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: DesignTokens.space12),
         _buildInsightItem(
-          icon: Icons.emoji_events,
+          icon: Icons.emoji_events_outlined,
           title: '최장 독서 기록',
           value: '${insights!.longestReadingDays}일',
           description: '가장 오래 읽은 책의 독서 기간',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: DesignTokens.space12),
         _buildInsightItem(
-          icon: Icons.menu_book,
+          icon: Icons.menu_book_outlined,
           title: '가장 오래 읽은 책',
           value: insights!.longestBook,
           description: '가장 오래 걸린 책',
@@ -66,52 +70,57 @@ class InsightsCard extends StatelessWidget {
     required String description,
   }) {
     return GlassContainer(
+      padding: const EdgeInsets.all(DesignTokens.space16),
       child: Row(
         children: [
+          // Icon
           Container(
-            width: 48,
-            height: 48,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFF7C5CBF).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  DesignTokens.primaryMain.withValues(alpha: 0.1),
+                  DesignTokens.primaryMain.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF7C5CBF),
-              size: 24,
+              color: DesignTokens.primaryMain,
+              size: DesignTokens.iconLg,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: DesignTokens.space16),
+
+          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black.withValues(alpha: 0.6),
+                  style: AppTypography.caption.copyWith(
+                    color: DesignTokens.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: DesignTokens.space4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF7C5CBF),
+                  style: AppTypography.h4.copyWith(
+                    color: DesignTokens.primaryMain,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: DesignTokens.space2),
                 Text(
                   description,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.black.withValues(alpha: 0.4),
+                  style: AppTypography.captionSmall.copyWith(
+                    color: DesignTokens.textTertiary,
                   ),
                 ),
               ],

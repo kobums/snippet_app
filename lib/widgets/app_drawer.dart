@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../screens/stats_screen.dart';
+import '../screens/reading_calendar_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/books/books_have_screen.dart';
 import '../screens/books/books_borrow_screen.dart';
@@ -76,6 +77,19 @@ class AppDrawer extends ConsumerWidget {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const StatsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.calendar_month_rounded,
+                      title: '독서 캘린더',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ReadingCalendarScreen(),
                           ),
                         );
                       },
