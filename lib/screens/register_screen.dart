@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../components/app_button.dart';
 import '../widgets/glass_container.dart';
 import 'main_screen.dart';
 
@@ -243,39 +244,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(height: 24),
 
                             // Register button
-                            SizedBox(
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed:
-                                    authState.isLoading ? null : _handleRegister,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF7C5CBF),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: authState.isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Register',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w400,
-                                          letterSpacing: 1,
-                                        ),
-                                      ),
-                              ),
+                            AppButton(
+                              text: 'Register',
+                              onPressed: _handleRegister,
+                              variant: AppButtonVariant.primary,
+                              size: AppButtonSize.large,
+                              isFullWidth: true,
+                              isLoading: authState.isLoading,
                             ),
                             const SizedBox(height: 16),
 

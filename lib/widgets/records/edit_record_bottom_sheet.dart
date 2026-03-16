@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/record.dart';
 import '../../providers/record_provider.dart';
+import '../../components/app_button.dart';
 import '../glass_container.dart';
 
 class EditRecordBottomSheet extends ConsumerStatefulWidget {
@@ -340,50 +341,23 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
               const SizedBox(height: 24),
 
               // Update button
-              SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _updateRecord,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C5CBF),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    '수정하기',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: '수정하기',
+                onPressed: _updateRecord,
+                variant: AppButtonVariant.primary,
+                size: AppButtonSize.large,
+                isFullWidth: true,
               ),
               const SizedBox(height: 12),
 
               // Delete button
-              SizedBox(
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: _deleteRecord,
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text(
-                    '기록 삭제',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF3B30),
-                    side: const BorderSide(color: Color(0xFFFF3B30)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: '기록 삭제',
+                icon: Icons.delete_outline,
+                onPressed: _deleteRecord,
+                variant: AppButtonVariant.outlinedDanger,
+                size: AppButtonSize.large,
+                isFullWidth: true,
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/user_book.dart';
 import '../../providers/book_provider.dart';
+import '../../components/app_button.dart';
 import '../glass_container.dart';
 
 class BookDetailBottomSheet extends ConsumerStatefulWidget {
@@ -350,26 +351,13 @@ class _BookDetailBottomSheetState
               const SizedBox(height: 24),
 
               // Delete button
-              SizedBox(
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: _deleteBook,
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text(
-                    '책 삭제',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF3B30),
-                    side: const BorderSide(color: Color(0xFFFF3B30)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: '책 삭제',
+                icon: Icons.delete_outline,
+                onPressed: _deleteBook,
+                variant: AppButtonVariant.outlinedDanger,
+                size: AppButtonSize.large,
+                isFullWidth: true,
               ),
             ],
           ),

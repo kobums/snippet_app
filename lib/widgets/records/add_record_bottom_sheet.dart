@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/record.dart';
 import '../../models/user_book.dart';
 import '../../providers/record_provider.dart';
+import '../../components/app_button.dart';
 import '../glass_container.dart';
 
 class AddRecordBottomSheet extends ConsumerStatefulWidget {
@@ -334,26 +335,12 @@ class _AddRecordBottomSheetState extends ConsumerState<AddRecordBottomSheet> {
               const SizedBox(height: 24),
 
               // Add button
-              SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _addRecord,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C5CBF),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    '추가하기',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: '추가하기',
+                onPressed: _addRecord,
+                variant: AppButtonVariant.primary,
+                size: AppButtonSize.large,
+                isFullWidth: true,
               ),
             ],
           ),
