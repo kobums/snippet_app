@@ -5,6 +5,7 @@ import '../providers/book_provider.dart';
 import '../services/calendar_share_service.dart';
 import '../widgets/calendar/shareable_reading_calendar.dart';
 import '../core/design_tokens.dart';
+import '../components/app_button.dart';
 
 /// 독서 캘린더 전체 화면
 ///
@@ -143,6 +144,10 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
         title: const Text('독서 캘린더'),
         backgroundColor: DesignTokens.bgSecondary,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: _buildMonthNavigation(isCurrentMonth),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _loadData,
@@ -152,9 +157,6 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: [
-                    // 월/년도 네비게이션
-                    _buildMonthNavigation(isCurrentMonth),
-
                     const SizedBox(height: 16),
 
                     // 캘린더 프리뷰 (저장되는 이미지와 동일)
@@ -219,46 +221,51 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 100), // FAB 공간 확보
+                    const SizedBox(height: 16),
+
+                    // 버튼들
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          // 갤러리에 저장 버튼
+                          Expanded(
+                            child: AppButton(
+                              text: '저장',
+                              icon: Icons.save_alt,
+                              variant: AppButtonVariant.secondary,
+                              size: AppButtonSize.large,
+                              isFullWidth: true,
+                              isLoading: _isSharing,
+                              onPressed: _isSharing
+                                  ? null
+                                  : () => _saveToGallery(completedBooks),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // 공유 버튼
+                          Expanded(
+                            child: AppButton(
+                              text: '공유',
+                              icon: Icons.share,
+                              variant: AppButtonVariant.primary,
+                              size: AppButtonSize.large,
+                              isFullWidth: true,
+                              isLoading: _isSharing,
+                              onPressed: _isSharing
+                                  ? null
+                                  : () => _shareCalendar(completedBooks),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
       ),
-      floatingActionButton: _isSharing
-          ? const FloatingActionButton(
-              onPressed: null,
-              backgroundColor: DesignTokens.neutral300,
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 갤러리에 저장 버튼
-                FloatingActionButton.extended(
-                  heroTag: 'save',
-                  onPressed: () => _saveToGallery(completedBooks),
-                  backgroundColor: Colors.green,
-                  icon: const Icon(Icons.save_alt),
-                  label: const Text('갤러리에 저장'),
-                ),
-                const SizedBox(height: 12),
-                // 공유 버튼
-                FloatingActionButton.extended(
-                  heroTag: 'share',
-                  onPressed: () => _shareCalendar(completedBooks),
-                  backgroundColor: DesignTokens.primaryMain,
-                  icon: const Icon(Icons.share),
-                  label: const Text('공유하기'),
-                ),
-              ],
-            ),
     );
   }
 

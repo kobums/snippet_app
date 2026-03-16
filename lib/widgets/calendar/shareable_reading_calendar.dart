@@ -95,35 +95,43 @@ class ShareableReadingCalendar extends StatelessWidget {
                     _buildWeekdayHeaders(),
                     const SizedBox(height: 8), // 간격 줄임
 
-                    // 캘린더 그리드
+                    // 캘린더 그리드 (6줄 고정)
                     Expanded(
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 7,
-                              childAspectRatio: 0.55, // 최대한 세로로 길게 (책 표지 비율)
-                              crossAxisSpacing: 3, // 간격 최소화
-                              mainAxisSpacing: 3, // 간격 최소화
+                      child: Column(
+                        children: List.generate(6, (weekIndex) {
+                          return Expanded(
+                            child: Row(
+                              children: List.generate(7, (dayIndex) {
+                                final cellIndex = weekIndex * 7 + dayIndex;
+                                final day = cellIndex < allCells.length
+                                    ? allCells[cellIndex]
+                                    : 0;
+
+                                if (day == 0) {
+                                  // 빈 셀
+                                  return Expanded(child: const SizedBox());
+                                }
+
+                                final booksOnDay = _getBooksCompletedOnDate(day);
+                                final hasBooks = booksOnDay.isNotEmpty;
+                                final isToday =
+                                    isCurrentMonth && today.day == day;
+
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.5), // 3px 간격 / 2
+                                    child: _buildDayCell(
+                                      day: day,
+                                      books: booksOnDay,
+                                      hasBooks: hasBooks,
+                                      isToday: isToday,
+                                    ),
+                                  ),
+                                );
+                              }),
                             ),
-                        itemCount: allCells.length,
-                        itemBuilder: (context, index) {
-                          final day = allCells[index];
-                          if (day == 0) {
-                            return const SizedBox.shrink();
-                          }
-
-                          final booksOnDay = _getBooksCompletedOnDate(day);
-                          final hasBooks = booksOnDay.isNotEmpty;
-                          final isToday = isCurrentMonth && today.day == day;
-
-                          return _buildDayCell(
-                            day: day,
-                            books: booksOnDay,
-                            hasBooks: hasBooks,
-                            isToday: isToday,
                           );
-                        },
+                        }),
                       ),
                     ),
                   ],

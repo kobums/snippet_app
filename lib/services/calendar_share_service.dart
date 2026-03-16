@@ -25,12 +25,14 @@ class CalendarShareService {
       // 1. 이미지 로딩을 위한 약간의 지연
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 2. 위젯을 고해상도 이미지로 캡처
+      // 2. 위젯을 정확히 1080x1350 (4:5 비율)로 캡처
       final imageBytes = await _screenshotController.captureFromWidget(
-        calendarWidget,
-        pixelRatio: 3.0, // 고해상도 렌더링 (Retina 디스플레이 대응)
-        context: context,
-        delay: const Duration(milliseconds: 100), // 렌더링 대기
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: calendarWidget,
+        ),
+        targetSize: const Size(1080, 1350), // Instagram 피드 최적 크기
+        delay: const Duration(milliseconds: 500), // 이미지 로딩 대기
       );
 
       // 2. 임시 디렉토리에 파일 저장
@@ -108,12 +110,14 @@ class CalendarShareService {
       // 1. 이미지 로딩을 위한 약간의 지연
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 2. 위젯을 고해상도 이미지로 캡처
+      // 2. 위젯을 정확히 1080x1350 (4:5 비율)로 캡처
       final imageBytes = await _screenshotController.captureFromWidget(
-        calendarWidget,
-        pixelRatio: 3.0,
-        context: context,
-        delay: const Duration(milliseconds: 100), // 렌더링 대기
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: calendarWidget,
+        ),
+        targetSize: const Size(1080, 1350), // Instagram 피드 최적 크기
+        delay: const Duration(milliseconds: 500), // 이미지 로딩 대기
       );
 
       // 2. 갤러리에 저장
