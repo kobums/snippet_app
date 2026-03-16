@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/record_provider.dart';
 import '../providers/book_provider.dart';
 import '../models/record.dart';
+import '../core/design_tokens.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/records/add_record_bottom_sheet.dart';
 import '../widgets/records/record_card.dart';
@@ -52,100 +53,110 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     }
   }
 
+  void showAddRecordSheet(BuildContext context) {
+    final bookState = ref.read(bookProvider);
+
+    if (bookState.books.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('먼저 책을 추가해주세요'),
+          backgroundColor: Color(0xFFFF3B30),
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddRecordBottomSheet(
+        books: bookState.books,
+        initialType: _getTypeFromIndex(_tabController.index),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final recordState = ref.watch(recordProvider);
     final recordNotifier = ref.read(recordProvider.notifier);
-    final bookState = ref.watch(bookProvider);
 
     final now = DateTime.now();
-    final isCurrentMonth = recordState.selectedYear == now.year &&
+    final isCurrentMonth =
+        recordState.selectedYear == now.year &&
         recordState.selectedMonth == now.month;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '기록',
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            letterSpacing: 2,
+    return Column(
+      children: [
+        // TabBar
+        Container(
+          margin: const EdgeInsets.symmetric(
+            horizontal: DesignTokens.space16,
+            vertical: DesignTokens.space8,
           ),
-        ),
-        backgroundColor: const Color(0xFFF0F0F5),
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF7C5CBF),
-          unselectedLabelColor: Colors.black.withValues(alpha: 0.5),
-          indicatorColor: const Color(0xFF7C5CBF),
-          labelStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 1,
-          ),
-          tabs: const [
-            Tab(text: '스니펫'),
-            Tab(text: '독서일기'),
-            Tab(text: '리뷰'),
-          ],
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => recordNotifier.refreshRecords(),
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            // Each tab shows the same content structure
-            for (int i = 0; i < 3; i++)
-              SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Month Navigator
-                    _buildMonthNavigator(
-                      context,
-                      recordState.selectedYear,
-                      recordState.selectedMonth,
-                      isCurrentMonth,
-                      recordNotifier,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Records List
-                    _buildRecordsList(recordState.records, recordState.isLoading),
-                  ],
-                ),
+          child: GlassContainer(
+            child: TabBar(
+              controller: _tabController,
+              labelColor: DesignTokens.primaryMain,
+              unselectedLabelColor: DesignTokens.textTertiary,
+              indicatorColor: DesignTokens.primaryMain,
+              indicatorWeight: 2,
+              dividerHeight: 0,
+              labelStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (bookState.books.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('먼저 책을 추가해주세요'),
-                backgroundColor: Color(0xFFFF3B30),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
               ),
-            );
-            return;
-          }
-
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => AddRecordBottomSheet(
-              books: bookState.books,
-              initialType: _getTypeFromIndex(_tabController.index),
+              tabs: const [
+                Tab(text: '스니펫'),
+                Tab(text: '독서일기'),
+                Tab(text: '리뷰'),
+              ],
             ),
-          );
-        },
-        backgroundColor: const Color(0xFF7C5CBF),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+          ),
+        ),
+        // TabBarView
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => recordNotifier.refreshRecords(),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Each tab shows the same content structure
+                for (int i = 0; i < 3; i++)
+                  SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Month Navigator
+                        _buildMonthNavigator(
+                          context,
+                          recordState.selectedYear,
+                          recordState.selectedMonth,
+                          isCurrentMonth,
+                          recordNotifier,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Records List
+                        _buildRecordsList(
+                          recordState.records,
+                          recordState.isLoading,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -181,9 +192,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
           IconButton(
             icon: Icon(
               Icons.chevron_right,
-              color: isCurrentMonth
-                  ? Colors.grey.withValues(alpha: 0.3)
-                  : null,
+              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
             ),
             onPressed: isCurrentMonth
                 ? null

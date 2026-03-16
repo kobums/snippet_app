@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/swipe_card.dart';
 import '../providers/snippet_provider.dart';
+import '../core/design_tokens.dart';
+import '../core/typography.dart';
 
+/// Fintech Style Home Screen
+/// Bottom Navigation을 고려한 적절한 spacing
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,20 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       bottom: false,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-            child: Center(
-              child: Text(
-                'SNIPPET',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 5.0,
-                  color: Colors.black.withOpacity(0.55),
-                ),
-              ),
-            ),
-          ),
+          // Cards
           Expanded(
             child: state.isLoading && state.snippets.isEmpty
                 ? const Center(child: CircularProgressIndicator())
@@ -47,59 +38,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Text(
                       "더 이상 카드가 없습니다.\n보관함이나 위젯을 확인해보세요!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black.withOpacity(0.55)),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: DesignTokens.textSecondary,
+                      ),
                     ),
                   )
                 : Stack(
                     alignment: Alignment.center,
                     children: state.snippets
+                        .take(3) // 상위 3개 카드만 표시 (깊이감을 위해)
+                        .toList()
                         .asMap()
                         .entries
                         .map((entry) {
+                          final index = entry.key;
                           final snippet = entry.value;
-                          return Dismissible(
-                            key: ValueKey(snippet.id),
-                            direction: DismissDirection.horizontal,
-                            onDismissed: (direction) {
-                              final isLike =
-                                  direction == DismissDirection.startToEnd;
-                              ref
-                                  .read(snippetProvider.notifier)
-                                  .handleSwipe(snippet.id, isLike);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 24,
-                                right: 24,
-                                bottom: 48,
-                              ),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 400,
+
+                          // 뒤에 있는 카드는 살짝 작고 아래로 이동
+                          final scale = 1.0 - (index * 0.05);
+                          final offset = index * 8.0;
+
+                          return Transform.translate(
+                            offset: Offset(0, offset),
+                            child: Transform.scale(
+                              scale: scale,
+                              child: Dismissible(
+                                key: ValueKey(snippet.id),
+                                direction: DismissDirection.horizontal,
+                                onDismissed: (direction) {
+                                  final isLike =
+                                      direction == DismissDirection.startToEnd;
+                                  ref
+                                      .read(snippetProvider.notifier)
+                                      .handleSwipe(snippet.id, isLike);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: DesignTokens.space24,
+                                    right: DesignTokens.space24,
+                                    bottom: DesignTokens.space48,
+                                  ),
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 400,
+                                    ),
+                                    child: SwipeCard(snippet: snippet),
+                                  ),
                                 ),
-                                child: SwipeCard(snippet: snippet),
                               ),
                             ),
                           );
                         })
                         .toList()
-                        .reversed
+                        .reversed // 첫 번째 카드가 맨 위에 오도록
                         .toList(),
                   ),
           ),
+
+          // Bottom hint with proper spacing for bottom nav
           Padding(
-            padding: const EdgeInsets.only(bottom: 100.0),
+            padding: const EdgeInsets.only(bottom: DesignTokens.space16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '← Pass',
-                  style: TextStyle(color: Colors.black.withOpacity(0.35)),
+                  style: AppTypography.caption.copyWith(
+                    color: DesignTokens.textTertiary,
+                  ),
                 ),
-                const SizedBox(width: 48),
+                const SizedBox(width: DesignTokens.space48),
                 Text(
                   'Like →',
-                  style: TextStyle(color: Colors.black.withOpacity(0.35)),
+                  style: AppTypography.caption.copyWith(
+                    color: DesignTokens.textTertiary,
+                  ),
                 ),
               ],
             ),

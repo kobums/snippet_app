@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/snippet_provider.dart';
 import '../models/snippet_archive.dart';
+import '../core/design_tokens.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArchiveScreen extends ConsumerWidget {
@@ -13,46 +14,28 @@ class ArchiveScreen extends ConsumerWidget {
 
     return SafeArea(
       bottom: false,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-            child: Center(
-              child: Text(
-                '보관함',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 5.0,
-                  color: Colors.black.withOpacity(0.55),
-                ),
-              ),
+      child: archiveState.when(
+        data: (snippets) {
+          if (snippets.isEmpty) {
+            return _buildEmptyState();
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.only(
+              left: DesignTokens.space16,
+              right: DesignTokens.space16,
+              top: DesignTokens.space16,
+              bottom: DesignTokens.space16,
             ),
-          ),
-          Expanded(
-            child: archiveState.when(
-              data: (snippets) {
-                if (snippets.isEmpty) {
-                  return _buildEmptyState();
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ).copyWith(bottom: 120),
-                  itemCount: snippets.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    return ArchiveCard(snippet: snippets[index]);
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('오류가 발생했습니다: $err')),
-            ),
-          ),
-        ],
+            itemCount: snippets.length,
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              return ArchiveCard(snippet: snippets[index]);
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('오류가 발생했습니다: $err')),
       ),
     );
   }

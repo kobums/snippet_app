@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/animated_background.dart';
 import '../widgets/glass_container.dart';
 import 'register_screen.dart';
 import 'main_screen.dart';
@@ -57,10 +56,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const AnimatedBackground(),
-          SafeArea(
+      backgroundColor: Colors.white,
+      body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24.0),
@@ -245,8 +242,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           ),
-        ],
-      ),
     );
   }
 }

@@ -39,10 +39,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       appBar: AppBar(
         title: const Text(
           '통계',
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            letterSpacing: 2,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w300, letterSpacing: 2),
         ),
         backgroundColor: const Color(0xFFF0F0F5),
         elevation: 0,
@@ -52,7 +49,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           // Year Selector
           Container(
             color: const Color(0xFFF0F0F5),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: GlassContainer(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,7 +60,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                   IconButton(
                     icon: const Icon(Icons.chevron_left),
                     onPressed: () {
-                      statsNotifier.setSelectedYear(statsState.selectedYear - 1);
+                      statsNotifier.setSelectedYear(
+                        statsState.selectedYear - 1,
+                      );
                     },
                   ),
                   Text(
@@ -99,6 +101,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
               labelColor: const Color(0xFF7C5CBF),
               unselectedLabelColor: Colors.black.withValues(alpha: 0.5),
               indicatorColor: const Color(0xFF7C5CBF),
+              dividerHeight: 0,
               labelStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -181,9 +184,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
 
   Widget _buildContent(bool isLoading, String? error, Widget content) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (error != null) {

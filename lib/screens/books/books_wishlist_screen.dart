@@ -5,7 +5,7 @@ import '../../providers/library_provider.dart';
 import '../../widgets/book/book_grid.dart';
 import '../../widgets/book/book_detail_bottom_sheet.dart';
 import '../../widgets/glass_container.dart';
-import '../../widgets/animated_background.dart';
+import '../../widgets/action_button.dart';
 import '../book_search_screen.dart';
 
 class BooksWishlistScreen extends ConsumerStatefulWidget {
@@ -63,10 +63,8 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
     final filteredBooks = _getFilteredBooks();
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const AnimatedBackground(),
-          SafeArea(
+      backgroundColor: Colors.white,
+      body: SafeArea(
             child: Column(
               children: [
                 // Header
@@ -105,7 +103,9 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
                       const SizedBox(height: 16),
 
                       // Add book button
-                      GestureDetector(
+                      ActionButtonExpanded(
+                        label: '책 추가하기',
+                        icon: Icons.add_rounded,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -114,26 +114,6 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
                             ),
                           ).then((_) => _refreshBooks());
                         },
-                        child: GlassContainer(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.add,
-                                color: Color(0xFF7C5CBF),
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                '책 추가하기',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color(0xFF7C5CBF),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -200,8 +180,6 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
               ],
             ),
           ),
-        ],
-      ),
     );
   }
 

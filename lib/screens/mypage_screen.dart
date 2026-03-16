@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/animated_background.dart';
 import '../widgets/profile/profile_card.dart';
 import '../widgets/profile/settings_section.dart';
 import '../widgets/profile/logout_button.dart';
@@ -23,10 +22,8 @@ class MyPageScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const AnimatedBackground(),
-          SafeArea(
+      backgroundColor: Colors.white,
+      body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -66,8 +63,6 @@ class MyPageScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
-        ],
       ),
     );
   }
