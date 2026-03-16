@@ -7,16 +7,13 @@ enum AppButtonVariant {
   primary, // Filled primary color
   secondary, // Filled secondary color
   outlined, // Outlined primary
+  outlinedDanger, // Outlined danger (red border)
   ghost, // Text only
   danger, // Red for destructive actions
 }
 
 /// Button Sizes
-enum AppButtonSize {
-  small,
-  medium,
-  large,
-}
+enum AppButtonSize { small, medium, large }
 
 /// Fintech Style App Button
 /// 일관된 스타일의 버튼 컴포넌트
@@ -57,10 +54,7 @@ class _AppButtonState extends State<AppButton>
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: DesignTokens.curveEaseOut,
-      ),
+      CurvedAnimation(parent: _controller, curve: DesignTokens.curveEaseOut),
     );
   }
 
@@ -132,14 +126,28 @@ class _AppButtonState extends State<AppButton>
       return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(widget.icon, size: _getIconSize()),
           const SizedBox(width: DesignTokens.space8),
-          Text(widget.text, style: textStyle),
+          Flexible(
+            child: Text(
+              widget.text,
+              style: textStyle.copyWith(height: 1.0),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       );
     }
-    return Text(widget.text, style: textStyle);
+    return Text(
+      widget.text,
+      style: textStyle.copyWith(height: 1.0),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      textAlign: TextAlign.center,
+    );
   }
 
   ButtonStyle _getButtonStyle() {
@@ -150,11 +158,12 @@ class _AppButtonState extends State<AppButton>
           foregroundColor: Colors.white,
           disabledBackgroundColor: DesignTokens.neutral300,
           disabledForegroundColor: DesignTokens.textDisabled,
-          elevation: 0,
-          shadowColor: Colors.transparent,
+          elevation: 2,
+          shadowColor: DesignTokens.primaryMain.withValues(alpha: 0.3),
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
           ),
         );
 
@@ -164,11 +173,12 @@ class _AppButtonState extends State<AppButton>
           foregroundColor: Colors.white,
           disabledBackgroundColor: DesignTokens.neutral300,
           disabledForegroundColor: DesignTokens.textDisabled,
-          elevation: 0,
-          shadowColor: Colors.transparent,
+          elevation: 2,
+          shadowColor: DesignTokens.secondaryMain.withValues(alpha: 0.3),
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
           ),
         );
 
@@ -176,16 +186,30 @@ class _AppButtonState extends State<AppButton>
         return OutlinedButton.styleFrom(
           foregroundColor: DesignTokens.primaryMain,
           disabledForegroundColor: DesignTokens.textDisabled,
-          side: const BorderSide(
-            color: DesignTokens.primaryMain,
-            width: 1.5,
-          ),
+          side: const BorderSide(color: DesignTokens.primaryMain, width: 1.5),
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
           ),
         ).copyWith(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
+          elevation: WidgetStateProperty.all(0),
+        );
+
+      case AppButtonVariant.outlinedDanger:
+        return OutlinedButton.styleFrom(
+          foregroundColor: DesignTokens.error,
+          disabledForegroundColor: DesignTokens.textDisabled,
+          side: const BorderSide(color: DesignTokens.error, width: 1.5),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
+          ),
+        ).copyWith(
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+          elevation: WidgetStateProperty.all(0),
         );
 
       case AppButtonVariant.ghost:
@@ -193,8 +217,9 @@ class _AppButtonState extends State<AppButton>
           foregroundColor: DesignTokens.primaryMain,
           disabledForegroundColor: DesignTokens.textDisabled,
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
           ),
         );
 
@@ -204,11 +229,12 @@ class _AppButtonState extends State<AppButton>
           foregroundColor: Colors.white,
           disabledBackgroundColor: DesignTokens.neutral300,
           disabledForegroundColor: DesignTokens.textDisabled,
-          elevation: 0,
-          shadowColor: Colors.transparent,
+          elevation: 2,
+          shadowColor: DesignTokens.error.withValues(alpha: 0.3),
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusLg),
+            ),
           ),
         );
     }
@@ -228,17 +254,11 @@ class _AppButtonState extends State<AppButton>
   EdgeInsets _getPadding() {
     switch (widget.size) {
       case AppButtonSize.small:
-        return const EdgeInsets.symmetric(
-          horizontal: DesignTokens.space16,
-        );
+        return const EdgeInsets.symmetric(horizontal: DesignTokens.space12);
       case AppButtonSize.medium:
-        return const EdgeInsets.symmetric(
-          horizontal: DesignTokens.space24,
-        );
+        return const EdgeInsets.symmetric(horizontal: DesignTokens.space12);
       case AppButtonSize.large:
-        return const EdgeInsets.symmetric(
-          horizontal: DesignTokens.space32,
-        );
+        return const EdgeInsets.symmetric(horizontal: DesignTokens.space12);
     }
   }
 
@@ -264,6 +284,8 @@ class _AppButtonState extends State<AppButton>
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return DesignTokens.primaryMain;
+      case AppButtonVariant.outlinedDanger:
+        return DesignTokens.error;
     }
   }
 
@@ -276,17 +298,19 @@ class _AppButtonState extends State<AppButton>
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return DesignTokens.primaryMain;
+      case AppButtonVariant.outlinedDanger:
+        return DesignTokens.error;
     }
   }
 
   double _getIconSize() {
     switch (widget.size) {
       case AppButtonSize.small:
-        return DesignTokens.iconSm;
+        return 18.0; // 14px 텍스트에 맞춤
       case AppButtonSize.medium:
-        return DesignTokens.iconMd;
+        return DesignTokens.iconSm; // 20px
       case AppButtonSize.large:
-        return DesignTokens.iconLg;
+        return DesignTokens.iconSm; // 20px (16px 텍스트에 맞춤)
     }
   }
 }
