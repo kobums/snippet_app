@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/book_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
+import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
@@ -64,6 +65,7 @@ class _DashboardProgressSectionState
               unselectedLabelColor: Colors.grey,
               indicatorColor: const Color(0xFF7C5CBF),
               indicatorWeight: 2,
+              dividerHeight: 0,
               labelStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -117,8 +119,8 @@ class _DashboardProgressSectionState
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return BottomNavListLayout(
+      hasFloatingActionButton: true,
       itemCount: books.length,
       itemBuilder: (context, index) {
         return _buildBookCard(books[index]);
@@ -202,8 +204,9 @@ class _DashboardProgressSectionState
                             child: LinearProgressIndicator(
                               value: book.progress,
                               minHeight: 6,
-                              backgroundColor:
-                                  Colors.grey.withValues(alpha: 0.2),
+                              backgroundColor: Colors.grey.withValues(
+                                alpha: 0.2,
+                              ),
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 Color(0xFF7C5CBF),
                               ),

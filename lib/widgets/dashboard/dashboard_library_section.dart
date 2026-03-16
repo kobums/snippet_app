@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/library_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
+import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
 
 class DashboardLibrarySection extends ConsumerWidget {
@@ -13,8 +14,8 @@ class DashboardLibrarySection extends ConsumerWidget {
     final libraryState = ref.watch(libraryProvider);
     final libraryNotifier = ref.read(libraryProvider.notifier);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return BottomNavLayout(
+      hasFloatingActionButton: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
