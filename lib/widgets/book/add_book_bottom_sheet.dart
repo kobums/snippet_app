@@ -4,6 +4,7 @@ import '../../models/book_search.dart';
 import '../../models/user_book.dart';
 import '../../providers/book_provider.dart';
 import '../../components/app_button.dart';
+import '../../components/app_select.dart';
 import '../glass_container.dart';
 
 class AddBookBottomSheet extends ConsumerStatefulWidget {
@@ -76,6 +77,12 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.book.title} 추가 중...'),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.1,
+            left: 16,
+            right: 16,
+          ),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -94,6 +101,13 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           SnackBar(
             content: Text('${widget.book.title} 추가 완료!'),
             backgroundColor: const Color(0xFF34C759),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.1,
+              left: 16,
+              right: 16,
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -106,6 +120,13 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           SnackBar(
             content: Text(e.toString().replaceAll('Exception: ', '')),
             backgroundColor: const Color(0xFFFF3B30),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.1,
+              left: 16,
+              right: 16,
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -114,24 +135,30 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFF0F0F5),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+    return GestureDetector(
+      onTap: () {
+        // 키보드 닫기
+        FocusScope.of(context).unfocus();
+      },
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF0F0F5),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Handle bar
+              // Handle bar (고정 영역)
               Center(
                 child: Container(
                   width: 40,
                   height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(top: 12, bottom: 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
@@ -139,17 +166,30 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                 ),
               ),
 
-              // Title
-              const Text(
-                '책 추가',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
+              // 스크롤 가능한 영역
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 12,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Title
+                      const Text(
+                        '책 추가',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 2,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
 
               // Book info
               Row(
@@ -194,85 +234,49 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
               const SizedBox(height: 24),
 
               // Type selection
-              GlassContainer(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '분류',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: BookType.values.map((type) {
-                        final isSelected = _selectedType == type;
-                        return ChoiceChip(
-                          label: Text(_getTypeLabel(type)),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedType = type;
-                            });
-                          },
-                          selectedColor: const Color(0xFF7C5CBF),
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
+              AppSelect<BookType>(
+                label: '분류',
+                value: _selectedType,
+                options: BookType.values.map((type) {
+                  return AppSelectOption(
+                    value: type,
+                    label: _getTypeLabel(type),
+                    icon: _getTypeIcon(type),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedType = value;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 12),
 
               // Status selection (if not wishlist)
               if (_selectedType != BookType.wish)
-                GlassContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '상태',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          BookStatus.waiting,
-                          BookStatus.reading,
-                          BookStatus.completed,
-                        ].map((status) {
-                          final isSelected = _selectedStatus == status;
-                          return ChoiceChip(
-                            label: Text(_getStatusLabel(status)),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                _selectedStatus = status;
-                              });
-                            },
-                            selectedColor: const Color(0xFF7C5CBF),
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
+                AppSelect<BookStatus>(
+                  label: '상태',
+                  value: _selectedStatus,
+                  options: [
+                    BookStatus.waiting,
+                    BookStatus.reading,
+                    BookStatus.completed,
+                  ].map((status) {
+                    return AppSelectOption(
+                      value: status,
+                      label: _getStatusLabel(status),
+                      icon: _getStatusIcon(status),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedStatus = value;
+                      });
+                    }
+                  },
                 ),
               const SizedBox(height: 12),
 
@@ -322,7 +326,11 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           ),
         ),
       ),
-    );
+    ],
+  ),
+        ),
+      ),
+    ); // GestureDetector 닫기
   }
 
   String _getTypeLabel(BookType type) {
@@ -338,6 +346,19 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
     }
   }
 
+  IconData _getTypeIcon(BookType type) {
+    switch (type) {
+      case BookType.wish:
+        return Icons.favorite_outline;
+      case BookType.have:
+        return Icons.book;
+      case BookType.borrow:
+        return Icons.auto_stories;
+      case BookType.return_:
+        return Icons.keyboard_return;
+    }
+  }
+
   String _getStatusLabel(BookStatus status) {
     switch (status) {
       case BookStatus.none:
@@ -350,6 +371,21 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
         return '완독';
       case BookStatus.dropped:
         return '중단';
+    }
+  }
+
+  IconData _getStatusIcon(BookStatus status) {
+    switch (status) {
+      case BookStatus.none:
+        return Icons.remove_circle_outline;
+      case BookStatus.waiting:
+        return Icons.schedule;
+      case BookStatus.reading:
+        return Icons.menu_book;
+      case BookStatus.completed:
+        return Icons.check_circle_outline;
+      case BookStatus.dropped:
+        return Icons.cancel_outlined;
     }
   }
 }
