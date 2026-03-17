@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/dashboard/dashboard_stats_section.dart';
 import '../widgets/dashboard/dashboard_progress_section.dart';
 import '../widgets/dashboard/dashboard_library_section.dart';
-import '../core/design_tokens.dart';
-import '../widgets/glass_container.dart';
+import '../components/app_tab_bar.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -34,34 +33,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Column(
       children: [
         // TabBar
-        Container(
-          margin: const EdgeInsets.symmetric(
-            horizontal: DesignTokens.space16,
-            vertical: DesignTokens.space8,
-          ),
-          child: GlassContainer(
-            child: TabBar(
-              controller: _tabController,
-              labelColor: DesignTokens.primaryMain,
-              unselectedLabelColor: DesignTokens.textTertiary,
-              indicatorColor: DesignTokens.primaryMain,
-              indicatorWeight: 2,
-              dividerHeight: 0,
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
-              ),
-              tabs: const [
-                Tab(text: '통계'),
-                Tab(text: '진행'),
-                Tab(text: '서재'),
-              ],
-            ),
-          ),
+        AppTabBar(
+          controller: _tabController,
+          tabs: const ['통계', '진행', '서재'],
+          margin: EdgeInsets.zero,
         ),
         // TabBarView
         Expanded(

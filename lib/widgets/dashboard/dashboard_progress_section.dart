@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
 import '../../providers/book_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
@@ -58,29 +59,11 @@ class _DashboardProgressSectionState
         // Tab Bar
         Container(
           margin: const EdgeInsets.all(16),
-          child: GlassContainer(
-            child: TabBar(
-              controller: _tabController,
-              onTap: (_) => setState(() {}),
-              labelColor: DesignTokens.primaryMain,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: DesignTokens.primaryMain,
-              indicatorWeight: 2,
-              dividerHeight: 0,
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
-              ),
-              tabs: const [
-                Tab(text: '대기중'),
-                Tab(text: '읽는중'),
-                Tab(text: '완독'),
-              ],
-            ),
+          child: AppTabBar(
+            controller: _tabController,
+            tabs: const ['대기중', '읽는중', '완독'],
+            margin: EdgeInsets.zero,
+            onTap: (_) => setState(() {}),
           ),
         ),
 

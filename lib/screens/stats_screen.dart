@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
 import '../providers/stats_provider.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/stats/monthly_chart.dart';
@@ -108,35 +109,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           ),
 
           // Type Tabs
-          Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: DesignTokens.space16,
-              vertical: DesignTokens.space8,
-            ),
-            child: GlassContainer(
-              child: TabBar(
-                controller: _tabController,
-                labelColor: DesignTokens.primaryMain,
-                unselectedLabelColor: DesignTokens.textTertiary,
-                indicatorColor: DesignTokens.primaryMain,
-                indicatorWeight: 2,
-                dividerHeight: 0,
-                labelStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
-                tabs: const [
-                  Tab(text: '월별'),
-                  Tab(text: '연도별'),
-                  Tab(text: '카테고리'),
-                  Tab(text: '인사이트'),
-                ],
-              ),
-            ),
+          AppTabBar(
+            controller: _tabController,
+            tabs: const ['월별', '연도별', '카테고리', '인사이트'],
+            margin: EdgeInsets.zero,
           ),
 
           // Content

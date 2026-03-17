@@ -5,9 +5,9 @@ import '../../providers/library_provider.dart';
 import '../../widgets/book/book_grid.dart';
 import '../../widgets/book/book_detail_bottom_sheet.dart';
 import '../../widgets/glass_container.dart';
-import '../../widgets/action_button.dart';
 import '../book_search_screen.dart';
 import '../../components/app_app_bar.dart';
+import '../../components/app_fab.dart';
 import '../../core/design_tokens.dart';
 
 class BooksWishlistScreen extends ConsumerStatefulWidget {
@@ -85,6 +85,18 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
           ),
         ],
       ),
+      floatingActionButton: AppFab(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const BookSearchScreen(),
+            ),
+          ).then((_) => _refreshBooks());
+        },
+        label: '책 추가',
+        icon: Icons.add_rounded,
+      ),
       body: Column(
         children: [
           // Header
@@ -93,22 +105,6 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                      // Add book button
-                      ActionButtonExpanded(
-                        label: '책 추가하기',
-                        icon: Icons.add_rounded,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const BookSearchScreen(),
-                            ),
-                          ).then((_) => _refreshBooks());
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
                       // Search bar
                       GlassContainer(
                         child: TextField(
