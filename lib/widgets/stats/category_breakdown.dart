@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../models/stats.dart';
+import '../../core/design_tokens.dart';
 import '../glass_container.dart';
 
 class CategoryBreakdown extends StatelessWidget {
@@ -55,7 +56,7 @@ class CategoryBreakdown extends StatelessWidget {
 
   List<PieChartSectionData> _buildPieSections() {
     final colors = [
-      const Color(0xFF7C5CBF),
+      DesignTokens.primaryMain,
       const Color(0xFFFF6B9D),
       const Color(0xFF4ECDC4),
       const Color(0xFFFFA07A),
@@ -104,7 +105,7 @@ class CategoryBreakdown extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w300,
-                    color: Color(0xFF7C5CBF),
+                    color: DesignTokens.primaryMain,
                   ),
                 ),
               ],
@@ -116,8 +117,8 @@ class CategoryBreakdown extends StatelessWidget {
                 value: categoryStat.completionRate / 100,
                 minHeight: 8,
                 backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  Color(0xFF7C5CBF),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  DesignTokens.primaryMain,
                 ),
               ),
             ),

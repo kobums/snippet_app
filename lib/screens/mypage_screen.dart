@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/profile/profile_card.dart';
 import '../widgets/profile/settings_section.dart';
 import '../widgets/profile/logout_button.dart';
+import '../components/app_app_bar.dart';
 
 class MyPageScreen extends ConsumerWidget {
   const MyPageScreen({super.key});
@@ -23,46 +24,28 @@ class MyPageScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Back button
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '프로필',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w300,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+      appBar: const AppAppBar(
+        title: '프로필',
+        letterSpacing: 1.5,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Profile Card
+            ProfileCard(user: user),
+            const SizedBox(height: 24),
 
-                  // Profile Card
-                  ProfileCard(user: user),
-                  const SizedBox(height: 24),
+            // Settings Section
+            const SettingsSection(),
+            const SizedBox(height: 24),
 
-                  // Settings Section
-                  const SettingsSection(),
-                  const SizedBox(height: 24),
-
-                  // Logout Button
-                  const LogoutButton(),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
+            // Logout Button
+            const LogoutButton(),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

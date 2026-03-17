@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../glass_container.dart';
 import 'settings_tile.dart';
+import '../../core/design_tokens.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
@@ -11,17 +12,11 @@ class SettingsSection extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text(
           '준비 중입니다',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w400,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
         ),
         content: const Text(
           '이 기능은 곧 추가될 예정입니다.',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w300,
-          ),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         actions: [
           TextButton(
@@ -47,10 +42,7 @@ class SettingsSection extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF7C5CBF),
-              Color(0xFFB794F4),
-            ],
+            colors: [DesignTokens.primaryMain, Color(0xFFB794F4)],
           ),
         ),
         child: const Center(

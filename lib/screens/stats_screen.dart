@@ -6,6 +6,8 @@ import '../widgets/stats/monthly_chart.dart';
 import '../widgets/stats/yearly_summary.dart';
 import '../widgets/stats/category_breakdown.dart';
 import '../widgets/stats/insights_card.dart';
+import '../core/design_tokens.dart';
+import '../components/app_app_bar.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
@@ -36,13 +38,25 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     final statsNotifier = ref.read(statsProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '통계',
-          style: TextStyle(fontWeight: FontWeight.w300, letterSpacing: 2),
+      backgroundColor: Colors.white,
+      appBar: AppAppBar(
+        title: '통계',
+        letterSpacing: 2,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.05),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
         ),
-        backgroundColor: const Color(0xFFF0F0F5),
-        elevation: 0,
       ),
       body: Column(
         children: [
@@ -95,25 +109,33 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
 
           // Type Tabs
           Container(
-            color: const Color(0xFFF0F0F5),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: const Color(0xFF7C5CBF),
-              unselectedLabelColor: Colors.black.withValues(alpha: 0.5),
-              indicatorColor: const Color(0xFF7C5CBF),
-              dividerHeight: 0,
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.5,
+            margin: const EdgeInsets.symmetric(
+              horizontal: DesignTokens.space16,
+              vertical: DesignTokens.space8,
+            ),
+            child: GlassContainer(
+              child: TabBar(
+                controller: _tabController,
+                labelColor: DesignTokens.primaryMain,
+                unselectedLabelColor: DesignTokens.textTertiary,
+                indicatorColor: DesignTokens.primaryMain,
+                indicatorWeight: 2,
+                dividerHeight: 0,
+                labelStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                ),
+                tabs: const [
+                  Tab(text: '월별'),
+                  Tab(text: '연도별'),
+                  Tab(text: '카테고리'),
+                  Tab(text: '인사이트'),
+                ],
               ),
-              isScrollable: true,
-              tabs: const [
-                Tab(text: '월별'),
-                Tab(text: '연도별'),
-                Tab(text: '카테고리'),
-                Tab(text: '인사이트'),
-              ],
             ),
           ),
 

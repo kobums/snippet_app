@@ -8,7 +8,7 @@ import 'book_search_screen.dart';
 import '../widgets/glass_bottom_nav.dart';
 import '../widgets/app_drawer.dart';
 import '../core/design_tokens.dart';
-import '../core/typography.dart';
+import '../components/app_app_bar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -39,23 +39,11 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          _pageTitles[_currentIndex],
-          style: AppTypography.h3.copyWith(
-            letterSpacing: _currentIndex == 0
-              ? DesignTokens.letterSpacingExtraWide
-              : DesignTokens.letterSpacingWide,
-            color: DesignTokens.textSecondary,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-        iconTheme: IconThemeData(
-          color: DesignTokens.textSecondary,
-        ),
+      appBar: AppAppBar(
+        title: _pageTitles[_currentIndex],
+        letterSpacing: _currentIndex == 0
+            ? DesignTokens.letterSpacingExtraWide
+            : DesignTokens.letterSpacingWide,
       ),
       extendBody: false,
       drawer: const AppDrawer(),

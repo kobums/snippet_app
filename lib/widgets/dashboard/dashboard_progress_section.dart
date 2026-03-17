@@ -5,6 +5,7 @@ import '../../models/user_book.dart';
 import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
+import '../../core/design_tokens.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
   const DashboardProgressSection({super.key});
@@ -61,9 +62,9 @@ class _DashboardProgressSectionState
             child: TabBar(
               controller: _tabController,
               onTap: (_) => setState(() {}),
-              labelColor: const Color(0xFF7C5CBF),
+              labelColor: DesignTokens.primaryMain,
               unselectedLabelColor: Colors.grey,
-              indicatorColor: const Color(0xFF7C5CBF),
+              indicatorColor: DesignTokens.primaryMain,
               indicatorWeight: 2,
               dividerHeight: 0,
               labelStyle: const TextStyle(
@@ -208,7 +209,7 @@ class _DashboardProgressSectionState
                                 alpha: 0.2,
                               ),
                               valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color(0xFF7C5CBF),
+                                DesignTokens.primaryMain,
                               ),
                             ),
                           ),

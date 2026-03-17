@@ -7,6 +7,8 @@ import '../../widgets/book/book_detail_bottom_sheet.dart';
 import '../../widgets/glass_container.dart';
 import '../../widgets/action_button.dart';
 import '../book_search_screen.dart';
+import '../../components/app_app_bar.dart';
+import '../../core/design_tokens.dart';
 
 class BooksWishlistScreen extends ConsumerStatefulWidget {
   const BooksWishlistScreen({super.key});
@@ -64,43 +66,33 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      appBar: AppAppBar(
+        title: '위시리스트',
+        letterSpacing: 1.5,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Text(
+                '${filteredBooks.length}권',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: DesignTokens.textSecondary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Back button and title
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '위시리스트',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${filteredBooks.length}권',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
 
                       // Add book button
                       ActionButtonExpanded(
@@ -179,7 +171,6 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
                 ),
               ],
             ),
-          ),
     );
   }
 

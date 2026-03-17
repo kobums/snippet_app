@@ -8,6 +8,7 @@ import '../screens/books/books_have_screen.dart';
 import '../screens/books/books_borrow_screen.dart';
 import '../screens/books/books_wishlist_screen.dart';
 import '../screens/mypage_screen.dart';
+import '../core/design_tokens.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -19,7 +20,7 @@ class AppDrawer extends ConsumerWidget {
 
     return Drawer(
       child: Container(
-        color: const Color(0xFFF0F0F5),
+        color: const Color(0xFFFFFFFF),
         child: SafeArea(
           child: Column(
             children: [
@@ -35,7 +36,7 @@ class AppDrawer extends ConsumerWidget {
                         fontSize: 28,
                         fontWeight: FontWeight.w300,
                         letterSpacing: 2,
-                        color: Color(0xFF7C5CBF),
+                        color: DesignTokens.primaryMain,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -201,9 +202,7 @@ class AppDrawer extends ConsumerWidget {
                     await ref.read(authProvider.notifier).logout();
                     if (context.mounted) {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
                         (route) => false,
                       );
                     }
@@ -226,10 +225,7 @@ class AppDrawer extends ConsumerWidget {
     Color? color,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: color ?? Colors.black.withValues(alpha: 0.7),
-      ),
+      leading: Icon(icon, color: color ?? Colors.black.withValues(alpha: 0.7)),
       title: Text(
         title,
         style: TextStyle(

@@ -5,6 +5,7 @@ import '../../models/user_book.dart';
 import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
+import '../../core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerWidget {
   const DashboardLibrarySection({super.key});
@@ -120,10 +121,7 @@ class DashboardLibrarySection extends ConsumerWidget {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
       ),
     );
   }
@@ -150,111 +148,114 @@ class DashboardLibrarySection extends ConsumerWidget {
   }
 
   Widget _buildBookCard(UserBookDto book) {
-    return Builder(builder: (context) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => BookDetailBottomSheet(book: book),
-            );
-          },
-          child: GlassContainer(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Book cover
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Image.network(
-                    book.coverUrl,
-                    width: 45,
-                    height: 68,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 45,
-                        height: 68,
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        child: Icon(
-                          Icons.book,
-                          size: 20,
-                          color: Colors.grey.withValues(alpha: 0.5),
-                        ),
-                      );
-                    },
+    return Builder(
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => BookDetailBottomSheet(book: book),
+              );
+            },
+            child: GlassContainer(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Book cover
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(
+                      book.coverUrl,
+                      width: 45,
+                      height: 68,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 45,
+                          height: 68,
+                          color: Colors.grey.withValues(alpha: 0.3),
+                          child: Icon(
+                            Icons.book,
+                            size: 20,
+                            color: Colors.grey.withValues(alpha: 0.5),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
-                // Book info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.title,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                  // Book info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.title,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        book.author,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black.withValues(alpha: 0.5),
+                        const SizedBox(height: 4),
+                        Text(
+                          book.author,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black.withValues(alpha: 0.5),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
-                      // Progress (if reading)
-                      if (book.status == BookStatus.reading)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(3),
-                                child: LinearProgressIndicator(
-                                  value: book.progress,
-                                  minHeight: 4,
-                                  backgroundColor:
-                                      Colors.grey.withValues(alpha: 0.2),
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF7C5CBF),
+                        // Progress (if reading)
+                        if (book.status == BookStatus.reading)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(3),
+                                  child: LinearProgressIndicator(
+                                    value: book.progress,
+                                    minHeight: 4,
+                                    backgroundColor: Colors.grey.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          DesignTokens.primaryMain,
+                                        ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${(book.progress * 100).toInt()}%',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black.withValues(alpha: 0.4),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${(book.progress * 100).toInt()}%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                    ],
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

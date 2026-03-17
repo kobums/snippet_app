@@ -6,6 +6,7 @@ import '../services/calendar_share_service.dart';
 import '../widgets/calendar/shareable_reading_calendar.dart';
 import '../core/design_tokens.dart';
 import '../components/app_button.dart';
+import '../components/app_app_bar.dart';
 
 /// 독서 캘린더 전체 화면
 ///
@@ -140,10 +141,8 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
 
     return Scaffold(
       backgroundColor: DesignTokens.bgPrimary,
-      appBar: AppBar(
-        title: const Text('독서 캘린더'),
-        backgroundColor: DesignTokens.bgSecondary,
-        elevation: 0,
+      appBar: AppAppBar(
+        title: '독서 캘린더',
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: _buildMonthNavigation(isCurrentMonth),

@@ -5,6 +5,7 @@ import '../../models/user_book.dart';
 import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import 'reading_calendar.dart';
+import '../../core/design_tokens.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   const DashboardStatsSection({super.key});
@@ -15,13 +16,17 @@ class DashboardStatsSection extends ConsumerWidget {
     final bookNotifier = ref.read(bookProvider.notifier);
 
     final now = DateTime.now();
-    final isCurrentMonth = bookState.selectedYear == now.year &&
+    final isCurrentMonth =
+        bookState.selectedYear == now.year &&
         bookState.selectedMonth == now.month;
 
-    final completedBooks =
-        bookState.books.where((b) => b.status == BookStatus.completed).toList();
+    final completedBooks = bookState.books
+        .where((b) => b.status == BookStatus.completed)
+        .toList();
     final totalPages = completedBooks.fold<int>(
-        0, (sum, b) => sum + b.totalPage);
+      0,
+      (sum, b) => sum + b.totalPage,
+    );
 
     return BottomNavLayout(
       hasFloatingActionButton: true,
@@ -120,9 +125,7 @@ class DashboardStatsSection extends ConsumerWidget {
           IconButton(
             icon: Icon(
               Icons.chevron_right,
-              color: isCurrentMonth
-                  ? Colors.grey.withValues(alpha: 0.3)
-                  : null,
+              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
             ),
             onPressed: isCurrentMonth
                 ? null
@@ -179,7 +182,7 @@ class DashboardStatsSection extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w300,
-            color: Color(0xFF7C5CBF),
+            color: DesignTokens.primaryMain,
           ),
         ),
         const SizedBox(height: 4),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../models/stats.dart';
+import '../../core/design_tokens.dart';
 
 class MonthlyChart extends StatelessWidget {
   final List<MonthlyStatsDto> stats;
@@ -35,7 +36,7 @@ class MonthlyChart extends StatelessWidget {
             barTouchData: BarTouchData(
               enabled: true,
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (group) => const Color(0xFF7C5CBF).withValues(alpha: 0.8),
+                getTooltipColor: (group) => DesignTokens.primaryMain.withValues(alpha: 0.8),
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   final month = stats[groupIndex].month;
                   return BarTooltipItem(
@@ -143,7 +144,7 @@ class MonthlyChart extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: entry.value.completedCount.toDouble(),
-            color: const Color(0xFF7C5CBF),
+            color: DesignTokens.primaryMain,
             width: 16,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),

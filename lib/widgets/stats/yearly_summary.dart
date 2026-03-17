@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/stats.dart';
+import '../../core/design_tokens.dart';
 import '../glass_container.dart';
 
 class YearlySummary extends StatelessWidget {
@@ -77,7 +78,7 @@ class YearlySummary extends StatelessWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w300,
-            color: Color(0xFF7C5CBF),
+            color: DesignTokens.primaryMain,
           ),
         ),
         const SizedBox(height: 4),
@@ -114,7 +115,7 @@ class YearlySummary extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300,
-                    color: Color(0xFF7C5CBF),
+                    color: DesignTokens.primaryMain,
                   ),
                 ),
                 const SizedBox(width: 16),
