@@ -9,6 +9,7 @@ import '../widgets/glass_bottom_nav.dart';
 import '../widgets/app_drawer.dart';
 import '../core/design_tokens.dart';
 import '../components/app_app_bar.dart';
+import '../components/app_fab.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -49,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
       drawer: const AppDrawer(),
       body: IndexedStack(index: _currentIndex, children: _pages),
       floatingActionButton: (_currentIndex == 1 || _currentIndex == 2)
-        ? FloatingActionButton(
+        ? AppFab(
             onPressed: () {
               if (_currentIndex == 1) {
                 // Dashboard tab - Navigate to BookSearchScreen
@@ -66,8 +67,6 @@ class _MainScreenState extends State<MainScreen> {
                 }
               }
             },
-            backgroundColor: DesignTokens.primaryMain,
-            child: const Icon(Icons.add, color: Colors.white),
           )
         : null,
       bottomNavigationBar: GlassBottomNav(

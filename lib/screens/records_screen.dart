@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
 import '../providers/record_provider.dart';
 import '../providers/book_provider.dart';
 import '../models/record.dart';
@@ -103,26 +104,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
             vertical: DesignTokens.space8,
           ),
           child: GlassContainer(
-            child: TabBar(
+            child: AppTabBar(
               controller: _tabController,
-              labelColor: DesignTokens.primaryMain,
-              unselectedLabelColor: DesignTokens.textTertiary,
-              indicatorColor: DesignTokens.primaryMain,
-              indicatorWeight: 2,
-              dividerHeight: 0,
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
-              ),
-              tabs: const [
-                Tab(text: '스니펫'),
-                Tab(text: '독서일기'),
-                Tab(text: '리뷰'),
-              ],
+              tabs: const ['스니펫', '독서일기', '리뷰'],
             ),
           ),
         ),

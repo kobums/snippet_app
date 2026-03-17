@@ -6,13 +6,13 @@ import '../core/typography.dart';
 /// Navigation Item
 class NavItem {
   final String label;
-  final String symbol;
-  final IconData? icon;
+  final IconData icon;
+  final IconData activeIcon;
 
   const NavItem({
     required this.label,
-    required this.symbol,
-    this.icon,
+    required this.icon,
+    required this.activeIcon,
   });
 }
 
@@ -29,10 +29,26 @@ class GlassBottomNav extends StatelessWidget {
   });
 
   static const List<NavItem> _items = [
-    NavItem(label: '스와이프', symbol: '◇'),
-    NavItem(label: '대시보드', symbol: '☰'),
-    NavItem(label: '기록', symbol: '✎'),
-    NavItem(label: '보관함', symbol: '♡'),
+    NavItem(
+      label: '스와이프',
+      icon: Icons.layers_outlined,
+      activeIcon: Icons.layers,
+    ),
+    NavItem(
+      label: '대시보드',
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard,
+    ),
+    NavItem(
+      label: '기록',
+      icon: Icons.edit_outlined,
+      activeIcon: Icons.edit,
+    ),
+    NavItem(
+      label: '보관함',
+      icon: Icons.favorite_border,
+      activeIcon: Icons.favorite,
+    ),
   ];
 
   @override
@@ -46,7 +62,7 @@ class GlassBottomNav extends StatelessWidget {
           sigmaY: DesignTokens.blurLg,
         ),
         child: Container(
-          height: 72 + bottomPadding,
+          height: 54 + bottomPadding,
           padding: EdgeInsets.only(
             bottom: bottomPadding,
             top: DesignTokens.space8,
@@ -54,10 +70,7 @@ class GlassBottomNav extends StatelessWidget {
           decoration: BoxDecoration(
             color: DesignTokens.glassMedium,
             border: Border(
-              top: BorderSide(
-                color: DesignTokens.glassBorder,
-                width: 1.0,
-              ),
+              top: BorderSide(color: DesignTokens.glassBorder, width: 1.0),
             ),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -129,39 +142,34 @@ class GlassBottomNav extends StatelessWidget {
               ),
               const SizedBox(height: DesignTokens.space8),
 
-              // Icon/Symbol
-              AnimatedDefaultTextStyle(
+              // Icon
+              AnimatedSwitcher(
                 duration: DesignTokens.durationNormal,
-                curve: DesignTokens.curveEaseOut,
-                style: TextStyle(
-                  fontSize: isActive
-                      ? DesignTokens.fontSize24
-                      : DesignTokens.fontSize20,
+                child: Icon(
+                  isActive ? item.activeIcon : item.icon,
+                  key: ValueKey(isActive),
+                  size: isActive ? 26 : 24,
                   color: isActive
                       ? DesignTokens.primaryMain
                       : DesignTokens.textTertiary,
-                  fontWeight: isActive
-                      ? DesignTokens.fontMedium
-                      : DesignTokens.fontRegular,
                 ),
-                child: Text(item.symbol),
               ),
               const SizedBox(height: DesignTokens.space4),
 
               // Label
-              AnimatedDefaultTextStyle(
-                duration: DesignTokens.durationNormal,
-                curve: DesignTokens.curveEaseOut,
-                style: AppTypography.captionSmall.copyWith(
-                  color: isActive
-                      ? DesignTokens.primaryMain
-                      : DesignTokens.textTertiary,
-                  fontWeight: isActive
-                      ? DesignTokens.fontMedium
-                      : DesignTokens.fontRegular,
-                ),
-                child: Text(item.label),
-              ),
+              // AnimatedDefaultTextStyle(
+              //   duration: DesignTokens.durationNormal,
+              //   curve: DesignTokens.curveEaseOut,
+              //   style: AppTypography.captionSmall.copyWith(
+              //     color: isActive
+              //         ? DesignTokens.primaryMain
+              //         : DesignTokens.textTertiary,
+              //     fontWeight: isActive
+              //         ? DesignTokens.fontMedium
+              //         : DesignTokens.fontRegular,
+              //   ),
+              //   child: Text(item.label),
+              // ),
             ],
           ),
         ),
