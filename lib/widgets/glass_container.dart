@@ -38,6 +38,7 @@ class GlassContainer extends StatelessWidget {
     final radius = borderRadius ?? DesignTokens.radiusLg;
     final effectiveColor = _getEffectiveColor();
     final blurAmount = _getBlurAmount();
+    final effectivePadding = padding ?? const EdgeInsets.all(DesignTokens.space16);
 
     return Container(
       margin: margin,
@@ -46,7 +47,7 @@ class GlassContainer extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
           child: Container(
-            padding: padding,
+            padding: effectivePadding,
             decoration: BoxDecoration(
               color: effectiveColor,
               borderRadius: BorderRadius.circular(radius),
