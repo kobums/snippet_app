@@ -78,6 +78,13 @@ class RecordCard extends ConsumerWidget {
                 SnackBar(
                   content: const Text('기록이 삭제되었습니다'),
                   backgroundColor: DesignTokens.success,
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height * 0.1,
+                    left: 16,
+                    right: 16,
+                  ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             }
@@ -87,6 +94,13 @@ class RecordCard extends ConsumerWidget {
                 SnackBar(
                   content: Text(e.toString().replaceAll('Exception: ', '')),
                   backgroundColor: DesignTokens.error,
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height * 0.1,
+                    left: 16,
+                    right: 16,
+                  ),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             }

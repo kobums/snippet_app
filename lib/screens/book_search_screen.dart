@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/book_search.dart';
 import '../providers/book_provider.dart';
+import '../core/design_tokens.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/book/add_book_bottom_sheet.dart';
+import '../components/app_app_bar.dart';
 
 class BookSearchScreen extends ConsumerStatefulWidget {
   const BookSearchScreen({super.key});
@@ -78,6 +80,13 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
           SnackBar(
             content: Text(e.toString().replaceAll('Exception: ', '')),
             backgroundColor: const Color(0xFFFF3B30),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.1,
+              left: 16,
+              right: 16,
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -119,16 +128,10 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '책 검색',
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            letterSpacing: 2,
-          ),
-        ),
-        backgroundColor: const Color(0xFFF0F0F5),
-        elevation: 0,
+      backgroundColor: Colors.white,
+      appBar: const AppAppBar(
+        title: '책 검색',
+        letterSpacing: 2,
       ),
       body: Column(
         children: [
@@ -346,7 +349,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             // Add button
             Icon(
               Icons.add_circle_outline,
-              color: const Color(0xFF7C5CBF).withValues(alpha: 0.7),
+              color: DesignTokens.primaryMain.withValues(alpha: 0.7),
               size: 28,
             ),
           ],

@@ -58,9 +58,16 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
 
     if (bookState.books.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('먼저 책을 추가해주세요'),
-          backgroundColor: Color(0xFFFF3B30),
+        SnackBar(
+          content: const Text('먼저 책을 추가해주세요'),
+          backgroundColor: const Color(0xFFFF3B30),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.1,
+            left: 16,
+            right: 16,
+          ),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
