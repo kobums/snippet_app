@@ -58,10 +58,14 @@ class UserBookApiService {
 
   Future<void> patchUserBook(int id, Map<String, dynamic> updates) async {
     try {
+      print('📤 PATCH /userbooks/$id - Data: $updates');
+
       final response = await _dio.patch(
         '/userbooks/$id',
         data: updates,
       );
+
+      print('📥 Response: ${response.statusCode} - ${response.data}');
 
       if (response.statusCode != 200) {
         throw DioException(
@@ -72,7 +76,8 @@ class UserBookApiService {
         );
       }
     } on DioException catch (e) {
-      print('Update book error: $e');
+      print('❌ Update book error: ${e.message}');
+      print('   Response: ${e.response?.statusCode} - ${e.response?.data}');
       throw Exception(
         e.response?.data['message'] ?? 'Failed to update book. Please try again.',
       );

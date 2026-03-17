@@ -16,15 +16,15 @@ class ApiService {
   ApiService(this._storage)
     : _dio = Dio(
         BaseOptions(
-          // Use localhost for development
-          // baseUrl: 'http://localhost:8008/api',
-          baseUrl: 'https://snippetapi.gowoobro.com/api',
+          // Use Mac's local IP for real device testing
+          baseUrl: 'http://10.0.1.23:8008/api',
+          // baseUrl: 'https://snippetapi.gowoobro.com/api',
           connectTimeout: const Duration(seconds: 5),
         ),
       ) {
     try {
       if (Platform.isAndroid && _dio.options.baseUrl.contains('localhost')) {
-        _dio.options.baseUrl = 'http://10.0.2.2:8080/api';
+        _dio.options.baseUrl = 'http://10.0.2.2:8008/api';
       }
     } catch (e) {
       // Ignored for web
