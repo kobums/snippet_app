@@ -7,11 +7,11 @@ class DesignTokens {
 
   // ========== Colors ==========
 
-  /// Primary Colors - 브랜드 메인 컬러 (보라 계열)
-  static const Color primaryMain = Color(0xFF7C5CBF);
-  static const Color primaryLight = Color(0xFF9B7FD9);
-  static const Color primaryDark = Color(0xFF5D3EA6);
-  static const Color primarySubtle = Color(0xFFE8E0F5);
+  /// Primary Colors - 브랜드 메인 컬러 (블랙 & 화이트)
+  static const Color primaryMain = Color(0xFF1A1A1A);
+  static const Color primaryLight = Color(0xFF424242);
+  static const Color primaryDark = Color(0xFF000000);
+  static const Color primarySubtle = Color(0xFFF0F0F0);
 
   /// Secondary Colors - 보조 컬러 (그린 계열)
   static const Color secondaryMain = Color(0xFF34C759);
