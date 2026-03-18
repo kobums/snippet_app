@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 import '../../models/record.dart';
 import '../../models/user_book.dart';
 import '../../providers/record_provider.dart';
@@ -162,7 +163,7 @@ class _AddRecordBottomSheetState extends ConsumerState<AddRecordBottomSheet> {
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         decoration: const BoxDecoration(
-          color: Color(0xFFF0F0F5),
+          color: DesignTokens.bgPrimary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
@@ -207,186 +208,194 @@ class _AddRecordBottomSheetState extends ConsumerState<AddRecordBottomSheet> {
                       ),
                       const SizedBox(height: 24),
 
-                // Type selection
-                AppSelect<RecordType>(
-                  label: '유형',
-                  value: _selectedType,
-                  options: RecordType.values.map((type) {
-                    return AppSelectOption(
-                      value: type,
-                      label: type.label,
-                      icon: _getRecordTypeIcon(type),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedType = value;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Book selection
-                GlassContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '책',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<UserBookDto>(
-                        initialValue: _selectedBook,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.5),
-                        ),
-                        items: widget.books.map((book) {
-                          return DropdownMenuItem(
-                            value: book,
-                            child: Text(
-                              book.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      // Type selection
+                      AppSelect<RecordType>(
+                        label: '유형',
+                        value: _selectedType,
+                        options: RecordType.values.map((type) {
+                          return AppSelectOption(
+                            value: type,
+                            label: type.label,
+                            icon: _getRecordTypeIcon(type),
                           );
                         }).toList(),
-                        onChanged: (book) {
-                          setState(() {
-                            _selectedBook = book;
-                          });
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _selectedType = value;
+                            });
+                          }
                         },
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                // Text input
-                GlassContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '내용',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black.withValues(alpha: 0.6),
+                      // Book selection
+                      GlassContainer(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '책',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<UserBookDto>(
+                              initialValue: _selectedBook,
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withValues(alpha: 0.5),
+                              ),
+                              items: widget.books.map((book) {
+                                return DropdownMenuItem(
+                                  value: book,
+                                  child: Text(
+                                    book.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (book) {
+                                setState(() {
+                                  _selectedBook = book;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 12),
-                      TextField(
-                        controller: _textController,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          hintText: '기록할 내용을 입력하세요',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.5),
+
+                      // Text input
+                      GlassContainer(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '내용',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _textController,
+                              maxLines: 5,
+                              decoration: InputDecoration(
+                                hintText: '기록할 내용을 입력하세요',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Tag and page
+                      Row(
+                        children: [
+                          // Tag
+                          Expanded(
+                            child: GlassContainer(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '태그',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    controller: _tagController,
+                                    decoration: InputDecoration(
+                                      hintText: '태그',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Page
+                          Expanded(
+                            child: GlassContainer(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '페이지',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    controller: _pageController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      hintText: '페이지',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Add button
+                      AppButton(
+                        text: '추가하기',
+                        onPressed: _addRecord,
+                        variant: AppButtonVariant.primary,
+                        size: AppButtonSize.large,
+                        isFullWidth: true,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-
-                // Tag and page
-                Row(
-                  children: [
-                    // Tag
-                    Expanded(
-                      child: GlassContainer(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '태그',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            TextField(
-                              controller: _tagController,
-                              decoration: InputDecoration(
-                                hintText: '태그',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Page
-                    Expanded(
-                      child: GlassContainer(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '페이지',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            TextField(
-                              controller: _pageController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: '페이지',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Add button
-                AppButton(
-                  text: '추가하기',
-                  onPressed: _addRecord,
-                  variant: AppButtonVariant.primary,
-                  size: AppButtonSize.large,
-                  isFullWidth: true,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
         ),
       ),
     ); // GestureDetector 닫기

@@ -52,11 +52,11 @@ class ShareableReadingCalendar extends StatelessWidget {
         width: 1080,
         height: 1350,
         decoration: const BoxDecoration(
-          color: DesignTokens.bgSecondary,
+          color: DesignTokens.bgPrimary,
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [DesignTokens.bgSecondary, DesignTokens.bgSecondary],
+            colors: [DesignTokens.bgPrimary, DesignTokens.bgPrimary],
           ),
         ),
         padding: const EdgeInsets.all(24), // 세로 공간 활용

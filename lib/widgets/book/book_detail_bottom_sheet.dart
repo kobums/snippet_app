@@ -134,7 +134,8 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
       if (mounted) {
         setState(() {
           _readPage = widget.book.readPage; // Rollback
-          _pageController?.text = '${widget.book.readPage}'; // Rollback controller
+          _pageController?.text =
+              '${widget.book.readPage}'; // Rollback controller
           _isUpdating = false;
         });
 
@@ -229,7 +230,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         decoration: const BoxDecoration(
-          color: Color(0xFFF0F0F5),
+          color: DesignTokens.bgPrimary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
@@ -263,248 +264,265 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Book info
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        widget.book.coverUrl,
-                        width: 80,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 80,
-                            height: 120,
-                            color: Colors.grey.withValues(alpha: 0.3),
-                            child: Icon(
-                              Icons.book,
-                              color: Colors.grey.withValues(alpha: 0.5),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.book.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            widget.book.author,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black.withValues(alpha: 0.5),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _getTypeLabel(widget.book.type),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: DesignTokens.primaryMain,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              widget.book.coverUrl,
+                              width: 80,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 80,
+                                  height: 120,
+                                  color: Colors.grey.withValues(alpha: 0.3),
+                                  child: Icon(
+                                    Icons.book,
+                                    color: Colors.grey.withValues(alpha: 0.5),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Status
-                AppSelect<BookStatus>(
-                  label: '상태',
-                  value: _selectedStatus,
-                  options:
-                      [
-                        BookStatus.waiting,
-                        BookStatus.reading,
-                        BookStatus.completed,
-                        BookStatus.dropped,
-                      ].map((status) {
-                        return AppSelectOption(
-                          value: status,
-                          label: _getStatusLabel(status),
-                          icon: _getStatusIcon(status),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      _updateStatus(value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Progress
-                GlassContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '진행률',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black.withValues(alpha: 0.6),
-                            ),
-                          ),
-                          Text(
-                            '$_readPage / ${widget.book.totalPage} 페이지',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: widget.book.totalPage > 0
-                              ? _readPage / widget.book.totalPage
-                              : 0,
-                          minHeight: 8,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            DesignTokens.primaryMain,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        keyboardType: TextInputType.number,
-                        controller: _pageController,
-                        decoration: InputDecoration(
-                          labelText: '읽은 페이지',
-                          hintText: '0 ~ ${widget.book.totalPage}',
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Text(
-                                  '/ ${widget.book.totalPage}',
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.book.title,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  widget.book.author,
                                   style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.5),
                                     fontSize: 14,
+                                    color: Colors.black.withValues(alpha: 0.5),
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                icon: _isUpdating
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: DesignTokens.primaryMain,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.check_circle,
-                                        color: DesignTokens.primaryMain,
-                                      ),
-                                onPressed: _isUpdating
-                                    ? null
-                                    : () {
-                                        final page = int.tryParse(
-                                                _pageController?.text ?? '0') ??
-                                            0;
-                                        if (page >= 0 &&
-                                            page <= widget.book.totalPage) {
-                                          _updateProgress(page);
-                                          FocusScope.of(context)
-                                              .unfocus(); // 키보드 닫기
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                '0부터 ${widget.book.totalPage} 사이의 값을 입력해주세요',
-                                              ),
-                                              backgroundColor:
-                                                  const Color(0xFFFF3B30),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              margin: EdgeInsets.only(
-                                                bottom: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.7,
-                                                left: 16,
-                                                right: 16,
-                                              ),
-                                              duration:
-                                                  const Duration(seconds: 3),
-                                            ),
-                                          );
-                                        }
-                                      },
-                              ),
-                            ],
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: DesignTokens.primaryMain.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    _getTypeLabel(widget.book.type),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: DesignTokens.primaryMain,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.5),
-                        ),
-                        onSubmitted: (value) {
-                          final page = int.tryParse(value) ?? 0;
-                          if (page >= 0 && page <= widget.book.totalPage) {
-                            _updateProgress(page);
-                            FocusScope.of(context).unfocus(); // 키보드 닫기
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Status
+                      AppSelect<BookStatus>(
+                        label: '상태',
+                        value: _selectedStatus,
+                        options:
+                            [
+                              BookStatus.waiting,
+                              BookStatus.reading,
+                              BookStatus.completed,
+                              BookStatus.dropped,
+                            ].map((status) {
+                              return AppSelectOption(
+                                value: status,
+                                label: _getStatusLabel(status),
+                                icon: _getStatusIcon(status),
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            _updateStatus(value);
                           }
                         },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Progress
+                      GlassContainer(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '진행률',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                Text(
+                                  '$_readPage / ${widget.book.totalPage} 페이지',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: widget.book.totalPage > 0
+                                    ? _readPage / widget.book.totalPage
+                                    : 0,
+                                minHeight: 8,
+                                backgroundColor: Colors.grey.withValues(
+                                  alpha: 0.2,
+                                ),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  DesignTokens.primaryMain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              keyboardType: TextInputType.number,
+                              controller: _pageController,
+                              decoration: InputDecoration(
+                                labelText: '읽은 페이지',
+                                hintText: '0 ~ ${widget.book.totalPage}',
+                                suffixIcon: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
+                                      ),
+                                      child: Text(
+                                        '/ ${widget.book.totalPage}',
+                                        style: TextStyle(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: _isUpdating
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: DesignTokens.primaryMain,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.check_circle,
+                                              color: DesignTokens.primaryMain,
+                                            ),
+                                      onPressed: _isUpdating
+                                          ? null
+                                          : () {
+                                              final page =
+                                                  int.tryParse(
+                                                    _pageController?.text ??
+                                                        '0',
+                                                  ) ??
+                                                  0;
+                                              if (page >= 0 &&
+                                                  page <=
+                                                      widget.book.totalPage) {
+                                                _updateProgress(page);
+                                                FocusScope.of(
+                                                  context,
+                                                ).unfocus(); // 키보드 닫기
+                                              } else {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      '0부터 ${widget.book.totalPage} 사이의 값을 입력해주세요',
+                                                    ),
+                                                    backgroundColor:
+                                                        const Color(0xFFFF3B30),
+                                                    behavior: SnackBarBehavior
+                                                        .floating,
+                                                    margin: EdgeInsets.only(
+                                                      bottom:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.height *
+                                                          0.7,
+                                                      left: 16,
+                                                      right: 16,
+                                                    ),
+                                                    duration: const Duration(
+                                                      seconds: 3,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                    ),
+                                  ],
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withValues(alpha: 0.5),
+                              ),
+                              onSubmitted: (value) {
+                                final page = int.tryParse(value) ?? 0;
+                                if (page >= 0 &&
+                                    page <= widget.book.totalPage) {
+                                  _updateProgress(page);
+                                  FocusScope.of(context).unfocus(); // 키보드 닫기
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Delete button
+                      AppButton(
+                        text: '책 삭제',
+                        icon: Icons.delete_outline,
+                        onPressed: _deleteBook,
+                        variant: AppButtonVariant.outlinedDanger,
+                        size: AppButtonSize.large,
+                        isFullWidth: true,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Delete button
-                AppButton(
-                  text: '책 삭제',
-                  icon: Icons.delete_outline,
-                  onPressed: _deleteBook,
-                  variant: AppButtonVariant.outlinedDanger,
-                  size: AppButtonSize.large,
-                  isFullWidth: true,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
         ),
       ),
     ); // GestureDetector 닫기

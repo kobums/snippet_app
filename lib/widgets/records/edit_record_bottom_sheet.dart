@@ -183,7 +183,7 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         decoration: const BoxDecoration(
-          color: Color(0xFFF0F0F5),
+          color: DesignTokens.bgPrimary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
@@ -268,7 +268,9 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                                color: DesignTokens.primaryMain.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
