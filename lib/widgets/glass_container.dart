@@ -38,7 +38,8 @@ class GlassContainer extends StatelessWidget {
     final radius = borderRadius ?? DesignTokens.radiusLg;
     final effectiveColor = _getEffectiveColor();
     final blurAmount = _getBlurAmount();
-    final effectivePadding = padding ?? const EdgeInsets.all(DesignTokens.space16);
+    final effectivePadding =
+        padding ?? const EdgeInsets.all(DesignTokens.space16);
 
     return Container(
       margin: margin,
