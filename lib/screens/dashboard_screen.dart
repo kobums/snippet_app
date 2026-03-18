@@ -30,26 +30,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // TabBar
-        AppTabBar(
-          controller: _tabController,
-          tabs: const ['통계', '진행', '서재'],
-          margin: EdgeInsets.zero,
-        ),
-        // TabBarView
-        Expanded(
-          child: TabBarView(
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverToBoxAdapter(
+          child: AppTabBar(
             controller: _tabController,
-            children: const [
-              DashboardStatsSection(), // Tab 1: 통계
-              DashboardProgressSection(), // Tab 2: 진행
-              DashboardLibrarySection(), // Tab 3: 서재
-            ],
+            tabs: const ['통계', '진행', '서재'],
+            margin: EdgeInsets.zero,
           ),
         ),
       ],
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          DashboardStatsSection(), // Tab 1: 통계
+          DashboardProgressSection(), // Tab 2: 진행
+          DashboardLibrarySection(), // Tab 3: 서재
+        ],
+      ),
     );
   }
 }

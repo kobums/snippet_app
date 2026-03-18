@@ -8,6 +8,7 @@ import '../widgets/glass_container.dart';
 import '../widgets/records/add_record_bottom_sheet.dart';
 import '../widgets/records/record_card.dart';
 import '../components/month_navigator.dart';
+import '../components/section_header.dart';
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -95,53 +96,51 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
         recordState.selectedYear == now.year &&
         recordState.selectedMonth == now.month;
 
-    return Column(
-      children: [
-        // TabBar
-        AppTabBar(
-          controller: _tabController,
-          tabs: const ['스니펫', '독서일기', '리뷰'],
-          margin: EdgeInsets.zero,
-        ),
-        // TabBarView
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => recordNotifier.refreshRecords(),
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Each tab shows the same content structure
-                for (int i = 0; i < 3; i++)
-                  SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Month Navigator
-                        MonthNavigator(
-                          year: recordState.selectedYear,
-                          month: recordState.selectedMonth,
-                          isCurrentMonth: isCurrentMonth,
-                          onMonthChanged: (year, month) {
-                            recordNotifier.setSelectedMonth(year, month);
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Records List
-                        _buildRecordsList(
-                          recordState.records,
-                          recordState.isLoading,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverToBoxAdapter(
+          child: AppTabBar(
+            controller: _tabController,
+            tabs: const ['스니펫', '독서일기', '리뷰'],
+            margin: EdgeInsets.zero,
           ),
         ),
       ],
+      body: RefreshIndicator(
+        onRefresh: () => recordNotifier.refreshRecords(),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            // Each tab shows the same content structure
+            for (int i = 0; i < 3; i++)
+              SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Month Navigator
+                    MonthNavigator(
+                      year: recordState.selectedYear,
+                      month: recordState.selectedMonth,
+                      isCurrentMonth: isCurrentMonth,
+                      onMonthChanged: (year, month) {
+                        recordNotifier.setSelectedMonth(year, month);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Records List
+                    _buildRecordsList(
+                      recordState.records,
+                      recordState.isLoading,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -204,17 +203,10 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        SectionHeader(
+          '기록 (${records.length})',
+          size: SectionHeaderSize.small,
           padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-          child: Text(
-            '기록 (${records.length})',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
-              color: Colors.black.withValues(alpha: 0.6),
-            ),
-          ),
         ),
         ...groupedRecords.entries.map((entry) {
           return Column(
