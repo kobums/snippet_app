@@ -11,7 +11,9 @@ class AppTheme {
 
   /// Light Theme
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
+    final baseTextTheme = GoogleFonts.interTextTheme(
+      ThemeData.light().textTheme,
+    );
 
     return ThemeData(
       // Brightness
@@ -25,7 +27,7 @@ class AppTheme {
         secondary: DesignTokens.secondaryMain,
         secondaryContainer: DesignTokens.secondarySubtle,
         tertiary: DesignTokens.primaryLight,
-        surface: DesignTokens.bgSecondary,
+        surface: DesignTokens.bgPrimary,
         surfaceContainerHighest: DesignTokens.bgTertiary,
         error: DesignTokens.error,
         onPrimary: Colors.white,
@@ -67,7 +69,7 @@ class AppTheme {
       // Card Theme
       cardTheme: CardThemeData(
         elevation: 0,
-        color: DesignTokens.bgSecondary,
+        color: DesignTokens.bgPrimary,
         shadowColor: Colors.black.withValues(alpha: 0.06),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -93,7 +95,9 @@ class AppTheme {
           ),
           minimumSize: const Size(0, DesignTokens.buttonHeightMd),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusMd),
+            ),
           ),
           textStyle: AppTypography.button,
         ),
@@ -108,7 +112,9 @@ class AppTheme {
             vertical: DesignTokens.space12,
           ),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusMd),
+            ),
           ),
           textStyle: AppTypography.labelMedium,
         ),
@@ -118,17 +124,16 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: DesignTokens.primaryMain,
-          side: const BorderSide(
-            color: DesignTokens.primaryMain,
-            width: 1.5,
-          ),
+          side: const BorderSide(color: DesignTokens.primaryMain, width: 1.5),
           padding: const EdgeInsets.symmetric(
             horizontal: DesignTokens.space24,
             vertical: DesignTokens.space16,
           ),
           minimumSize: const Size(0, DesignTokens.buttonHeightMd),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(DesignTokens.radiusMd)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(DesignTokens.radiusMd),
+            ),
           ),
           textStyle: AppTypography.button,
         ),
@@ -154,14 +159,14 @@ class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: BorderSide(
+          borderSide: const BorderSide(
             color: DesignTokens.neutral300,
             width: 1.0,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: BorderSide(
+          borderSide: const BorderSide(
             color: DesignTokens.neutral300,
             width: 1.0,
           ),
@@ -175,17 +180,11 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: const BorderSide(
-            color: DesignTokens.error,
-            width: 1.0,
-          ),
+          borderSide: const BorderSide(color: DesignTokens.error, width: 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: const BorderSide(
-            color: DesignTokens.error,
-            width: 2.0,
-          ),
+          borderSide: const BorderSide(color: DesignTokens.error, width: 2.0),
         ),
         labelStyle: AppTypography.labelMedium.copyWith(
           color: DesignTokens.textSecondary,
@@ -193,9 +192,7 @@ class AppTheme {
         hintStyle: AppTypography.bodyMedium.copyWith(
           color: DesignTokens.textTertiary,
         ),
-        errorStyle: AppTypography.caption.copyWith(
-          color: DesignTokens.error,
-        ),
+        errorStyle: AppTypography.caption.copyWith(color: DesignTokens.error),
       ),
 
       // Tab Bar
@@ -214,7 +211,7 @@ class AppTheme {
       ),
 
       // Divider
-      dividerTheme: DividerThemeData(
+      dividerTheme: const DividerThemeData(
         color: DesignTokens.neutral200,
         thickness: 1,
         space: DesignTokens.space16,
@@ -265,7 +262,7 @@ class AppTheme {
       ),
 
       // Bottom Sheet
-      bottomSheetTheme: BottomSheetThemeData(
+      bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -277,7 +274,7 @@ class AppTheme {
 
       // Dialog
       dialogTheme: DialogThemeData(
-        backgroundColor: DesignTokens.bgSecondary,
+        backgroundColor: DesignTokens.bgPrimary,
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radius2xl),

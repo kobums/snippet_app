@@ -38,8 +38,8 @@ class DesignTokens {
   static const Color neutral900 = Color(0xFF212121);
 
   /// Background Colors
-  static const Color bgPrimary = Color(0xFFF0F0F5);
-  static const Color bgSecondary = Color(0xFFFFFFFF);
+  static const Color bgPrimary = Color(0xFFFFFFFF);
+  static const Color bgSecondary = Color(0xFFF0F0F5);
   static const Color bgTertiary = Color(0xFFF8F8FA);
 
   /// Text Colors
@@ -125,73 +125,73 @@ class DesignTokens {
 
   /// Elevation 1 - 미묘한 그림자
   static List<BoxShadow> get shadowSm => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 4,
-          offset: const Offset(0, 1),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.02),
-          blurRadius: 2,
-          offset: const Offset(0, 1),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.02),
+      blurRadius: 2,
+      offset: const Offset(0, 1),
+    ),
+  ];
 
   /// Elevation 2 - 카드
   static List<BoxShadow> get shadowMd => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 16,
-          offset: const Offset(0, 4),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.06),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 8,
+      offset: const Offset(0, 2),
+    ),
+  ];
 
   /// Elevation 3 - 떠있는 요소
   static List<BoxShadow> get shadowLg => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.08),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.06),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   /// Elevation 4 - 모달, 드로어
   static List<BoxShadow> get shadowXl => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.10),
-          blurRadius: 40,
-          offset: const Offset(0, 16),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.10),
+      blurRadius: 40,
+      offset: const Offset(0, 16),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.08),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+  ];
 
   /// Glass Shadow - 글래스모피즘용 그림자
   static List<BoxShadow> get shadowGlass => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.03),
-          blurRadius: 16,
-          offset: const Offset(0, 4),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 32,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.03),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.05),
+      blurRadius: 32,
+      offset: const Offset(0, 8),
+    ),
+  ];
 
   // ========== Blur ==========
 
@@ -260,21 +260,17 @@ class DesignTokens {
   static const LinearGradient gradientShimmer = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      neutral200,
-      neutral100,
-      neutral200,
-    ],
+    colors: [neutral200, neutral100, neutral200],
     stops: [0.0, 0.5, 1.0],
   );
 
   /// Glass Gradient (글래스모피즘 배경)
   static LinearGradient get gradientGlass => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withValues(alpha: 0.95),
-          Colors.white.withValues(alpha: 0.85),
-        ],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Colors.white.withValues(alpha: 0.95),
+      Colors.white.withValues(alpha: 0.85),
+    ],
+  );
 }
