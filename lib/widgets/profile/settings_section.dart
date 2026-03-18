@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/section_header.dart';
 import '../glass_container.dart';
 import 'settings_tile.dart';
 import '../../core/design_tokens.dart';
@@ -66,15 +67,7 @@ class SettingsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '설정',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 1.5,
-              color: Colors.black.withValues(alpha: 0.6),
-            ),
-          ),
+          const SectionHeader('설정'),
           const SizedBox(height: 16),
 
           // Settings tiles

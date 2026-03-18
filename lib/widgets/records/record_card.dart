@@ -12,10 +12,7 @@ import 'edit_record_bottom_sheet.dart';
 class RecordCard extends ConsumerWidget {
   final RecordDto record;
 
-  const RecordCard({
-    super.key,
-    required this.record,
-  });
+  const RecordCard({super.key, required this.record});
 
   String _formatDate(String isoDate) {
     try {
@@ -37,21 +34,15 @@ class RecordCard extends ConsumerWidget {
           return await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text(
-                '기록 삭제',
-                style: AppTypography.h3,
-              ),
-              content: Text(
+              title: const Text('기록 삭제', style: AppTypography.h3),
+              content: const Text(
                 '이 기록을 삭제하시겠습니까?',
                 style: AppTypography.bodyMedium,
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
-                    '취소',
-                    style: AppTypography.labelMedium,
-                  ),
+                  child: const Text('취소', style: AppTypography.labelMedium),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
@@ -133,6 +124,8 @@ class RecordCard extends ConsumerWidget {
             );
           },
           child: GlassContainer(
+            // borderRadius: DesignTokens.radiusNo,
+            showBorder: false,
             padding: const EdgeInsets.all(DesignTokens.space16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,8 +142,12 @@ class RecordCard extends ConsumerWidget {
                           vertical: DesignTokens.space4,
                         ),
                         decoration: BoxDecoration(
-                          color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                          color: DesignTokens.primaryMain.withValues(
+                            alpha: 0.1,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            DesignTokens.radiusSm,
+                          ),
                         ),
                         child: Text(
                           '#${record.tag}',

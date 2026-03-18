@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/stats.dart';
 import '../../core/design_tokens.dart';
+import '../../components/section_header.dart';
 import '../glass_container.dart';
 
 class YearlySummary extends StatelessWidget {
@@ -37,15 +38,7 @@ class YearlySummary extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '전체 통계',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 1.5,
-                  color: Colors.black.withValues(alpha: 0.6),
-                ),
-              ),
+              const SectionHeader('전체 통계'),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
