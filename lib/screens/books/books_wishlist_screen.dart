@@ -4,10 +4,10 @@ import '../../models/user_book.dart';
 import '../../providers/library_provider.dart';
 import '../../widgets/book/book_grid.dart';
 import '../../widgets/book/book_detail_bottom_sheet.dart';
-import '../../widgets/glass_container.dart';
 import '../book_search_screen.dart';
 import '../../components/app_app_bar.dart';
 import '../../components/app_fab.dart';
+import '../../components/search_field.dart';
 import '../../core/design_tokens.dart';
 
 class BooksWishlistScreen extends ConsumerStatefulWidget {
@@ -89,9 +89,7 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const BookSearchScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const BookSearchScreen()),
           ).then((_) => _refreshBooks());
         },
         label: '책 추가',
@@ -105,68 +103,35 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                      // Search bar
-                      GlassContainer(
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: '제목이나 저자로 검색...',
-                            hintStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black.withValues(alpha: 0.4),
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Colors.black.withValues(alpha: 0.5),
-                            ),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                                    icon: Icon(
-                                      Icons.clear,
-                                      color: Colors.black.withValues(alpha: 0.5),
-                                    ),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() {
-                                        _searchQuery = '';
-                                      });
-                                    },
-                                  )
-                                : null,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Book grid
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _refreshBooks,
-                    child: filteredBooks.isEmpty && !libraryState.isLoading
-                        ? _buildEmptyState()
-                        : BookGrid(
-                            books: filteredBooks,
-                            loading: libraryState.isLoading,
-                            onBookTap: _openBookDetail,
-                          ),
-                  ),
+                // Search bar
+                SearchField(
+                  controller: _searchController,
+                  hintText: '제목이나 저자로 검색...',
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
                 ),
               ],
             ),
+          ),
+
+          // Book grid
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshBooks,
+              child: filteredBooks.isEmpty && !libraryState.isLoading
+                  ? _buildEmptyState()
+                  : BookGrid(
+                      books: filteredBooks,
+                      loading: libraryState.isLoading,
+                      onBookTap: _openBookDetail,
+                    ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

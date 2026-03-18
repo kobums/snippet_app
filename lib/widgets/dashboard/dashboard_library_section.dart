@@ -5,6 +5,7 @@ import '../../models/user_book.dart';
 import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
+import '../../components/search_field.dart';
 import '../../core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerWidget {
@@ -104,25 +105,9 @@ class DashboardLibrarySection extends ConsumerWidget {
   }
 
   Widget _buildSearchBar(String query, LibraryNotifier notifier) {
-    return GlassContainer(
-      child: TextField(
-        onChanged: (value) => notifier.setSearchQuery(value),
-        decoration: InputDecoration(
-          hintText: '제목이나 저자로 검색...',
-          hintStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w300,
-            color: Colors.black.withValues(alpha: 0.4),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.black.withValues(alpha: 0.5),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-      ),
+    return SearchField(
+      hintText: '제목이나 저자로 검색...',
+      onChanged: (value) => notifier.setSearchQuery(value),
     );
   }
 
