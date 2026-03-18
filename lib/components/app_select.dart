@@ -39,7 +39,9 @@ class AppSelect<T> extends StatelessWidget {
             child: Text(
               label,
               style: AppTypography.labelMedium.copyWith(
-                color: enabled ? DesignTokens.textPrimary : DesignTokens.textDisabled,
+                color: enabled
+                    ? DesignTokens.textPrimary
+                    : DesignTokens.textDisabled,
               ),
             ),
           ),
@@ -47,7 +49,7 @@ class AppSelect<T> extends StatelessWidget {
         // Select Box
         Container(
           decoration: BoxDecoration(
-            color: enabled ? DesignTokens.bgSecondary : DesignTokens.neutral100,
+            color: enabled ? DesignTokens.bgPrimary : DesignTokens.neutral100,
             borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
             border: Border.all(
               color: errorText != null
@@ -72,13 +74,17 @@ class AppSelect<T> extends StatelessWidget {
                 isExpanded: true,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: enabled ? DesignTokens.textSecondary : DesignTokens.textDisabled,
+                  color: enabled
+                      ? DesignTokens.textSecondary
+                      : DesignTokens.textDisabled,
                   size: DesignTokens.iconMd,
                 ),
                 style: AppTypography.bodyMedium.copyWith(
-                  color: enabled ? DesignTokens.textPrimary : DesignTokens.textDisabled,
+                  color: enabled
+                      ? DesignTokens.textPrimary
+                      : DesignTokens.textDisabled,
                 ),
-                dropdownColor: DesignTokens.bgSecondary,
+                dropdownColor: DesignTokens.bgPrimary,
                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                 padding: const EdgeInsets.symmetric(
                   horizontal: DesignTokens.space16,
@@ -123,9 +129,7 @@ class AppSelect<T> extends StatelessWidget {
             ),
             child: Text(
               errorText!,
-              style: AppTypography.caption.copyWith(
-                color: DesignTokens.error,
-              ),
+              style: AppTypography.caption.copyWith(color: DesignTokens.error),
             ),
           ),
       ],
@@ -139,9 +143,5 @@ class AppSelectOption<T> {
   final String label;
   final IconData? icon;
 
-  const AppSelectOption({
-    required this.value,
-    required this.label,
-    this.icon,
-  });
+  const AppSelectOption({required this.value, required this.label, this.icon});
 }

@@ -37,8 +37,7 @@ class AppCard extends StatelessWidget {
     final radius = borderRadius ?? DesignTokens.radiusLg;
 
     Widget cardContent = Container(
-      padding: padding ??
-          const EdgeInsets.all(DesignTokens.space16),
+      padding: padding ?? const EdgeInsets.all(DesignTokens.space16),
       decoration: _getDecoration(radius),
       child: child,
     );
@@ -71,24 +70,21 @@ class AppCard extends StatelessWidget {
       );
     }
 
-    return Container(
-      margin: margin,
-      child: cardContent,
-    );
+    return Container(margin: margin, child: cardContent);
   }
 
   BoxDecoration _getDecoration(double radius) {
     switch (variant) {
       case AppCardVariant.elevated:
         return BoxDecoration(
-          color: backgroundColor ?? DesignTokens.bgSecondary,
+          color: backgroundColor ?? DesignTokens.bgPrimary,
           borderRadius: BorderRadius.circular(radius),
           boxShadow: DesignTokens.shadowMd,
         );
 
       case AppCardVariant.flat:
         return BoxDecoration(
-          color: backgroundColor ?? DesignTokens.bgSecondary,
+          color: backgroundColor ?? DesignTokens.bgPrimary,
           borderRadius: BorderRadius.circular(radius),
         );
 
@@ -96,10 +92,7 @@ class AppCard extends StatelessWidget {
         return BoxDecoration(
           color: backgroundColor ?? DesignTokens.glassLight,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(
-            color: DesignTokens.glassBorder,
-            width: 1.0,
-          ),
+          border: Border.all(color: DesignTokens.glassBorder, width: 1.0),
           boxShadow: DesignTokens.shadowGlass,
         );
 
@@ -107,10 +100,7 @@ class AppCard extends StatelessWidget {
         return BoxDecoration(
           color: backgroundColor ?? Colors.transparent,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(
-            color: DesignTokens.neutral300,
-            width: 1.0,
-          ),
+          border: Border.all(color: DesignTokens.neutral300, width: 1.0),
         );
     }
   }
@@ -145,8 +135,9 @@ class StatsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(DesignTokens.space8),
               decoration: BoxDecoration(
-                color: (valueColor ?? DesignTokens.primaryMain)
-                    .withValues(alpha: 0.1),
+                color: (valueColor ?? DesignTokens.primaryMain).withValues(
+                  alpha: 0.1,
+                ),
                 borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
               ),
               child: Icon(
@@ -211,8 +202,9 @@ class InfoCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: (iconColor ?? DesignTokens.primaryMain)
-                  .withValues(alpha: 0.1),
+              color: (iconColor ?? DesignTokens.primaryMain).withValues(
+                alpha: 0.1,
+              ),
               borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             ),
             child: Icon(

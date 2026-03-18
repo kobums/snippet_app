@@ -63,7 +63,10 @@ class MonthNavigator extends StatelessWidget {
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -179,38 +182,36 @@ class MonthNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: _onPreviousMonth,
-          ),
-          InkWell(
-            onTap: () => _showMonthPicker(context),
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                '$year년 $month월',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1,
-                ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: _onPreviousMonth,
+        ),
+        InkWell(
+          onTap: () => _showMonthPicker(context),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              '$year년 $month월',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1,
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.chevron_right,
-              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
-            ),
-            onPressed: isCurrentMonth ? null : _onNextMonth,
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.chevron_right,
+            color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
           ),
-        ],
-      ),
+          onPressed: isCurrentMonth ? null : _onNextMonth,
+        ),
+      ],
     );
   }
 }
