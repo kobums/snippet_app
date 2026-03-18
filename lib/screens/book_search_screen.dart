@@ -129,16 +129,13 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AppAppBar(
-        title: '책 검색',
-        letterSpacing: 2,
-      ),
+      appBar: const AppAppBar(title: '책 검색', letterSpacing: 2),
       body: Column(
         children: [
           // Search bar
           Container(
             padding: const EdgeInsets.all(16.0),
-            color: const Color(0xFFF0F0F5),
+            color: DesignTokens.bgPrimary,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -174,9 +171,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
           ),
 
           // Results
-          Expanded(
-            child: _buildResults(),
-          ),
+          Expanded(child: _buildResults()),
         ],
       ),
     );
@@ -184,9 +179,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
 
   Widget _buildResults() {
     if (_isSearching) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_searchResults.isEmpty && _currentQuery.isEmpty) {
@@ -264,97 +257,97 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         onTap: () => _showAddBookBottomSheet(book),
         child: GlassContainer(
           child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Book cover
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: book.coverUrl,
-                width: 60,
-                height: 90,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book cover
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: book.coverUrl,
                   width: 60,
                   height: 90,
-                  color: Colors.grey.withValues(alpha: 0.2),
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 60,
+                    height: 90,
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 60,
-                  height: 90,
-                  color: Colors.grey.withValues(alpha: 0.3),
-                  child: Icon(
-                    Icons.book,
-                    color: Colors.grey.withValues(alpha: 0.5),
+                  errorWidget: (context, url, error) => Container(
+                    width: 60,
+                    height: 90,
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    child: Icon(
+                      Icons.book,
+                      color: Colors.grey.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            // Book info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+              // Book info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    book.author,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black.withValues(alpha: 0.5),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${book.publisher} · ${book.pubDate}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black.withValues(alpha: 0.4),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (book.totalPage != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '${book.totalPage}쪽',
+                      book.author,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.black.withValues(alpha: 0.5),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${book.publisher} · ${book.pubDate}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w300,
                         color: Colors.black.withValues(alpha: 0.4),
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    if (book.totalPage != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${book.totalPage}쪽',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.black.withValues(alpha: 0.4),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
 
-            // Add button
-            Icon(
-              Icons.add_circle_outline,
-              color: DesignTokens.primaryMain.withValues(alpha: 0.7),
-              size: 28,
-            ),
-          ],
+              // Add button
+              Icon(
+                Icons.add_circle_outline,
+                color: DesignTokens.primaryMain.withValues(alpha: 0.7),
+                size: 28,
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
