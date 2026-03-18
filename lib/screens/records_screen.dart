@@ -4,7 +4,6 @@ import 'package:snippet_app/components/app_tab_bar.dart';
 import '../providers/record_provider.dart';
 import '../providers/book_provider.dart';
 import '../models/record.dart';
-import '../core/design_tokens.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/records/add_record_bottom_sheet.dart';
 import '../widgets/records/record_card.dart';
