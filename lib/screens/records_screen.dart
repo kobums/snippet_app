@@ -102,6 +102,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
         AppTabBar(
           controller: _tabController,
           tabs: const ['스니펫', '독서일기', '리뷰'],
+          margin: EdgeInsets.zero,
         ),
         // TabBarView
         Expanded(
