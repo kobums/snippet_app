@@ -39,11 +39,7 @@ class GlassBottomNav extends StatelessWidget {
       icon: Icons.dashboard_outlined,
       activeIcon: Icons.dashboard,
     ),
-    NavItem(
-      label: '기록',
-      icon: Icons.edit_outlined,
-      activeIcon: Icons.edit,
-    ),
+    NavItem(label: '기록', icon: Icons.edit_outlined, activeIcon: Icons.edit),
     NavItem(
       label: '보관함',
       icon: Icons.favorite_border,
@@ -62,10 +58,10 @@ class GlassBottomNav extends StatelessWidget {
           sigmaY: DesignTokens.blurLg,
         ),
         child: Container(
-          height: 54 + bottomPadding,
+          height: 42 + bottomPadding,
           padding: EdgeInsets.only(
             bottom: bottomPadding,
-            top: DesignTokens.space8,
+            // top: DesignTokens.space8,
           ),
           decoration: BoxDecoration(
             color: DesignTokens.glassMedium,
@@ -119,7 +115,7 @@ class GlassBottomNav extends StatelessWidget {
           duration: DesignTokens.durationNormal,
           curve: DesignTokens.curveEaseOut,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Indicator
               AnimatedContainer(

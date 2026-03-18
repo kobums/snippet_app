@@ -9,6 +9,7 @@ import '../widgets/stats/category_breakdown.dart';
 import '../widgets/stats/insights_card.dart';
 import '../core/design_tokens.dart';
 import '../components/app_app_bar.dart';
+import '../components/year_navigator.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
@@ -62,50 +63,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       body: Column(
         children: [
           // Year Selector
-          Container(
-            color: const Color(0xFFF0F0F5),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: GlassContainer(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left),
-                    onPressed: () {
-                      statsNotifier.setSelectedYear(
-                        statsState.selectedYear - 1,
-                      );
-                    },
-                  ),
-                  Text(
-                    '${statsState.selectedYear}년',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.chevron_right,
-                      color: statsState.selectedYear == DateTime.now().year
-                          ? Colors.grey.withValues(alpha: 0.3)
-                          : null,
-                    ),
-                    onPressed: statsState.selectedYear == DateTime.now().year
-                        ? null
-                        : () {
-                            statsNotifier.setSelectedYear(
-                              statsState.selectedYear + 1,
-                            );
-                          },
-                  ),
-                ],
-              ),
-            ),
+          YearNavigator(
+            year: statsState.selectedYear,
+            isCurrentYear: statsState.selectedYear == DateTime.now().year,
+            onYearChanged: (year) => statsNotifier.setSelectedYear(year),
           ),
 
           // Type Tabs

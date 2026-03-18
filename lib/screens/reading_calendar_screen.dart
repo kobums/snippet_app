@@ -7,6 +7,7 @@ import '../widgets/calendar/shareable_reading_calendar.dart';
 import '../core/design_tokens.dart';
 import '../components/app_button.dart';
 import '../components/app_app_bar.dart';
+import '../components/month_navigator.dart';
 
 /// 독서 캘린더 전체 화면
 ///
@@ -38,36 +39,6 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
     await ref
         .read(bookProvider.notifier)
         .loadDashboard(_selectedYear, _selectedMonth);
-  }
-
-  void _previousMonth() {
-    setState(() {
-      if (_selectedMonth == 1) {
-        _selectedMonth = 12;
-        _selectedYear--;
-      } else {
-        _selectedMonth--;
-      }
-    });
-    _loadData();
-  }
-
-  void _nextMonth() {
-    final now = DateTime.now();
-    final isCurrentMonth =
-        _selectedYear == now.year && _selectedMonth == now.month;
-
-    if (!isCurrentMonth) {
-      setState(() {
-        if (_selectedMonth == 12) {
-          _selectedMonth = 1;
-          _selectedYear++;
-        } else {
-          _selectedMonth++;
-        }
-      });
-      _loadData();
-    }
   }
 
   Future<void> _shareCalendar(List<UserBookDto> completedBooks) async {
@@ -141,12 +112,12 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
 
     return Scaffold(
       backgroundColor: DesignTokens.bgPrimary,
-      appBar: AppAppBar(
+      appBar: const AppAppBar(
         title: '독서 캘린더',
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: _buildMonthNavigation(isCurrentMonth),
-        ),
+        // bottom: PreferredSize(
+        //   preferredSize: const Size.fromHeight(56),
+        //   child: _buildMonthNavigation(isCurrentMonth),
+        // ),
       ),
       body: RefreshIndicator(
         onRefresh: _loadData,
@@ -156,6 +127,22 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: MonthNavigator(
+                        year: _selectedYear,
+                        month: _selectedMonth,
+                        isCurrentMonth: isCurrentMonth,
+                        onMonthChanged: (year, month) {
+                          setState(() {
+                            _selectedYear = year;
+                            _selectedMonth = month;
+                          });
+                          _loadData();
+                        },
+                      ),
+                    ),
+
                     const SizedBox(height: 16),
 
                     // 캘린더 프리뷰 (저장되는 이미지와 동일)
@@ -268,38 +255,4 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
     );
   }
 
-  Widget _buildMonthNavigation(bool isCurrentMonth) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: DesignTokens.bgSecondary,
-        boxShadow: DesignTokens.shadowSm,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: _previousMonth,
-            color: DesignTokens.primaryMain,
-          ),
-          Text(
-            '$_selectedYear년 $_selectedMonth월',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: DesignTokens.textPrimary,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: isCurrentMonth ? null : _nextMonth,
-            color: isCurrentMonth
-                ? DesignTokens.neutral300
-                : DesignTokens.primaryMain,
-          ),
-        ],
-      ),
-    );
-  }
 }

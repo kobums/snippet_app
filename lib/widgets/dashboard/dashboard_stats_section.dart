@@ -6,6 +6,7 @@ import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import 'reading_calendar.dart';
 import '../../core/design_tokens.dart';
+import '../../components/month_navigator.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   const DashboardStatsSection({super.key});
@@ -34,12 +35,13 @@ class DashboardStatsSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Month Navigator
-          _buildMonthNavigator(
-            context,
-            bookState.selectedYear,
-            bookState.selectedMonth,
-            isCurrentMonth,
-            bookNotifier,
+          MonthNavigator(
+            year: bookState.selectedYear,
+            month: bookState.selectedMonth,
+            isCurrentMonth: isCurrentMonth,
+            onMonthChanged: (year, month) {
+              bookNotifier.setSelectedMonth(year, month);
+            },
           ),
           const SizedBox(height: 16),
 
@@ -88,55 +90,6 @@ class DashboardStatsSection extends ConsumerWidget {
             ),
             ...completedBooks.map((book) => _buildCompletedBookCard(book)),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMonthNavigator(
-    BuildContext context,
-    int year,
-    int month,
-    bool isCurrentMonth,
-    BookNotifier notifier,
-  ) {
-    return GlassContainer(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () {
-              if (month == 1) {
-                notifier.setSelectedMonth(year - 1, 12);
-              } else {
-                notifier.setSelectedMonth(year, month - 1);
-              }
-            },
-          ),
-          Text(
-            '$year년 $month월',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.chevron_right,
-              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
-            ),
-            onPressed: isCurrentMonth
-                ? null
-                : () {
-                    if (month == 12) {
-                      notifier.setSelectedMonth(year + 1, 1);
-                    } else {
-                      notifier.setSelectedMonth(year, month + 1);
-                    }
-                  },
-          ),
         ],
       ),
     );

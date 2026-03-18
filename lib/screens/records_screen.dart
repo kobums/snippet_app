@@ -8,6 +8,7 @@ import '../core/design_tokens.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/records/add_record_bottom_sheet.dart';
 import '../widgets/records/record_card.dart';
+import '../components/month_navigator.dart';
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -98,17 +99,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     return Column(
       children: [
         // TabBar
-        Container(
-          margin: const EdgeInsets.symmetric(
-            horizontal: DesignTokens.space16,
-            vertical: DesignTokens.space8,
-          ),
-          child: GlassContainer(
-            child: AppTabBar(
-              controller: _tabController,
-              tabs: const ['스니펫', '독서일기', '리뷰'],
-            ),
-          ),
+        AppTabBar(
+          controller: _tabController,
+          tabs: const ['스니펫', '독서일기', '리뷰'],
         ),
         // TabBarView
         Expanded(
@@ -126,12 +119,13 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Month Navigator
-                        _buildMonthNavigator(
-                          context,
-                          recordState.selectedYear,
-                          recordState.selectedMonth,
-                          isCurrentMonth,
-                          recordNotifier,
+                        MonthNavigator(
+                          year: recordState.selectedYear,
+                          month: recordState.selectedMonth,
+                          isCurrentMonth: isCurrentMonth,
+                          onMonthChanged: (year, month) {
+                            recordNotifier.setSelectedMonth(year, month);
+                          },
                         ),
                         const SizedBox(height: 16),
 
@@ -148,55 +142,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildMonthNavigator(
-    BuildContext context,
-    int year,
-    int month,
-    bool isCurrentMonth,
-    RecordNotifier notifier,
-  ) {
-    return GlassContainer(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () {
-              if (month == 1) {
-                notifier.setSelectedMonth(year - 1, 12);
-              } else {
-                notifier.setSelectedMonth(year, month - 1);
-              }
-            },
-          ),
-          Text(
-            '$year년 $month월',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.chevron_right,
-              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
-            ),
-            onPressed: isCurrentMonth
-                ? null
-                : () {
-                    if (month == 12) {
-                      notifier.setSelectedMonth(year + 1, 1);
-                    } else {
-                      notifier.setSelectedMonth(year, month + 1);
-                    }
-                  },
-          ),
-        ],
-      ),
     );
   }
 
