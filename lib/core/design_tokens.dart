@@ -112,6 +112,7 @@ class DesignTokens {
 
   // ========== Border Radius ==========
 
+  static const double radiusNo = 0.0;
   static const double radiusXs = 4.0;
   static const double radiusSm = 8.0;
   static const double radiusMd = 12.0;
