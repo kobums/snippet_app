@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../widgets/glass_container.dart';
+import '../core/design_tokens.dart';
 
 /// Reusable Year Navigator component
 class YearNavigator extends StatelessWidget {
@@ -16,27 +18,102 @@ class YearNavigator extends StatelessWidget {
 
   Future<void> _showYearPicker(BuildContext context) async {
     final currentYear = DateTime.now().year;
-    final selectedDate = await showDatePicker(
+    final years = List.generate(
+      currentYear - 2000 + 1,
+      (index) => 2000 + index,
+    );
+
+    int selectedYear = year;
+    final initialIndex = years.indexOf(year);
+
+    await showModalBottomSheet(
       context: context,
-      initialDate: DateTime(year),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(currentYear),
-      initialDatePickerMode: DatePickerMode.year,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: const Color(0xFF6C63FF),
-                ),
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: child!,
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        '취소',
+                        style: TextStyle(
+                          color: DesignTokens.textSecondary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      '년도 선택',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: DesignTokens.textPrimary,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        onYearChanged(selectedYear);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        '완료',
+                        style: TextStyle(
+                          color: DesignTokens.primaryMain,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Picker
+              Expanded(
+                child: CupertinoPicker(
+                  scrollController: FixedExtentScrollController(
+                    initialItem: initialIndex,
+                  ),
+                  itemExtent: 40,
+                  onSelectedItemChanged: (index) {
+                    selectedYear = years[index];
+                  },
+                  children: years.map((y) {
+                    return Center(
+                      child: Text(
+                        '$y년',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: DesignTokens.textPrimary,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
-
-    if (selectedDate != null) {
-      onYearChanged(selectedDate.year);
-    }
   }
 
   @override
