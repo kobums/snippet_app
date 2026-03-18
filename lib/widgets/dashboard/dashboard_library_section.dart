@@ -6,6 +6,7 @@ import '../glass_container.dart';
 import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
 import '../../components/search_field.dart';
+import '../../components/section_header.dart';
 import '../../core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerWidget {
@@ -27,7 +28,11 @@ class DashboardLibrarySection extends ConsumerWidget {
 
           // Recent Books Section
           if (libraryNotifier.recentBooks.isNotEmpty) ...[
-            _buildSectionHeader('최근 추가'),
+            const SectionHeader(
+              '최근 추가',
+              size: SectionHeaderSize.small,
+              padding: EdgeInsets.only(left: 8.0),
+            ),
             const SizedBox(height: 8),
             _buildBookList(libraryNotifier.recentBooks),
             const SizedBox(height: 16),
@@ -35,7 +40,11 @@ class DashboardLibrarySection extends ConsumerWidget {
 
           // Reading Books Section
           if (libraryNotifier.readingBooks.isNotEmpty) ...[
-            _buildSectionHeader('읽고 있는 책'),
+            const SectionHeader(
+              '읽고 있는 책',
+              size: SectionHeaderSize.small,
+              padding: EdgeInsets.only(left: 8.0),
+            ),
             const SizedBox(height: 8),
             _buildBookList(libraryNotifier.readingBooks),
             const SizedBox(height: 16),
@@ -43,7 +52,11 @@ class DashboardLibrarySection extends ConsumerWidget {
 
           // Borrowed Books Section
           if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
-            _buildSectionHeader('빌린 책'),
+            const SectionHeader(
+              '빌린 책',
+              size: SectionHeaderSize.small,
+              padding: EdgeInsets.only(left: 8.0),
+            ),
             const SizedBox(height: 8),
             _buildBookList(libraryNotifier.borrowedBooks),
             const SizedBox(height: 16),
@@ -51,7 +64,11 @@ class DashboardLibrarySection extends ConsumerWidget {
 
           // Wishlist Books Section
           if (libraryNotifier.wishlistBooks.isNotEmpty) ...[
-            _buildSectionHeader('위시리스트'),
+            const SectionHeader(
+              '위시리스트',
+              size: SectionHeaderSize.small,
+              padding: EdgeInsets.only(left: 8.0),
+            ),
             const SizedBox(height: 8),
             _buildBookList(libraryNotifier.wishlistBooks),
             const SizedBox(height: 16),
@@ -108,21 +125,6 @@ class DashboardLibrarySection extends ConsumerWidget {
     return SearchField(
       hintText: '제목이나 저자로 검색...',
       onChanged: (value) => notifier.setSearchQuery(value),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 1,
-          color: Colors.black.withValues(alpha: 0.6),
-        ),
-      ),
     );
   }
 

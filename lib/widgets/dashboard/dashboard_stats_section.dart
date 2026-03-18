@@ -7,6 +7,7 @@ import '../layout/bottom_nav_layout.dart';
 import 'reading_calendar.dart';
 import '../../core/design_tokens.dart';
 import '../../components/month_navigator.dart';
+import '../../components/section_header.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   const DashboardStatsSection({super.key});
@@ -54,16 +55,8 @@ class DashboardStatsSection extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '독서 캘린더',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 1.5,
-                    color: Colors.black.withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SectionHeader('독서 캘린더'),
+                const SizedBox(height: 8),
                 ReadingCalendar(
                   completedBooks: completedBooks,
                   year: bookState.selectedYear,
@@ -76,17 +69,10 @@ class DashboardStatsSection extends ConsumerWidget {
 
           // Completed Books List
           if (completedBooks.isNotEmpty) ...[
-            Padding(
+            SectionHeader(
+              '완독한 책 (${completedBooks.length})',
+              size: SectionHeaderSize.large,
               padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-              child: Text(
-                '완독한 책 (${completedBooks.length})',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1,
-                  color: Colors.black.withValues(alpha: 0.6),
-                ),
-              ),
             ),
             ...completedBooks.map((book) => _buildCompletedBookCard(book)),
           ],
@@ -100,26 +86,21 @@ class DashboardStatsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '이번 달 통계',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 1.5,
-              color: Colors.black.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 16),
+          const SectionHeader('이번 달 통계'),
+          const SizedBox(height: 4),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('완독', '$completedCount권'),
+              Expanded(
+                child: Center(child: _buildStatItem('완독', '$completedCount권')),
+              ),
               Container(
-                width: 1,
+                width: 2,
                 height: 40,
                 color: Colors.black.withValues(alpha: 0.1),
               ),
-              _buildStatItem('총 페이지', '$totalPages쪽'),
+              Expanded(
+                child: Center(child: _buildStatItem('총 페이지', '$totalPages쪽')),
+              ),
             ],
           ),
         ],

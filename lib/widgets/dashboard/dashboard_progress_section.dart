@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:snippet_app/components/app_tab_bar.dart';
 import '../../providers/book_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
-import '../layout/bottom_nav_layout.dart';
 import '../book/book_detail_bottom_sheet.dart';
 import '../../core/design_tokens.dart';
+import 'sticky_glass_tab_bar.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
   const DashboardProgressSection({super.key});
@@ -17,21 +16,8 @@ class DashboardProgressSection extends ConsumerStatefulWidget {
 }
 
 class _DashboardProgressSectionState
-    extends ConsumerState<DashboardProgressSection>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+    extends ConsumerState<DashboardProgressSection> {
+  int _selectedIndex = 1; // Default: 읽는중
 
   List<UserBookDto> _getFilteredBooks(List<UserBookDto> books, int tabIndex) {
     switch (tabIndex) {
@@ -51,64 +37,77 @@ class _DashboardProgressSectionState
     final bookState = ref.watch(bookProvider);
     final currentTabBooks = _getFilteredBooks(
       bookState.books,
-      _tabController.index,
+      _selectedIndex,
     );
 
-    return Column(
-      children: [
-        // Tab Bar
-        Container(
-          margin: const EdgeInsets.all(16),
-          child: AppTabBar(
-            controller: _tabController,
-            tabs: const ['대기중', '읽는중', '완독'],
-            margin: EdgeInsets.zero,
-            onTap: (_) => setState(() {}),
+    return RefreshIndicator(
+      onRefresh: () => ref.read(bookProvider.notifier).refreshBooks(),
+      child: CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyGlassSegmentedButton(
+              selectedIndex: _selectedIndex,
+              segments: const ['대기중', '읽는중', '완독'],
+              onChanged: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+                // 탭 전환 시 스크롤을 맨 위로 초기화
+                final controller = PrimaryScrollController.of(context);
+                if (controller.hasClients) {
+                  controller.jumpTo(0);
+                }
+              },
+              height: 64,
+            ),
           ),
-        ),
-
-        // Book List
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => ref.read(bookProvider.notifier).refreshBooks(),
-            child: _buildBookList(currentTabBooks),
-          ),
-        ),
-      ],
+          _buildBookListSliver(currentTabBooks),
+        ],
+      ),
     );
   }
 
-  Widget _buildBookList(List<UserBookDto> books) {
+  Widget _buildBookListSliver(List<UserBookDto> books) {
     if (books.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.book_outlined,
-              size: 64,
-              color: Colors.black.withValues(alpha: 0.2),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '책이 없습니다',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-                color: Colors.black.withValues(alpha: 0.5),
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.book_outlined,
+                size: 64,
+                color: Colors.black.withValues(alpha: 0.2),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                '책이 없습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.black.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return BottomNavListLayout(
-      hasFloatingActionButton: true,
-      itemCount: books.length,
-      itemBuilder: (context, index) {
-        return _buildBookCard(books[index]);
-      },
+    return SliverPadding(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 80, // FAB clearance (64px FAB + 16px margin)
+      ),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildBookCard(books[index]),
+          childCount: books.length,
+        ),
+      ),
     );
   }
 
