@@ -17,7 +17,7 @@ class ApiService {
     : _dio = Dio(
         BaseOptions(
           // Use Mac's local IP for real device testing
-          baseUrl: 'http://10.0.1.23:8008/api',
+          baseUrl: 'http://10.0.1.14:8008/api',
           // baseUrl: 'https://snippetapi.gowoobro.com/api',
           connectTimeout: const Duration(seconds: 5),
         ),
