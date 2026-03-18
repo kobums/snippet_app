@@ -27,7 +27,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: DesignTokens.bgSecondary,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: centerTitle,
@@ -37,20 +37,17 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         title,
         style: AppTypography.h3.copyWith(
           letterSpacing: letterSpacing ?? DesignTokens.letterSpacingWide,
-          color: DesignTokens.textSecondary,
-          fontWeight: FontWeight.w300,
+          color: DesignTokens.textPrimary,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: const IconThemeData(
-        color: DesignTokens.textSecondary,
-      ),
+      iconTheme: const IconThemeData(color: DesignTokens.textPrimary, size: 20),
       actions: actions,
       bottom: bottom,
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0.0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }
