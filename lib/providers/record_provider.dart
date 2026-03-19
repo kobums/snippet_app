@@ -4,7 +4,7 @@ import '../services/record_api_service.dart';
 import 'snippet_provider.dart';
 
 class RecordState {
-  final List<RecordDto> records;
+  final List<RecordDto> allRecords;
   final bool isLoading;
   final String? error;
   final RecordType? selectedType;
@@ -12,7 +12,7 @@ class RecordState {
   final int selectedMonth;
 
   RecordState({
-    this.records = const [],
+    this.allRecords = const [],
     this.isLoading = false,
     this.error,
     this.selectedType,
@@ -21,8 +21,14 @@ class RecordState {
   })  : selectedYear = selectedYear ?? DateTime.now().year,
         selectedMonth = selectedMonth ?? DateTime.now().month;
 
+  /// Filtered records by selectedType
+  List<RecordDto> get records {
+    if (selectedType == null) return allRecords;
+    return allRecords.where((r) => r.type == selectedType).toList();
+  }
+
   RecordState copyWith({
-    List<RecordDto>? records,
+    List<RecordDto>? allRecords,
     bool? isLoading,
     String? error,
     RecordType? selectedType,
@@ -31,7 +37,7 @@ class RecordState {
     int? selectedMonth,
   }) {
     return RecordState(
-      records: records ?? this.records,
+      allRecords: allRecords ?? this.allRecords,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       selectedType: clearSelectedType ? null : (selectedType ?? this.selectedType),
@@ -53,18 +59,15 @@ class RecordNotifier extends Notifier<RecordState> {
     );
   }
 
-  /// Load monthly records, optionally filtered by type
-  Future<void> loadMonthlyRecords([int? year, int? month, RecordType? type]) async {
+  /// Load monthly records (fetches all types at once)
+  Future<void> loadMonthlyRecords([int? year, int? month]) async {
     final targetYear = year ?? state.selectedYear;
     final targetMonth = month ?? state.selectedMonth;
-    final targetType = type ?? state.selectedType;
 
     state = state.copyWith(
       isLoading: true,
       selectedYear: targetYear,
       selectedMonth: targetMonth,
-      selectedType: targetType,
-      clearSelectedType: type == null && state.selectedType == null,
     );
 
     try {
@@ -72,11 +75,10 @@ class RecordNotifier extends Notifier<RecordState> {
       final records = await api.getMonthlyRecords(
         targetYear,
         targetMonth,
-        type: targetType,
       );
 
       state = state.copyWith(
-        records: records,
+        allRecords: records,
         isLoading: false,
         error: null,
       );
@@ -97,7 +99,7 @@ class RecordNotifier extends Notifier<RecordState> {
       final records = await api.getRecordsByBook(bookId, type: type);
 
       state = state.copyWith(
-        records: records,
+        allRecords: records,
         isLoading: false,
         error: null,
       );
@@ -114,18 +116,20 @@ class RecordNotifier extends Notifier<RecordState> {
     await loadMonthlyRecords(year, month);
   }
 
-  /// Set selected type filter and reload records
-  Future<void> setSelectedType(RecordType? type) async {
-    await loadMonthlyRecords(state.selectedYear, state.selectedMonth, type);
+  /// Set selected type filter (local only, no API call)
+  void setSelectedType(RecordType? type) {
+    state = state.copyWith(
+      selectedType: type,
+      clearSelectedType: type == null,
+    );
   }
 
-  /// Add a new record (optimistic update)
+  /// Add a new record
   Future<void> addRecord(int bookId, RecordAddRequestDto data) async {
     try {
       final api = ref.read(recordApiProvider);
       await api.createRecord(bookId, data);
 
-      // Reload records to get the new one with all server data
       await loadMonthlyRecords();
     } catch (e) {
       state = state.copyWith(
@@ -137,10 +141,9 @@ class RecordNotifier extends Notifier<RecordState> {
 
   /// Update an existing record
   Future<void> updateRecord(int id, Map<String, dynamic> updates) async {
-    // Optimistic update
-    final originalRecords = state.records;
+    final originalRecords = state.allRecords;
     state = state.copyWith(
-      records: state.records.map((r) {
+      allRecords: state.allRecords.map((r) {
         if (r.id == id) {
           return r.copyWith(
             text: updates['text'] as String? ?? r.text,
@@ -156,9 +159,8 @@ class RecordNotifier extends Notifier<RecordState> {
       final api = ref.read(recordApiProvider);
       await api.patchRecord(id, updates);
     } catch (e) {
-      // Rollback on error
       state = state.copyWith(
-        records: originalRecords,
+        allRecords: originalRecords,
         error: e.toString().replaceAll('Exception: ', ''),
       );
       rethrow;
@@ -167,19 +169,17 @@ class RecordNotifier extends Notifier<RecordState> {
 
   /// Delete a record
   Future<void> deleteRecord(int id) async {
-    // Optimistic update
-    final originalRecords = state.records;
+    final originalRecords = state.allRecords;
     state = state.copyWith(
-      records: state.records.where((r) => r.id != id).toList(),
+      allRecords: state.allRecords.where((r) => r.id != id).toList(),
     );
 
     try {
       final api = ref.read(recordApiProvider);
       await api.deleteRecord(id);
     } catch (e) {
-      // Rollback on error
       state = state.copyWith(
-        records: originalRecords,
+        allRecords: originalRecords,
         error: e.toString().replaceAll('Exception: ', ''),
       );
       rethrow;
