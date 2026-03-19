@@ -30,7 +30,7 @@ class GlassBottomNav extends StatelessWidget {
 
   static const List<NavItem> _items = [
     NavItem(
-      label: '스와이프',
+      label: '스니펫',
       icon: Icons.layers_outlined,
       activeIcon: Icons.layers,
     ),
@@ -41,9 +41,14 @@ class GlassBottomNav extends StatelessWidget {
     ),
     NavItem(label: '기록', icon: Icons.edit_outlined, activeIcon: Icons.edit),
     NavItem(
-      label: '보관함',
-      icon: Icons.favorite_border,
-      activeIcon: Icons.favorite,
+      label: '서재',
+      icon: Icons.menu_book_outlined,
+      activeIcon: Icons.menu_book,
+    ),
+    NavItem(
+      label: '프로필',
+      icon: Icons.person_outline,
+      activeIcon: Icons.person,
     ),
   ];
 

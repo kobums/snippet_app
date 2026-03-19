@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'home_screen.dart';
+import 'snippet_screen.dart';
 import 'dashboard_screen.dart';
 import 'records_screen.dart';
-import 'archive_screen.dart';
+import 'library_screen.dart';
+import 'mypage_screen.dart';
 import 'book_search_screen.dart';
 import '../widgets/glass_bottom_nav.dart';
-import '../widgets/app_drawer.dart';
+
 import '../core/design_tokens.dart';
 import '../components/app_app_bar.dart';
 import '../components/app_fab.dart';
@@ -23,17 +24,19 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey<ConsumerState<RecordsScreen>> _recordsKey = GlobalKey();
 
   List<Widget> get _pages => [
-    const HomeScreen(),
+    const SnippetScreen(),
     const DashboardScreen(),
     RecordsScreen(key: _recordsKey),
-    const ArchiveScreen(),
+    const LibraryScreen(),
+    const MyPageScreen(),
   ];
 
   final List<String> _pageTitles = [
     'SNIPPET',
     '대시보드',
     '독서 기록',
-    '보관함',
+    '서재',
+    '프로필',
   ];
 
   @override
@@ -47,28 +50,8 @@ class _MainScreenState extends State<MainScreen> {
             : DesignTokens.letterSpacingWide,
       ),
       extendBody: false,
-      drawer: const AppDrawer(),
       body: IndexedStack(index: _currentIndex, children: _pages),
-      floatingActionButton: (_currentIndex == 1 || _currentIndex == 2)
-        ? AppFab(
-            onPressed: () {
-              if (_currentIndex == 1) {
-                // Dashboard tab - Navigate to BookSearchScreen
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const BookSearchScreen(),
-                  ),
-                );
-              } else if (_currentIndex == 2) {
-                // Records tab - Show AddRecordBottomSheet
-                final recordsState = _recordsKey.currentState;
-                if (recordsState != null && recordsState.mounted) {
-                  (recordsState as dynamic).showAddRecordSheet(context);
-                }
-              }
-            },
-          )
-        : null,
+      floatingActionButton: _buildFab(),
       bottomNavigationBar: GlassBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -78,5 +61,43 @@ class _MainScreenState extends State<MainScreen> {
         },
       ),
     );
+  }
+
+  Widget? _buildFab() {
+    switch (_currentIndex) {
+      case 1: // 대시보드
+        return AppFab(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const BookSearchScreen(),
+              ),
+            );
+          },
+        );
+      case 2: // 기록
+        return AppFab(
+          onPressed: () {
+            final recordsState = _recordsKey.currentState;
+            if (recordsState != null && recordsState.mounted) {
+              (recordsState as dynamic).showAddRecordSheet(context);
+            }
+          },
+        );
+      case 3: // 서재
+        return AppFab(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const BookSearchScreen(),
+              ),
+            );
+          },
+          label: '책 추가',
+          icon: Icons.add_rounded,
+        );
+      default:
+        return null;
+    }
   }
 }
