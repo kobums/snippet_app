@@ -61,83 +61,82 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           ),
         ),
       ),
-      body: Column(
-        children: [
-          // Year Selector
-          YearNavigator(
-            year: statsState.selectedYear,
-            isCurrentYear: statsState.selectedYear == DateTime.now().year,
-            onYearChanged: (year) => statsNotifier.setSelectedYear(year),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverToBoxAdapter(
+            child: AppTabBar(
+              controller: _tabController,
+              tabs: const ['월별', '연도별', '카테고리', '인사이트'],
+              margin: EdgeInsets.zero,
+            ),
           ),
-
-          // Type Tabs
-          AppTabBar(
-            controller: _tabController,
-            tabs: const ['월별', '연도별', '카테고리', '인사이트'],
-            margin: EdgeInsets.zero,
-          ),
-
-          // Content
-          Expanded(
-            child: AppRefreshIndicator(
-              onRefresh: () => statsNotifier.refreshStats(),
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Monthly tab
-                  _buildContent(
-                    statsState.isLoading,
-                    statsState.error,
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          GlassContainer(
-                            child: MonthlyChart(stats: statsState.monthlyStats),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Yearly tab
-                  _buildContent(
-                    statsState.isLoading,
-                    statsState.error,
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16.0),
-                      child: YearlySummary(stats: statsState.yearlyStats),
-                    ),
-                  ),
-
-                  // Category tab
-                  _buildContent(
-                    statsState.isLoading,
-                    statsState.error,
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16.0),
-                      child: CategoryBreakdown(stats: statsState.categoryStats),
-                    ),
-                  ),
-
-                  // Insights tab
-                  _buildContent(
-                    statsState.isLoading,
-                    statsState.error,
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16.0),
-                      child: InsightsCard(insights: statsState.insights),
-                    ),
-                  ),
-                ],
-              ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyYearNavigator(
+              year: statsState.selectedYear,
+              isCurrentYear: statsState.selectedYear == DateTime.now().year,
+              onYearChanged: (year) => statsNotifier.setSelectedYear(year),
+              height: 64,
             ),
           ),
         ],
+        body: AppRefreshIndicator(
+          onRefresh: () => statsNotifier.refreshStats(),
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // Monthly tab
+              _buildContent(
+                statsState.isLoading,
+                statsState.error,
+                SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      GlassContainer(
+                        child: MonthlyChart(stats: statsState.monthlyStats),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Yearly tab
+              _buildContent(
+                statsState.isLoading,
+                statsState.error,
+                SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: YearlySummary(stats: statsState.yearlyStats),
+                ),
+              ),
+
+              // Category tab
+              _buildContent(
+                statsState.isLoading,
+                statsState.error,
+                SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: CategoryBreakdown(stats: statsState.categoryStats),
+                ),
+              ),
+
+              // Insights tab
+              _buildContent(
+                statsState.isLoading,
+                statsState.error,
+                SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: InsightsCard(insights: statsState.insights),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
