@@ -121,36 +121,94 @@ class YearNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () => onYearChanged(year - 1),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.5),
+          width: 1,
         ),
-        InkWell(
-          onTap: () => _showYearPicker(context),
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              '$year년',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left, size: 20),
+            onPressed: () => onYearChanged(year - 1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+          InkWell(
+            onTap: () => _showYearPicker(context),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(
+                '$year년',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.chevron_right,
-            color: isCurrentYear ? Colors.grey.withValues(alpha: 0.3) : null,
+          IconButton(
+            icon: Icon(
+              Icons.chevron_right,
+              size: 20,
+              color:
+                  isCurrentYear ? Colors.grey.withValues(alpha: 0.3) : null,
+            ),
+            onPressed: isCurrentYear ? null : () => onYearChanged(year + 1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
-          onPressed: isCurrentYear ? null : () => onYearChanged(year + 1),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+}
+
+/// Sticky Year Navigator Delegate for CustomScrollView
+class StickyYearNavigator extends SliverPersistentHeaderDelegate {
+  final int year;
+  final bool isCurrentYear;
+  final Function(int year) onYearChanged;
+  final double height;
+
+  StickyYearNavigator({
+    required this.year,
+    required this.isCurrentYear,
+    required this.onYearChanged,
+    this.height = 64.0,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Center(
+      child: YearNavigator(
+        year: year,
+        isCurrentYear: isCurrentYear,
+        onYearChanged: onYearChanged,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant StickyYearNavigator oldDelegate) {
+    return year != oldDelegate.year ||
+        isCurrentYear != oldDelegate.isCurrentYear;
   }
 }
