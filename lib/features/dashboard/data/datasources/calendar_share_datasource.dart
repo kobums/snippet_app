@@ -9,6 +9,9 @@ import 'package:gal/gal.dart';
 class CalendarShareService {
   final ScreenshotController _screenshotController = ScreenshotController();
 
+  /// ScreenshotController를 외부에서 접근할 수 있도록 제공
+  ScreenshotController get controller => _screenshotController;
+
   /// 캘린더 위젯을 이미지로 캡처하고 공유합니다.
   ///
   /// [context]: BuildContext (SnackBar 표시용)
@@ -158,7 +161,4 @@ class CalendarShareService {
       }
     }
   }
-
-  /// ScreenshotController를 외부에서 접근할 수 있도록 제공
-  ScreenshotController get controller => _screenshotController;
 }

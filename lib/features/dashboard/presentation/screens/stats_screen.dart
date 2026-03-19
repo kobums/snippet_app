@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
-import '../components/app_refresh_indicator.dart';
-import '../providers/stats_provider.dart';
-import '../widgets/glass_container.dart';
-import '../widgets/stats/monthly_chart.dart';
-import '../widgets/stats/yearly_summary.dart';
-import '../widgets/stats/category_breakdown.dart';
-import '../widgets/stats/insights_card.dart';
-import '../core/design_tokens.dart';
-import '../components/app_app_bar.dart';
-import '../components/year_navigator.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/stats_provider.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/monthly_chart.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/yearly_summary.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/category_breakdown.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/insights_card.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/year_navigator.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
@@ -81,14 +80,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           ),
         ],
         body: AppRefreshIndicator(
-          onRefresh: () => statsNotifier.refreshStats(),
+          onRefresh: () => statsNotifier.loadAllStats(),
           child: TabBarView(
             controller: _tabController,
             children: [
-              // Monthly tab
               _buildContent(
                 statsState.isLoading,
-                statsState.error,
+                statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16.0),
@@ -101,33 +99,27 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                   ),
                 ),
               ),
-
-              // Yearly tab
               _buildContent(
                 statsState.isLoading,
-                statsState.error,
+                statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16.0),
                   child: YearlySummary(stats: statsState.yearlyStats),
                 ),
               ),
-
-              // Category tab
               _buildContent(
                 statsState.isLoading,
-                statsState.error,
+                statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16.0),
                   child: CategoryBreakdown(stats: statsState.categoryStats),
                 ),
               ),
-
-              // Insights tab
               _buildContent(
                 statsState.isLoading,
-                statsState.error,
+                statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16.0),

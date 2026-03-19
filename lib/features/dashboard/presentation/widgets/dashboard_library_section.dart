@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/library_provider.dart';
-import '../../models/user_book.dart';
-import '../glass_container.dart';
-import '../layout/bottom_nav_layout.dart';
-import '../book/book_detail_bottom_sheet.dart';
-import '../../components/search_field.dart';
-import '../../components/section_header.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/widgets/layout/bottom_nav_layout.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/components/search_field.dart';
+import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerStatefulWidget {
   const DashboardLibrarySection({super.key});
@@ -32,7 +33,9 @@ class _DashboardLibrarySectionState
     final libraryState = ref.watch(libraryProvider);
     final libraryNotifier = ref.read(libraryProvider.notifier);
 
-    return SearchableScrollLayout(
+    return AppRefreshIndicator(
+      onRefresh: () => libraryNotifier.refreshBooks(),
+      child: SearchableScrollLayout(
       controller: _searchController,
       hintText: '제목이나 저자로 검색...',
       onChanged: (value) {
@@ -44,7 +47,6 @@ class _DashboardLibrarySectionState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 64),
-            // Recent Books Section
             if (libraryNotifier.recentBooks.isNotEmpty) ...[
               const SectionHeader(
                 '최근 추가',
@@ -55,8 +57,6 @@ class _DashboardLibrarySectionState
               _buildBookList(libraryNotifier.recentBooks),
               const SizedBox(height: 16),
             ],
-
-            // Reading Books Section
             if (libraryNotifier.readingBooks.isNotEmpty) ...[
               const SectionHeader(
                 '읽고 있는 책',
@@ -67,8 +67,6 @@ class _DashboardLibrarySectionState
               _buildBookList(libraryNotifier.readingBooks),
               const SizedBox(height: 16),
             ],
-
-            // Borrowed Books Section
             if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
               const SectionHeader(
                 '빌린 책',
@@ -79,8 +77,6 @@ class _DashboardLibrarySectionState
               _buildBookList(libraryNotifier.borrowedBooks),
               const SizedBox(height: 16),
             ],
-
-            // Wishlist Books Section
             if (libraryNotifier.wishlistBooks.isNotEmpty) ...[
               const SectionHeader(
                 '위시리스트',
@@ -91,8 +87,6 @@ class _DashboardLibrarySectionState
               _buildBookList(libraryNotifier.wishlistBooks),
               const SizedBox(height: 16),
             ],
-
-            // Empty state
             if (libraryState.allBooks.isEmpty && !libraryState.isLoading)
               Center(
                 child: Column(
@@ -125,8 +119,6 @@ class _DashboardLibrarySectionState
                   ],
                 ),
               ),
-
-            // Loading state
             if (libraryState.isLoading)
               const Center(
                 child: Padding(
@@ -137,6 +129,7 @@ class _DashboardLibrarySectionState
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -163,7 +156,6 @@ class _DashboardLibrarySectionState
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Book cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: Image.network(
@@ -186,8 +178,6 @@ class _DashboardLibrarySectionState
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Book info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,8 +203,6 @@ class _DashboardLibrarySectionState
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
-
-                    // Progress (if reading)
                     if (book.status == BookStatus.reading)
                       Row(
                         children: [

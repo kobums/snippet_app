@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/user_book.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class ReadingCalendar extends StatefulWidget {
   final List<UserBookDto> completedBooks;

@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../models/user_book.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 /// Instagram 피드 공유를 위한 4:5 비율 독서 캘린더 위젯
 ///

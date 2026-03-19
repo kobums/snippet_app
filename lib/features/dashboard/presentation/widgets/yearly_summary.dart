@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/stats.dart';
-import '../../core/design_tokens.dart';
-import '../../components/section_header.dart';
-import '../glass_container.dart';
+import 'package:snippet_app/features/dashboard/data/models/stats.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
 class YearlySummary extends StatelessWidget {
   final List<YearlyStatsDto> stats;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/stats.dart';
-import '../glass_container.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
+import 'package:snippet_app/features/dashboard/data/models/stats.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 /// Fintech Style Insights Card
 /// 세련된 인사이트 카드 with 디자인 토큰

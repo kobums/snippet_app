@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../components/app_refresh_indicator.dart';
-import '../models/user_book.dart';
-import '../providers/book_provider.dart';
-import '../services/calendar_share_service.dart';
-import '../widgets/calendar/shareable_reading_calendar.dart';
-import '../core/design_tokens.dart';
-import '../components/app_button.dart';
-import '../components/app_app_bar.dart';
-import '../components/month_navigator.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/dashboard/data/datasources/calendar_share_datasource.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/shareable_reading_calendar.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/month_navigator.dart';
 
-/// 독서 캘린더 전체 화면
-///
-/// 월별 독서 완료 내역을 캘린더로 보여주고 Instagram 공유 기능을 제공합니다.
 class ReadingCalendarScreen extends ConsumerStatefulWidget {
   const ReadingCalendarScreen({super.key});
 
@@ -140,7 +137,6 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // 캘린더 프리뷰 (저장되는 이미지와 동일)
                   AspectRatio(
                     aspectRatio: 1080 / 1350,
                     child: FittedBox(
@@ -157,10 +153,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // 안내 텍스트
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -192,13 +185,9 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
-                  // 버튼들
                   Row(
                     children: [
-                      // 갤러리에 저장 버튼
                       Expanded(
                         child: AppButton(
                           text: '저장',
@@ -213,7 +202,6 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // 공유 버튼
                       Expanded(
                         child: AppButton(
                           text: '공유',
@@ -229,7 +217,6 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 24),
                 ]),
               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../models/stats.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/features/dashboard/data/models/stats.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class MonthlyChart extends StatelessWidget {
   final List<MonthlyStatsDto> stats;

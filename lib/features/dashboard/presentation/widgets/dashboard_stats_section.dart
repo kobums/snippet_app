@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/book_provider.dart';
-import '../../models/user_book.dart';
-import '../glass_container.dart';
-import 'reading_calendar.dart';
-import '../../core/design_tokens.dart';
-import '../../components/month_navigator.dart';
-import '../../components/section_header.dart';
-import '../../screens/stats_screen.dart';
-import '../../screens/reading_calendar_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/reading_calendar.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/components/month_navigator.dart';
+import 'package:snippet_app/components/section_header.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   const DashboardStatsSection({super.key});
@@ -31,9 +32,10 @@ class DashboardStatsSection extends ConsumerWidget {
       (sum, b) => sum + b.totalPage,
     );
 
-    return CustomScrollView(
+    return AppRefreshIndicator(
+      onRefresh: () => bookNotifier.refreshBooks(),
+      child: CustomScrollView(
       slivers: [
-        // Sticky Month Navigator
         SliverPersistentHeader(
           pinned: true,
           delegate: StickyMonthNavigator(
@@ -46,31 +48,20 @@ class DashboardStatsSection extends ConsumerWidget {
             height: 64,
           ),
         ),
-
-        // Content
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              // Stats Card
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const StatsScreen()),
-                  );
+                  context.push(AppRoutes.stats);
                 },
                 child: _buildStatsCard(completedBooks.length, totalPages),
               ),
               const SizedBox(height: 16),
-
-              // Reading Calendar
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ReadingCalendarScreen(),
-                    ),
-                  );
+                  context.push(AppRoutes.readingCalendar);
                 },
                 child: GlassContainer(
                   child: Column(
@@ -88,8 +79,6 @@ class DashboardStatsSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Completed Books List
               if (completedBooks.isNotEmpty) ...[
                 SectionHeader(
                   '완독한 책 (${completedBooks.length})',
@@ -102,6 +91,7 @@ class DashboardStatsSection extends ConsumerWidget {
           ),
         ),
       ],
+    ),
     );
   }
 
@@ -163,7 +153,6 @@ class DashboardStatsSection extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Book cover
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
@@ -185,8 +174,6 @@ class DashboardStatsSection extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-
-            // Book info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

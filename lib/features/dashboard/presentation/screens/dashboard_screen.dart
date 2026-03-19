@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../widgets/dashboard/dashboard_stats_section.dart';
-import '../widgets/dashboard/dashboard_progress_section.dart';
-import '../widgets/dashboard/dashboard_library_section.dart';
-import '../components/app_tab_bar.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_stats_section.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_progress_section.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_library_section.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -43,9 +43,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          DashboardStatsSection(), // Tab 1: 통계
-          DashboardProgressSection(), // Tab 2: 진행
-          DashboardLibrarySection(), // Tab 3: 서재
+          DashboardStatsSection(),
+          DashboardProgressSection(),
+          DashboardLibrarySection(),
         ],
       ),
     );

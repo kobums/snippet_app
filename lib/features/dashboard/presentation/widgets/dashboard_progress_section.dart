@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../components/app_refresh_indicator.dart';
-import '../../providers/book_provider.dart';
-import '../../models/user_book.dart';
-import '../glass_container.dart';
-import '../book/book_detail_bottom_sheet.dart';
-import '../../core/design_tokens.dart';
-import 'sticky_glass_tab_bar.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/sticky_glass_tab_bar.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
   const DashboardProgressSection({super.key});
@@ -18,15 +18,15 @@ class DashboardProgressSection extends ConsumerStatefulWidget {
 
 class _DashboardProgressSectionState
     extends ConsumerState<DashboardProgressSection> {
-  int _selectedIndex = 1; // Default: 읽는중
+  int _selectedIndex = 1;
 
   List<UserBookDto> _getFilteredBooks(List<UserBookDto> books, int tabIndex) {
     switch (tabIndex) {
-      case 0: // 대기중
+      case 0:
         return books.where((b) => b.status == BookStatus.waiting).toList();
-      case 1: // 읽는중
+      case 1:
         return books.where((b) => b.status == BookStatus.reading).toList();
-      case 2: // 완독
+      case 2:
         return books.where((b) => b.status == BookStatus.completed).toList();
       default:
         return books;
@@ -51,7 +51,6 @@ class _DashboardProgressSectionState
                 setState(() {
                   _selectedIndex = index;
                 });
-                // 탭 전환 시 스크롤을 맨 위로 초기화
                 final controller = PrimaryScrollController.of(context);
                 if (controller.hasClients) {
                   controller.jumpTo(0);
@@ -98,7 +97,7 @@ class _DashboardProgressSectionState
       padding: const EdgeInsets.only(
         left: 8,
         right: 8,
-        bottom: 20, // FAB clearance (64px FAB + 16px margin)
+        bottom: 20,
       ),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
@@ -125,7 +124,6 @@ class _DashboardProgressSectionState
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Book cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
@@ -147,8 +145,6 @@ class _DashboardProgressSectionState
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Book info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,8 +170,6 @@ class _DashboardProgressSectionState
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 12),
-
-                    // Progress bar (only for reading books)
                     if (book.status == BookStatus.reading)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

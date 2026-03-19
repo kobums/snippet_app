@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../glass_container.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 /// Sticky Glass Segmented Button Delegate for CustomScrollView
 ///
