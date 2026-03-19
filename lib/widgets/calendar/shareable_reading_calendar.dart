@@ -11,12 +11,14 @@ class ShareableReadingCalendar extends StatelessWidget {
   final List<UserBookDto> completedBooks;
   final int year;
   final int month;
+  final bool showTitle;
 
   const ShareableReadingCalendar({
     super.key,
     required this.completedBooks,
     required this.year,
     required this.month,
+    this.showTitle = true,
   });
 
   List<UserBookDto> _getBooksCompletedOnDate(int day) {
@@ -59,26 +61,25 @@ class ShareableReadingCalendar extends StatelessWidget {
             colors: [DesignTokens.bgPrimary, DesignTokens.bgPrimary],
           ),
         ),
-        padding: const EdgeInsets.all(24), // 세로 공간 활용
+        padding: const EdgeInsets.all(12), // 세로 공간 활용
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 브랜딩 헤더
-            // _buildHeader(),
-            // const SizedBox(height: 20), // 간격 줄임
-            // 년월 타이틀
-            Center(
-              child: Text(
-                '$year년 $month월',
-                style: const TextStyle(
-                  fontSize: 30, // 폰트 크기 줄임
-                  fontWeight: FontWeight.w600,
-                  color: DesignTokens.textPrimary,
-                  letterSpacing: -0.5,
+            if (showTitle) ...[
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  '$year년 $month월',
+                  style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w400,
+                    color: DesignTokens.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16), // 간격 줄임
+              const SizedBox(height: 60),
+            ],
             // 캘린더 그리드
             Expanded(
               child: Container(
