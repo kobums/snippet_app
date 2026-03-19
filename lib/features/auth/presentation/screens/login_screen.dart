@@ -1,60 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
-import '../components/app_button.dart';
-import '../widgets/glass_container.dart';
-import 'main_screen.dart';
-import '../core/design_tokens.dart';
+import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
+  Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
       await ref
           .read(authProvider.notifier)
-          .register(
-            _emailController.text.trim(),
-            _passwordController.text,
-            _nameController.text.trim(),
-          );
+          .login(_emailController.text.trim(), _passwordController.text);
 
       if (!mounted) return;
 
-      // Navigate to main screen on success (auto-login)
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
+      context.go(AppRoutes.snippet);
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: Text(e.toString()),
           backgroundColor: const Color(0xFFFF3B30),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(
@@ -85,7 +74,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo
                     Container(
                       width: 140,
                       height: 140,
@@ -108,8 +96,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                     ),
-
-                    // App name
                     const Text(
                       'Snippet',
                       style: TextStyle(
@@ -120,45 +106,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
-                    // Register form
                     GlassContainer(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: 2,
-                            ),
-                          ),
                           const SizedBox(height: 24),
-
-                          // Name field
-                          TextFormField(
-                            controller: _nameController,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Name',
-                              prefixIcon: const Icon(Icons.person_outline),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Email field
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -183,12 +135,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Password field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
-                            textInputAction: TextInputAction.next,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _handleLogin(),
                             decoration: InputDecoration(
                               labelText: 'Password',
                               prefixIcon: const Icon(Icons.lock_outline),
@@ -217,75 +168,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
-
-                          // Confirm Password field
-                          TextFormField(
-                            controller: _confirmPasswordController,
-                            obscureText: !_isConfirmPasswordVisible,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _handleRegister(),
-                            decoration: InputDecoration(
-                              labelText: 'Confirm Password',
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _isConfirmPasswordVisible
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isConfirmPasswordVisible =
-                                        !_isConfirmPasswordVisible;
-                                  });
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
-                              }
-                              if (value != _passwordController.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
-                          ),
                           const SizedBox(height: 24),
-
-                          // Register button
                           AppButton(
-                            text: 'Register',
-                            onPressed: _handleRegister,
+                            text: 'Login',
+                            onPressed: _handleLogin,
                             variant: AppButtonVariant.primary,
                             size: AppButtonSize.large,
                             isFullWidth: true,
                             isLoading: authState.isLoading,
                           ),
                           const SizedBox(height: 16),
-
-                          // Back to login link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Already have an account? ',
+                                "Don't have an account? ",
                                 style: TextStyle(
                                   color: Colors.black.withValues(alpha: 0.6),
                                 ),
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pop();
+                                  context.push(AppRoutes.register);
                                 },
                                 child: const Text(
-                                  'Login',
+                                  'Register',
                                   style: TextStyle(
                                     color: DesignTokens.primaryMain,
                                     fontWeight: FontWeight.w500,

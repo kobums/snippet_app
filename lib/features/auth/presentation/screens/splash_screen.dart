@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
-import 'login_screen.dart';
-import 'main_screen.dart';
-import '../core/design_tokens.dart';
-import '../core/typography.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -21,22 +21,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Wait a bit for splash effect
     await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
 
     final authState = ref.read(authProvider);
 
-    // Navigate based on auth status
     if (authState.isAuthenticated) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
+      context.go(AppRoutes.snippet);
     } else {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+      context.go(AppRoutes.login);
     }
   }
 
@@ -49,7 +43,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // App logo or icon
               Container(
                 width: 140,
                 height: 140,
@@ -73,7 +66,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
               ),
               const SizedBox(height: DesignTokens.space24),
-              // App name
               Text(
                 'Snippet',
                 style: AppTypography.displaySmall.copyWith(
@@ -90,7 +82,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
               ),
               const SizedBox(height: DesignTokens.space40),
-              // Loading indicator
               SizedBox(
                 width: 30,
                 height: 30,
