@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
-import 'screens/splash_screen.dart';
+import 'app/router.dart';
+import 'app/providers.dart';
 
-void main() {
-  runApp(const ProviderScope(child: SnippetApp()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const SnippetApp(),
+    ),
+  );
 }
 
-class SnippetApp extends StatelessWidget {
+class SnippetApp extends ConsumerWidget {
   const SnippetApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: 'Snippet',
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
   }
