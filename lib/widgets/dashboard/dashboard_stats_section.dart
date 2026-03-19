@@ -8,6 +8,8 @@ import 'reading_calendar.dart';
 import '../../core/design_tokens.dart';
 import '../../components/month_navigator.dart';
 import '../../components/section_header.dart';
+import '../../screens/stats_screen.dart';
+import '../../screens/reading_calendar_screen.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   const DashboardStatsSection({super.key});
@@ -47,22 +49,38 @@ class DashboardStatsSection extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Stats Card
-          _buildStatsCard(completedBooks.length, totalPages),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const StatsScreen()),
+              );
+            },
+            child: _buildStatsCard(completedBooks.length, totalPages),
+          ),
           const SizedBox(height: 16),
 
           // Reading Calendar
-          GlassContainer(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SectionHeader('독서 캘린더'),
-                const SizedBox(height: 8),
-                ReadingCalendar(
-                  completedBooks: completedBooks,
-                  year: bookState.selectedYear,
-                  month: bookState.selectedMonth,
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ReadingCalendarScreen(),
                 ),
-              ],
+              );
+            },
+            child: GlassContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionHeader('독서 캘린더'),
+                  const SizedBox(height: 8),
+                  ReadingCalendar(
+                    completedBooks: completedBooks,
+                    year: bookState.selectedYear,
+                    month: bookState.selectedMonth,
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
