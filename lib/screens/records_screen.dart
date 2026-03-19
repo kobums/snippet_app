@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
+import '../components/app_refresh_indicator.dart';
 import '../providers/record_provider.dart';
 import '../providers/book_provider.dart';
 import '../models/record.dart';
-import '../widgets/glass_container.dart';
 import '../widgets/records/add_record_bottom_sheet.dart';
 import '../widgets/records/record_card.dart';
 import '../components/month_navigator.dart';
@@ -21,38 +21,22 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  static const _tabTypes = [
+    RecordType.snippet,
+    RecordType.diary,
+    RecordType.review,
+  ];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
-    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _onTabChanged() {
-    if (!_tabController.indexIsChanging) {
-      final type = _getTypeFromIndex(_tabController.index);
-      ref.read(recordProvider.notifier).setSelectedType(type);
-    }
-  }
-
-  RecordType? _getTypeFromIndex(int index) {
-    switch (index) {
-      case 0:
-        return RecordType.snippet;
-      case 1:
-        return RecordType.diary;
-      case 2:
-        return RecordType.review;
-      default:
-        return null;
-    }
   }
 
   void showAddRecordSheet(BuildContext context) {
@@ -81,7 +65,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       backgroundColor: Colors.transparent,
       builder: (context) => AddRecordBottomSheet(
         books: bookState.books,
-        initialType: _getTypeFromIndex(_tabController.index),
+        initialType: _tabTypes[_tabController.index],
       ),
     );
   }
@@ -106,60 +90,63 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
           ),
         ),
       ],
-      body: RefreshIndicator(
-        onRefresh: () => recordNotifier.refreshRecords(),
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            // Each tab shows the same content structure
-            for (int i = 0; i < 3; i++)
-              SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Month Navigator
-                    MonthNavigator(
-                      year: recordState.selectedYear,
-                      month: recordState.selectedMonth,
-                      isCurrentMonth: isCurrentMonth,
-                      onMonthChanged: (year, month) {
-                        recordNotifier.setSelectedMonth(year, month);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Records List
-                    _buildRecordsList(
-                      recordState.records,
-                      recordState.isLoading,
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          for (final type in _tabTypes)
+            _buildTabContent(type, recordState, recordNotifier, isCurrentMonth),
+        ],
       ),
     );
   }
 
-  Widget _buildRecordsList(List<RecordDto> records, bool isLoading) {
-    if (isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+  Widget _buildTabContent(
+    RecordType type,
+    RecordState recordState,
+    RecordNotifier recordNotifier,
+    bool isCurrentMonth,
+  ) {
+    final filteredRecords = recordState.allRecords
+        .where((r) => r.type == type)
+        .toList();
+
+    return AppRefreshIndicator(
+      onRefresh: () => recordNotifier.refreshRecords(),
+      child: CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyMonthNavigator(
+              year: recordState.selectedYear,
+              month: recordState.selectedMonth,
+              isCurrentMonth: isCurrentMonth,
+              onMonthChanged: (year, month) {
+                recordNotifier.setSelectedMonth(year, month);
+              },
+              height: 64,
+            ),
+          ),
+          _buildRecordsSliver(filteredRecords, recordState.isLoading),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecordsSliver(List<RecordDto> records, bool isLoading) {
+    // if (isLoading) {
+    //   return const SliverFillRemaining(
+    //     hasScrollBody: false,
+    //     child: Center(child: CircularProgressIndicator()),
+    //   );
+    // }
 
     if (records.isEmpty) {
-      return GlassContainer(
+      return SliverFillRemaining(
+        hasScrollBody: false,
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 32),
               Icon(
                 Icons.edit_note_rounded,
                 size: 64,
@@ -183,7 +170,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
                   color: Colors.black.withValues(alpha: 0.3),
                 ),
               ),
-              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -200,40 +186,46 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       groupedRecords[key]!.add(record);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeader(
+    // Flatten grouped records into a list of widgets
+    final widgets = <Widget>[
+      Padding(
+        padding: const EdgeInsets.only(left: 8.0, bottom: 12, top: 8),
+        child: SectionHeader(
           '기록 (${records.length})',
           size: SectionHeaderSize.small,
-          padding: const EdgeInsets.only(left: 8.0, bottom: 12),
+          padding: EdgeInsets.zero,
         ),
-        ...groupedRecords.entries.map((entry) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Book title header
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 12.0,
-                ),
-                child: Text(
-                  entry.key,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+      ),
+      ...groupedRecords.entries.expand(
+        (entry) => [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 12.0,
+            ),
+            child: Text(
+              entry.key,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.5,
               ),
-              // Records for this book
-              ...entry.value.map((record) => RecordCard(record: record)),
-              const SizedBox(height: 12),
-            ],
-          );
-        }),
-      ],
+            ),
+          ),
+          ...entry.value.map((record) => RecordCard(record: record)),
+          const SizedBox(height: 12),
+        ],
+      ),
+    ];
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => widgets[index],
+          childCount: widgets.length,
+        ),
+      ),
     );
   }
 }
