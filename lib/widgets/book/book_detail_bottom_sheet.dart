@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/user_book.dart';
 import '../../providers/book_provider.dart';
 import '../../providers/library_provider.dart';
-import '../../components/app_button.dart';
 import '../../components/app_select.dart';
 import '../../core/design_tokens.dart';
 import '../glass_container.dart';
@@ -217,6 +216,41 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
     }
   }
 
+  void _showMoreMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(DesignTokens.space12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: DesignTokens.error,
+                ),
+                title: const Text(
+                  '책 삭제',
+                  style: TextStyle(color: DesignTokens.error),
+                ),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _deleteBook();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -237,16 +271,37 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar (고정 영역)
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+              // Handle bar + more button
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: DesignTokens.space12),
+                          child: GestureDetector(
+                            onTap: () => _showMoreMenu(context),
+                            child: const Icon(
+                              Icons.more_horiz,
+                              color: DesignTokens.textTertiary,
+                              size: DesignTokens.iconMd,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -507,16 +562,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Delete button
-                      AppButton(
-                        text: '책 삭제',
-                        icon: Icons.delete_outline,
-                        onPressed: _deleteBook,
-                        variant: AppButtonVariant.outlinedDanger,
-                        size: AppButtonSize.large,
-                        isFullWidth: true,
-                      ),
                     ],
                   ),
                 ),

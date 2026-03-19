@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/record.dart';
 import '../../providers/record_provider.dart';
-import '../../components/app_button.dart';
 import '../../core/design_tokens.dart';
 import '../glass_container.dart';
 
@@ -170,6 +169,50 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
     }
   }
 
+  void _showMoreMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(DesignTokens.space12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('수정하기'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _updateRecord();
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: DesignTokens.error,
+                ),
+                title: const Text(
+                  '기록 삭제',
+                  style: TextStyle(color: DesignTokens.error),
+                ),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _deleteRecord();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -190,16 +233,37 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar (고정 영역)
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+              // Handle bar + more button
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: DesignTokens.space12),
+                          child: GestureDetector(
+                            onTap: () => _showMoreMenu(context),
+                            child: const Icon(
+                              Icons.more_horiz,
+                              color: DesignTokens.textTertiary,
+                              size: DesignTokens.iconMd,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -394,26 +458,6 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      // Update button
-                      AppButton(
-                        text: '수정하기',
-                        onPressed: _updateRecord,
-                        variant: AppButtonVariant.primary,
-                        size: AppButtonSize.large,
-                        isFullWidth: true,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Delete button
-                      AppButton(
-                        text: '기록 삭제',
-                        icon: Icons.delete_outline,
-                        onPressed: _deleteRecord,
-                        variant: AppButtonVariant.outlinedDanger,
-                        size: AppButtonSize.large,
-                        isFullWidth: true,
-                      ),
                     ],
                   ),
                 ),
