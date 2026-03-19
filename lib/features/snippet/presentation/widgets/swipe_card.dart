@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'glass_container.dart';
-import '../models/snippet.dart';
-import '../core/design_tokens.dart';
-import '../core/typography.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/snippet/data/models/snippet.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
-/// Fintech Style Swipe Card
-/// 세련된 스와이프 카드 with 디자인 토큰
 class SwipeCard extends StatelessWidget {
   final Snippet snippet;
 
@@ -19,7 +17,6 @@ class SwipeCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Tag
           Align(
             alignment: Alignment.topLeft,
             child: Container(
@@ -45,8 +42,6 @@ class SwipeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: DesignTokens.space20),
-
-          // Quote Text
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -78,8 +73,6 @@ class SwipeCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Divider
           const SizedBox(height: DesignTokens.space24),
           Container(
             width: 48,

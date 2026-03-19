@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../components/app_tab_bar.dart';
-import 'home_screen.dart';
-import 'archive_screen.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
+import 'package:snippet_app/features/snippet/presentation/screens/home_screen.dart';
+import 'package:snippet_app/features/snippet/presentation/screens/archive_screen.dart';
 
 class SnippetScreen extends ConsumerStatefulWidget {
   const SnippetScreen({super.key});

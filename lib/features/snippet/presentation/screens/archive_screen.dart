@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/snippet_provider.dart';
-import '../models/snippet_archive.dart';
-import '../core/design_tokens.dart';
+import 'package:snippet_app/features/snippet/presentation/providers/snippet_provider.dart';
+import 'package:snippet_app/features/snippet/data/models/snippet_archive.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArchiveScreen extends ConsumerWidget {
@@ -114,7 +114,7 @@ class _ArchiveCardState extends State<ArchiveCard> {
             ),
             const SizedBox(height: 12),
             Text(
-              '“${widget.snippet.text}”',
+              '"${widget.snippet.text}"',
               style: TextStyle(
                 fontSize: 16,
                 height: 1.6,
@@ -164,7 +164,7 @@ class _ArchiveCardState extends State<ArchiveCard> {
                 width: 60,
                 height: 90,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _buildPlaceholder(),
+                errorBuilder: (_, __, ___) => _buildPlaceholder(),
               ),
             )
           else
@@ -206,9 +206,7 @@ class _ArchiveCardState extends State<ArchiveCard> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary, // Accent color
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: const Text(
