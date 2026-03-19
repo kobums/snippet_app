@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../components/app_refresh_indicator.dart';
-import '../../models/user_book.dart';
-import '../../providers/library_provider.dart';
-import '../../widgets/book/book_grid.dart';
-import '../../widgets/book/book_detail_bottom_sheet.dart';
-import '../book_search_screen.dart';
-import '../../components/app_app_bar.dart';
-import '../../components/app_fab.dart';
-import '../../components/search_field.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_grid.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/app_fab.dart';
+import 'package:snippet_app/components/search_field.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
-class BooksBorrowScreen extends ConsumerStatefulWidget {
-  const BooksBorrowScreen({super.key});
+class BooksWishlistScreen extends ConsumerStatefulWidget {
+  const BooksWishlistScreen({super.key});
 
   @override
-  ConsumerState<BooksBorrowScreen> createState() => _BooksBorrowScreenState();
+  ConsumerState<BooksWishlistScreen> createState() =>
+      _BooksWishlistScreenState();
 }
 
-class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
+class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -40,10 +42,10 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
     final libraryNotifier = ref.read(libraryProvider.notifier);
 
     if (_searchQuery.isEmpty) {
-      return libraryNotifier.getBooksBorrow();
+      return libraryNotifier.getBooksWish();
     }
 
-    return libraryNotifier.searchInCategory(BookType.borrow, _searchQuery);
+    return libraryNotifier.searchInCategory(BookType.wish, _searchQuery);
   }
 
   void _openBookDetail(UserBookDto book) {
@@ -67,7 +69,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppAppBar(
-        title: '빌린 책',
+        title: '위시리스트',
         letterSpacing: 1.5,
         actions: [
           Padding(
@@ -87,10 +89,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
       ),
       floatingActionButton: AppFab(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const BookSearchScreen()),
-          ).then((_) => _refreshBooks());
+          context.push(AppRoutes.bookSearch).then((_) => _refreshBooks());
         },
         label: '책 추가',
         icon: Icons.add_rounded,
@@ -126,13 +125,13 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.auto_stories_outlined,
+                Icons.favorite_border,
                 size: 64,
                 color: Colors.black.withValues(alpha: 0.2),
               ),
               const SizedBox(height: 16),
               Text(
-                _searchQuery.isEmpty ? '빌린 책이 없습니다' : '검색 결과가 없습니다',
+                _searchQuery.isEmpty ? '위시리스트가 비어있습니다' : '검색 결과가 없습니다',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
@@ -141,7 +140,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _searchQuery.isEmpty ? '빌린 책을 추가해보세요!' : '다른 검색어를 시도해보세요',
+                _searchQuery.isEmpty ? '읽고 싶은 책을 추가해보세요!' : '다른 검색어를 시도해보세요',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w300,

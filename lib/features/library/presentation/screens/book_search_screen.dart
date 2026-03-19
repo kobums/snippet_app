@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../models/book_search.dart';
-import '../providers/book_provider.dart';
-import '../core/design_tokens.dart';
-import '../widgets/glass_container.dart';
-import '../widgets/book/add_book_bottom_sheet.dart';
-import '../components/app_app_bar.dart';
-import '../components/search_field.dart';
+import 'package:snippet_app/features/library/data/models/book_search.dart';
+import 'package:snippet_app/features/library/library_providers.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/result/result.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/library/presentation/widgets/add_book_bottom_sheet.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/search_field.dart';
 
 class BookSearchScreen extends ConsumerStatefulWidget {
   const BookSearchScreen({super.key});
@@ -63,58 +64,57 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       _currentPage = 1;
     });
 
-    try {
-      final api = ref.read(bookApiProvider);
-      final results = await api.searchBooks(query, 1);
+    final searchUseCase = ref.read(searchBooksUseCaseProvider);
+    final result = await searchUseCase(query, 1);
 
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isSearching = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: const Color(0xFFFF3B30),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 0.1,
-              left: 16,
-              right: 16,
+    result.when(
+      success: (results) {
+        setState(() {
+          _searchResults = results;
+          _isSearching = false;
+        });
+      },
+      failure: (error) {
+        setState(() => _isSearching = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.message),
+              backgroundColor: const Color(0xFFFF3B30),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.1,
+                left: 16,
+                right: 16,
+              ),
+              duration: const Duration(seconds: 3),
             ),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
+          );
+        }
+      },
+    );
   }
 
   Future<void> _loadMore() async {
     if (_currentQuery.isEmpty) return;
 
-    setState(() {
-      _isLoadingMore = true;
-    });
+    setState(() => _isLoadingMore = true);
 
-    try {
-      final api = ref.read(bookApiProvider);
-      final results = await api.searchBooks(_currentQuery, _currentPage + 1);
+    final searchUseCase = ref.read(searchBooksUseCaseProvider);
+    final result = await searchUseCase(_currentQuery, _currentPage + 1);
 
-      setState(() {
-        _searchResults.addAll(results);
-        _currentPage++;
-        _isLoadingMore = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingMore = false;
-      });
-    }
+    result.when(
+      success: (results) {
+        setState(() {
+          _searchResults.addAll(results);
+          _currentPage++;
+          _isLoadingMore = false;
+        });
+      },
+      failure: (_) {
+        setState(() => _isLoadingMore = false);
+      },
+    );
   }
 
   void _showAddBookBottomSheet(BookSearchDto book) {
@@ -137,7 +137,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             controller: _searchController,
             hintText: '책 제목이나 저자를 검색하세요',
             onChanged: (value) {
-              // Debounce search
               Future.delayed(const Duration(milliseconds: 500), () {
                 if (value == _searchController.text) {
                   _search(value);
@@ -146,8 +145,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             },
             onClear: () => _search(''),
           ),
-
-          // Results
           Expanded(child: _buildResults()),
         ],
       ),
@@ -164,11 +161,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search,
-              size: 64,
-              color: Colors.black.withValues(alpha: 0.2),
-            ),
+            Icon(Icons.search, size: 64, color: Colors.black.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
             Text(
               '책을 검색해보세요',
@@ -188,11 +181,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: Colors.black.withValues(alpha: 0.2),
-            ),
+            Icon(Icons.search_off, size: 64, color: Colors.black.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
             Text(
               '검색 결과가 없습니다',
@@ -220,7 +209,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             ),
           );
         }
-
         final book = _searchResults[index];
         return _buildBookCard(book);
       },
@@ -236,7 +224,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Book cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: CachedNetworkImage(
@@ -256,26 +243,18 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                     width: 60,
                     height: 90,
                     color: Colors.grey.withValues(alpha: 0.3),
-                    child: Icon(
-                      Icons.book,
-                      color: Colors.grey.withValues(alpha: 0.5),
-                    ),
+                    child: Icon(Icons.book, color: Colors.grey.withValues(alpha: 0.5)),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Book info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -315,8 +294,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   ],
                 ),
               ),
-
-              // Add button
               Icon(
                 Icons.add_circle_outline,
                 color: DesignTokens.primaryMain.withValues(alpha: 0.7),

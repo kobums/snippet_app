@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../components/app_tab_bar.dart';
-import '../components/app_refresh_indicator.dart';
-import '../components/search_field.dart';
-import '../models/user_book.dart';
-import '../providers/library_provider.dart';
-import '../widgets/book/book_grid.dart';
-import '../widgets/book/book_detail_bottom_sheet.dart';
+import 'package:snippet_app/components/app_tab_bar.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/components/search_field.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_grid.dart';
+import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});

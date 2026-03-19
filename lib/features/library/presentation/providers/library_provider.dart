@@ -1,35 +1,44 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/user_book.dart';
-import 'book_provider.dart';
+import 'package:snippet_app/core/error/app_error.dart';
+import 'package:snippet_app/core/result/result.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/domain/usecases/fetch_all_books_usecase.dart';
+import 'package:snippet_app/features/library/library_providers.dart';
 
 class LibraryState {
   final List<UserBookDto> allBooks;
   final String searchQuery;
   final bool isLoading;
+  final AppError? error;
 
   LibraryState({
     this.allBooks = const [],
     this.searchQuery = '',
     this.isLoading = false,
+    this.error,
   });
 
   LibraryState copyWith({
     List<UserBookDto>? allBooks,
     String? searchQuery,
     bool? isLoading,
+    AppError? error,
   }) {
     return LibraryState(
       allBooks: allBooks ?? this.allBooks,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
+      error: error,
     );
   }
 }
 
 class LibraryNotifier extends Notifier<LibraryState> {
+  late final FetchAllBooksUseCase _fetchAllBooksUseCase;
+
   @override
   LibraryState build() {
-    // Load all books on initialization
+    _fetchAllBooksUseCase = ref.read(fetchAllBooksUseCaseProvider);
     Future.microtask(() => loadAllBooks());
     return LibraryState();
   }
@@ -37,18 +46,15 @@ class LibraryNotifier extends Notifier<LibraryState> {
   Future<void> loadAllBooks() async {
     state = state.copyWith(isLoading: true);
 
-    try {
-      final api = ref.read(userBookApiProvider);
-      // Use monthly endpoint without year/month to get all books
-      // OR we need to add a getAllUserBooks method to the API service
-      // For now, let's use monthly without parameters
-      final books = await api.getMonthlyUserBooks();
-      state = state.copyWith(allBooks: books, isLoading: false);
-    } catch (e) {
-      print('Load all books error: $e');
-      state = state.copyWith(isLoading: false);
-      rethrow;
-    }
+    final result = await _fetchAllBooksUseCase();
+    result.when(
+      success: (books) {
+        state = state.copyWith(allBooks: books, isLoading: false);
+      },
+      failure: (error) {
+        state = state.copyWith(isLoading: false, error: error);
+      },
+    );
   }
 
   void setSearchQuery(String query) {
@@ -56,10 +62,7 @@ class LibraryNotifier extends Notifier<LibraryState> {
   }
 
   List<UserBookDto> get filteredBooks {
-    if (state.searchQuery.isEmpty) {
-      return state.allBooks;
-    }
-
+    if (state.searchQuery.isEmpty) return state.allBooks;
     final query = state.searchQuery.toLowerCase();
     return state.allBooks.where((book) {
       return book.title.toLowerCase().contains(query) ||
@@ -68,7 +71,6 @@ class LibraryNotifier extends Notifier<LibraryState> {
   }
 
   List<UserBookDto> get recentBooks {
-    // Sort by createDate descending, take first 5
     final sorted = List<UserBookDto>.from(state.allBooks);
     sorted.sort((a, b) {
       final aDate = DateTime.tryParse(a.createDate) ?? DateTime(1900);

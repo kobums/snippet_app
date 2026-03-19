@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/core/design_tokens.dart';
-import '../../models/book_search.dart';
-import '../../models/user_book.dart';
-import '../../providers/book_provider.dart';
-import '../../components/app_button.dart';
-import '../../components/app_select.dart';
-import '../glass_container.dart';
+import 'package:snippet_app/features/library/data/models/book_search.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/library/library_providers.dart';
+import 'package:snippet_app/core/result/result.dart';
+import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/components/app_select.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
 class AddBookBottomSheet extends ConsumerStatefulWidget {
   final BookSearchDto book;
@@ -52,7 +54,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
     // Optimistic update
     final bookNotifier = ref.read(bookProvider.notifier);
     final tempBook = UserBookDto(
-      id: 0, // Will be replaced
+      id: 0,
       bookId: 0,
       title: widget.book.title,
       author: widget.book.author,
@@ -85,56 +87,56 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
       );
     }
 
-    // Call API in background
-    try {
-      final api = ref.read(userBookApiProvider);
-      final realId = await api.addUserBook(bookData);
+    // Call API via UseCase
+    final addBookUseCase = ref.read(addBookUseCaseProvider);
+    final result = await addBookUseCase(bookData);
 
-      // Replace temp ID with real ID
-      bookNotifier.updateBookId(tempId, realId);
+    result.when(
+      success: (realId) {
+        bookNotifier.updateBookId(tempId, realId);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${widget.book.title} 추가 완료!'),
-            backgroundColor: const Color(0xFF34C759),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 0.1,
-              left: 16,
-              right: 16,
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.book.title} 추가 완료!'),
+              backgroundColor: const Color(0xFF34C759),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.1,
+                left: 16,
+                right: 16,
+              ),
+              duration: const Duration(seconds: 2),
             ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      // Rollback on error
-      bookNotifier.removeBookLocally(tempId);
+          );
+        }
+      },
+      failure: (error) {
+        bookNotifier.removeBookLocally(tempId);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: const Color(0xFFFF3B30),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 0.1,
-              left: 16,
-              right: 16,
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.message),
+              backgroundColor: const Color(0xFFFF3B30),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.1,
+                left: 16,
+                right: 16,
+              ),
+              duration: const Duration(seconds: 3),
             ),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // 키보드 닫기
         FocusScope.of(context).unfocus();
       },
       behavior: HitTestBehavior.translucent,
@@ -150,7 +152,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar (고정 영역)
+              // Handle bar
               Center(
                 child: Container(
                   width: 40,
@@ -163,7 +165,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                 ),
               ),
 
-              // 스크롤 가능한 영역
+              // Scrollable content
               Flexible(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(
@@ -330,7 +332,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           ),
         ),
       ),
-    ); // GestureDetector 닫기
+    );
   }
 
   String _getTypeLabel(BookType type) {

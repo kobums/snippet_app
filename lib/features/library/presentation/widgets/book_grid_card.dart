@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/user_book.dart';
-import '../glass_container.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 /// Fintech Style Book Grid Card
 /// 세련된 북 카드 with 디자인 토큰

@@ -1,15 +1,22 @@
 import 'package:dio/dio.dart';
-import '../models/book_search.dart';
+import 'package:snippet_app/core/constants.dart';
+import 'package:snippet_app/core/error/error_handler.dart';
+import 'package:snippet_app/features/library/data/models/book_search.dart';
 
-class BookApiService {
+abstract class BookRemoteDataSource {
+  Future<List<BookSearchDto>> searchBooks(String query, int page);
+}
+
+class BookRemoteDataSourceImpl implements BookRemoteDataSource {
   final Dio _dio;
 
-  BookApiService(this._dio);
+  BookRemoteDataSourceImpl(this._dio);
 
+  @override
   Future<List<BookSearchDto>> searchBooks(String query, int page) async {
     try {
       final response = await _dio.get(
-        '/books/search',
+        ApiConstants.booksSearch,
         queryParameters: {
           'query': query,
           'page': page,
@@ -22,10 +29,7 @@ class BookApiService {
       }
       return [];
     } on DioException catch (e) {
-      print('Book search error: $e');
-      throw Exception(
-        e.response?.data['message'] ?? 'Failed to search books. Please try again.',
-      );
+      throw ErrorHandler.handleDioError(e);
     }
   }
 }

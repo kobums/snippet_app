@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/user_book.dart';
-import '../../providers/book_provider.dart';
-import '../../providers/library_provider.dart';
-import '../../components/app_select.dart';
-import '../../core/design_tokens.dart';
-import '../glass_container.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/components/app_select.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
 class BookDetailBottomSheet extends ConsumerStatefulWidget {
   final UserBookDto book;
@@ -47,7 +47,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           .read(bookProvider.notifier)
           .updateStatus(widget.book.id, status);
 
-      // Refresh library provider to update book list screens
       ref.read(libraryProvider.notifier).loadAllBooks();
 
       if (mounted) {
@@ -67,7 +66,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
       }
     } catch (e) {
       setState(() {
-        _selectedStatus = widget.book.status; // Rollback
+        _selectedStatus = widget.book.status;
       });
 
       if (mounted) {
@@ -100,7 +99,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           .read(bookProvider.notifier)
           .updateProgress(widget.book.id, page);
 
-      // Refresh library provider to update book list screens
       await ref.read(libraryProvider.notifier).loadAllBooks();
 
       if (mounted) {
@@ -122,7 +120,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           ),
         );
 
-        // 업데이트 성공 후 자동으로 bottom sheet 닫기
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
             Navigator.of(context).pop();
@@ -132,9 +129,8 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _readPage = widget.book.readPage; // Rollback
-          _pageController?.text =
-              '${widget.book.readPage}'; // Rollback controller
+          _readPage = widget.book.readPage;
+          _pageController?.text = '${widget.book.readPage}';
           _isUpdating = false;
         });
 
@@ -156,7 +152,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
   }
 
   Future<void> _deleteBook() async {
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -183,11 +178,10 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
     try {
       await ref.read(bookProvider.notifier).deleteBook(widget.book.id);
 
-      // Refresh library provider to update book list screens
       ref.read(libraryProvider.notifier).loadAllBooks();
 
       if (mounted) {
-        Navigator.of(context).pop(); // Close bottom sheet
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${widget.book.title}이(가) 삭제되었습니다'),
@@ -255,7 +249,6 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // 키보드 닫기
         FocusScope.of(context).unfocus();
       },
       behavior: HitTestBehavior.translucent,
@@ -305,7 +298,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                 ),
               ),
 
-              // 스크롤 가능한 영역
+              // Scrollable content
               Flexible(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(
@@ -511,7 +504,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                                                 _updateProgress(page);
                                                 FocusScope.of(
                                                   context,
-                                                ).unfocus(); // 키보드 닫기
+                                                ).unfocus();
                                               } else {
                                                 ScaffoldMessenger.of(
                                                   context,
@@ -554,7 +547,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                                 if (page >= 0 &&
                                     page <= widget.book.totalPage) {
                                   _updateProgress(page);
-                                  FocusScope.of(context).unfocus(); // 키보드 닫기
+                                  FocusScope.of(context).unfocus();
                                 }
                               },
                             ),
@@ -570,7 +563,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
           ),
         ),
       ),
-    ); // GestureDetector 닫기
+    );
   }
 
   String _getTypeLabel(BookType type) {

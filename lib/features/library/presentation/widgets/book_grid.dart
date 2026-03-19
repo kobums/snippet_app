@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../models/user_book.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'book_grid_card.dart';
 
 class BookGrid extends StatelessWidget {
