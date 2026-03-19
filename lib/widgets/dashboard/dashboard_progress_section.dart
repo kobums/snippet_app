@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../components/app_refresh_indicator.dart';
 import '../../providers/book_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
@@ -35,12 +36,9 @@ class _DashboardProgressSectionState
   @override
   Widget build(BuildContext context) {
     final bookState = ref.watch(bookProvider);
-    final currentTabBooks = _getFilteredBooks(
-      bookState.books,
-      _selectedIndex,
-    );
+    final currentTabBooks = _getFilteredBooks(bookState.books, _selectedIndex);
 
-    return RefreshIndicator(
+    return AppRefreshIndicator(
       onRefresh: () => ref.read(bookProvider.notifier).refreshBooks(),
       child: CustomScrollView(
         slivers: [
@@ -98,9 +96,9 @@ class _DashboardProgressSectionState
 
     return SliverPadding(
       padding: const EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: 80, // FAB clearance (64px FAB + 16px margin)
+        left: 8,
+        right: 8,
+        bottom: 20, // FAB clearance (64px FAB + 16px margin)
       ),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(

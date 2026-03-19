@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
+import '../components/app_refresh_indicator.dart';
 import '../providers/stats_provider.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/stats/monthly_chart.dart';
@@ -78,7 +79,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
 
           // Content
           Expanded(
-            child: RefreshIndicator(
+            child: AppRefreshIndicator(
               onRefresh: () => statsNotifier.refreshStats(),
               child: TabBarView(
                 controller: _tabController,

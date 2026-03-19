@@ -21,10 +21,10 @@ class BottomNavLayout extends StatelessWidget {
     final fabPadding = hasFloatingActionButton ? DesignTokens.space64 : 0.0;
 
     final defaultPadding = EdgeInsets.only(
-      left: DesignTokens.space16,
-      right: DesignTokens.space16,
-      top: DesignTokens.space16,
-      bottom: DesignTokens.space16 + fabPadding,
+      left: DesignTokens.space8,
+      right: DesignTokens.space8,
+      top: DesignTokens.space8,
+      bottom: DesignTokens.space8 + fabPadding,
     );
 
     return SingleChildScrollView(
@@ -58,9 +58,9 @@ class BottomNavListLayout extends StatelessWidget {
     final fabPadding = hasFloatingActionButton ? DesignTokens.space64 : 0.0;
 
     final defaultPadding = EdgeInsets.only(
-      left: DesignTokens.space16,
-      right: DesignTokens.space16,
-      bottom: DesignTokens.space16 + fabPadding,
+      left: DesignTokens.space8,
+      right: DesignTokens.space8,
+      bottom: DesignTokens.space8 + fabPadding,
     );
 
     if (separatorBuilder != null) {

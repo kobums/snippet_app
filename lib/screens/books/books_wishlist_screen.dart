@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../components/app_refresh_indicator.dart';
 import '../../models/user_book.dart';
 import '../../providers/library_provider.dart';
 import '../../widgets/book/book_grid.dart';
@@ -119,7 +120,7 @@ class _BooksWishlistScreenState extends ConsumerState<BooksWishlistScreen> {
 
           // Book grid
           Expanded(
-            child: RefreshIndicator(
+            child: AppRefreshIndicator(
               onRefresh: _refreshBooks,
               child: filteredBooks.isEmpty && !libraryState.isLoading
                   ? _buildEmptyState()

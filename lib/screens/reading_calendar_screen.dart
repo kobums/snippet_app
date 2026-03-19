@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../components/app_refresh_indicator.dart';
 import '../models/user_book.dart';
 import '../providers/book_provider.dart';
 import '../services/calendar_share_service.dart';
@@ -119,7 +120,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
         //   child: _buildMonthNavigation(isCurrentMonth),
         // ),
       ),
-      body: RefreshIndicator(
+      body: AppRefreshIndicator(
         onRefresh: _loadData,
         child: bookState.isLoading
             ? const Center(child: CircularProgressIndicator())

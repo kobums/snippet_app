@@ -149,6 +149,7 @@ class DashboardLibrarySection extends ConsumerWidget {
               );
             },
             child: GlassContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -187,7 +188,7 @@ class DashboardLibrarySection extends ConsumerWidget {
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
