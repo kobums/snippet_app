@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/book_provider.dart';
 import '../../models/user_book.dart';
 import '../glass_container.dart';
-import '../layout/bottom_nav_layout.dart';
 import 'reading_calendar.dart';
 import '../../core/design_tokens.dart';
 import '../../components/month_navigator.dart';
@@ -32,70 +31,77 @@ class DashboardStatsSection extends ConsumerWidget {
       (sum, b) => sum + b.totalPage,
     );
 
-    return BottomNavLayout(
-      hasFloatingActionButton: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Month Navigator
-          MonthNavigator(
+    return CustomScrollView(
+      slivers: [
+        // Sticky Month Navigator
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: StickyMonthNavigator(
             year: bookState.selectedYear,
             month: bookState.selectedMonth,
             isCurrentMonth: isCurrentMonth,
             onMonthChanged: (year, month) {
               bookNotifier.setSelectedMonth(year, month);
             },
+            height: 64,
           ),
-          const SizedBox(height: 16),
+        ),
 
-          // Stats Card
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const StatsScreen()),
-              );
-            },
-            child: _buildStatsCard(completedBooks.length, totalPages),
-          ),
-          const SizedBox(height: 16),
-
-          // Reading Calendar
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ReadingCalendarScreen(),
-                ),
-              );
-            },
-            child: GlassContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SectionHeader('독서 캘린더'),
-                  const SizedBox(height: 8),
-                  ReadingCalendar(
-                    completedBooks: completedBooks,
-                    year: bookState.selectedYear,
-                    month: bookState.selectedMonth,
-                  ),
-                ],
+        // Content
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // Stats Card
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const StatsScreen()),
+                  );
+                },
+                child: _buildStatsCard(completedBooks.length, totalPages),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // Completed Books List
-          if (completedBooks.isNotEmpty) ...[
-            SectionHeader(
-              '완독한 책 (${completedBooks.length})',
-              size: SectionHeaderSize.large,
-              padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-            ),
-            ...completedBooks.map((book) => _buildCompletedBookCard(book)),
-          ],
-        ],
-      ),
+              // Reading Calendar
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ReadingCalendarScreen(),
+                    ),
+                  );
+                },
+                child: GlassContainer(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionHeader('독서 캘린더'),
+                      const SizedBox(height: 8),
+                      ReadingCalendar(
+                        completedBooks: completedBooks,
+                        year: bookState.selectedYear,
+                        month: bookState.selectedMonth,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Completed Books List
+              if (completedBooks.isNotEmpty) ...[
+                SectionHeader(
+                  '완독한 책 (${completedBooks.length})',
+                  size: SectionHeaderSize.large,
+                  padding: const EdgeInsets.only(left: 8.0, bottom: 12),
+                ),
+                ...completedBooks.map((book) => _buildCompletedBookCard(book)),
+              ],
+            ]),
+          ),
+        ),
+      ],
     );
   }
 
