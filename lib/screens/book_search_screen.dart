@@ -7,6 +7,7 @@ import '../core/design_tokens.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/book/add_book_bottom_sheet.dart';
 import '../components/app_app_bar.dart';
+import '../components/search_field.dart';
 
 class BookSearchScreen extends ConsumerStatefulWidget {
   const BookSearchScreen({super.key});
@@ -132,42 +133,18 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       appBar: const AppAppBar(title: '책 검색', letterSpacing: 2),
       body: Column(
         children: [
-          // Search bar
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            color: DesignTokens.bgPrimary,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: '책 제목이나 저자를 검색하세요',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _search('');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-              onChanged: (value) {
-                setState(() {}); // Update suffixIcon
-                // Debounce search
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  if (value == _searchController.text) {
-                    _search(value);
-                  }
-                });
-              },
-              onSubmitted: _search,
-            ),
+          SearchField(
+            controller: _searchController,
+            hintText: '책 제목이나 저자를 검색하세요',
+            onChanged: (value) {
+              // Debounce search
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (value == _searchController.text) {
+                  _search(value);
+                }
+              });
+            },
+            onClear: () => _search(''),
           ),
 
           // Results

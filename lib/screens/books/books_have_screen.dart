@@ -95,42 +95,24 @@ class _BooksHaveScreenState extends ConsumerState<BooksHaveScreen> {
         label: '책 추가',
         icon: Icons.add_rounded,
       ),
-      body: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Search bar
-                SearchField(
-                  controller: _searchController,
-                  hintText: '제목이나 저자로 검색...',
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
+      body: SearchableScrollLayout(
+        controller: _searchController,
+        hintText: '제목이나 저자로 검색...',
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        child: AppRefreshIndicator(
+          onRefresh: _refreshBooks,
+          child: filteredBooks.isEmpty && !libraryState.isLoading
+              ? _buildEmptyState()
+              : BookGrid(
+                  books: filteredBooks,
+                  loading: libraryState.isLoading,
+                  onBookTap: _openBookDetail,
                 ),
-              ],
-            ),
-          ),
-
-          // Book grid
-          Expanded(
-            child: AppRefreshIndicator(
-              onRefresh: _refreshBooks,
-              child: filteredBooks.isEmpty && !libraryState.isLoading
-                  ? _buildEmptyState()
-                  : BookGrid(
-                      books: filteredBooks,
-                      loading: libraryState.isLoading,
-                      onBookTap: _openBookDetail,
-                    ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
