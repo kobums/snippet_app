@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../widgets/glass_container.dart';
 
-/// Reusable Search Field component
+/// Glass 스타일 검색 필드 컴포넌트
 class SearchField extends StatefulWidget {
   final TextEditingController? controller;
   final String hintText;
   final ValueChanged<String> onChanged;
   final VoidCallback? onClear;
+  final EdgeInsetsGeometry margin;
 
   const SearchField({
     super.key,
@@ -14,6 +14,7 @@ class SearchField extends StatefulWidget {
     this.hintText = '검색...',
     required this.onChanged,
     this.onClear,
+    this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   });
 
   @override
@@ -55,33 +56,110 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      onChanged: widget.onChanged,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w300,
-          color: Colors.black.withValues(alpha: 0.4),
+    return Container(
+      margin: widget.margin,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.15),
+          width: 1,
         ),
-        prefixIcon: Icon(
-          Icons.search,
-          color: Colors.black.withValues(alpha: 0.5),
-        ),
-        suffixIcon: _hasText
-            ? IconButton(
-                icon: Icon(
-                  Icons.clear,
-                  color: Colors.black.withValues(alpha: 0.5),
-                ),
-                onPressed: _handleClear,
-              )
-            : null,
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(vertical: 12),
       ),
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+      child: TextField(
+        controller: _controller,
+        onChanged: widget.onChanged,
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          hintStyle: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w300,
+            color: Colors.black.withValues(alpha: 0.4),
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: Colors.black.withValues(alpha: 0.5),
+          ),
+          suffixIcon: _hasText
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: Colors.black.withValues(alpha: 0.5),
+                  ),
+                  onPressed: _handleClear,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+      ),
+    );
+  }
+}
+
+/// 스크롤 시 제자리에서 fade-out 되는 SearchField + 스크롤 콘텐츠 레이아웃
+///
+/// Stack으로 SearchField를 상단에 오버레이하고,
+/// 스크롤 offset에 따라 opacity만 변경합니다.
+class SearchableScrollLayout extends StatefulWidget {
+  final TextEditingController? controller;
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onClear;
+  final Widget child;
+  final double fadeDistance;
+
+  const SearchableScrollLayout({
+    super.key,
+    this.controller,
+    this.hintText = '검색...',
+    required this.onChanged,
+    this.onClear,
+    required this.child,
+    this.fadeDistance = 60.0,
+  });
+
+  @override
+  State<SearchableScrollLayout> createState() => _SearchableScrollLayoutState();
+}
+
+class _SearchableScrollLayoutState extends State<SearchableScrollLayout> {
+  double _scrollOffset = 0;
+
+  bool _onScroll(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      setState(() {
+        _scrollOffset = notification.metrics.pixels;
+      });
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final opacity = (1.0 - _scrollOffset / widget.fadeDistance).clamp(0.0, 1.0);
+
+    return Stack(
+      children: [
+        NotificationListener<ScrollNotification>(
+          onNotification: _onScroll,
+          child: widget.child,
+        ),
+        IgnorePointer(
+          ignoring: opacity < 0.1,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: opacity,
+            child: SearchField(
+              controller: widget.controller,
+              hintText: widget.hintText,
+              onChanged: widget.onChanged,
+              onClear: widget.onClear,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
