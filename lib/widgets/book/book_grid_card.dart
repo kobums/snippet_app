@@ -10,11 +10,7 @@ class BookGridCard extends StatelessWidget {
   final UserBookDto book;
   final VoidCallback onTap;
 
-  const BookGridCard({
-    super.key,
-    required this.book,
-    required this.onTap,
-  });
+  const BookGridCard({super.key, required this.book, required this.onTap});
 
   Color _getStatusColor(BookStatus status) {
     switch (status) {
@@ -51,7 +47,7 @@ class BookGridCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
-        padding: const EdgeInsets.all(DesignTokens.space12),
+        padding: const EdgeInsets.all(DesignTokens.space8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -72,9 +68,11 @@ class BookGridCard extends StatelessWidget {
                           height: double.infinity,
                           decoration: BoxDecoration(
                             color: DesignTokens.neutral200,
-                            borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusSm,
+                            ),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.book_outlined,
                             size: DesignTokens.icon2xl,
                             color: DesignTokens.neutral400,
@@ -94,7 +92,9 @@ class BookGridCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(book.status),
-                        borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                        borderRadius: BorderRadius.circular(
+                          DesignTokens.radiusSm,
+                        ),
                         boxShadow: DesignTokens.shadowSm,
                       ),
                       child: Text(

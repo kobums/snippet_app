@@ -25,7 +25,7 @@ class BookGrid extends StatelessWidget {
     final crossAxisCount = screenWidth < 600 ? 2 : 3;
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         childAspectRatio: 0.65,
@@ -47,7 +47,7 @@ class BookGrid extends StatelessWidget {
     final crossAxisCount = screenWidth < 600 ? 2 : 3;
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         childAspectRatio: 0.65,
