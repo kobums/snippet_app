@@ -182,36 +182,100 @@ class MonthNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: _onPreviousMonth,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.5),
+          width: 1,
         ),
-        InkWell(
-          onTap: () => _showMonthPicker(context),
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              '$year년 $month월',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left, size: 20),
+            onPressed: _onPreviousMonth,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+          InkWell(
+            onTap: () => _showMonthPicker(context),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(
+                '$year년 $month월',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.chevron_right,
-            color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
+          IconButton(
+            icon: Icon(
+              Icons.chevron_right,
+              size: 20,
+              color:
+                  isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
+            ),
+            onPressed: isCurrentMonth ? null : _onNextMonth,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
-          onPressed: isCurrentMonth ? null : _onNextMonth,
-        ),
-      ],
+        ],
+      ),
     );
+  }
+}
+
+/// Sticky Month Navigator Delegate for CustomScrollView
+///
+/// StickyGlassSegmentedButton과 동일한 패턴의 sticky header
+class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
+  final int year;
+  final int month;
+  final bool isCurrentMonth;
+  final Function(int year, int month) onMonthChanged;
+  final double height;
+
+  StickyMonthNavigator({
+    required this.year,
+    required this.month,
+    required this.isCurrentMonth,
+    required this.onMonthChanged,
+    this.height = 64.0,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Center(
+      child: MonthNavigator(
+        year: year,
+        month: month,
+        isCurrentMonth: isCurrentMonth,
+        onMonthChanged: onMonthChanged,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant StickyMonthNavigator oldDelegate) {
+    return year != oldDelegate.year ||
+        month != oldDelegate.month ||
+        isCurrentMonth != oldDelegate.isCurrentMonth;
   }
 }
