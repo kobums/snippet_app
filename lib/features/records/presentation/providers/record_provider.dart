@@ -1,12 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/record.dart';
-import '../services/record_api_service.dart';
-import 'snippet_provider.dart';
+import 'package:snippet_app/core/error/app_error.dart';
+import 'package:snippet_app/core/result/result.dart';
+import 'package:snippet_app/features/records/data/models/record.dart';
+import 'package:snippet_app/features/records/domain/usecases/add_record_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/delete_record_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/fetch_monthly_records_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/fetch_records_by_book_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/update_record_usecase.dart';
+import 'package:snippet_app/features/records/records_providers.dart';
 
 class RecordState {
   final List<RecordDto> allRecords;
   final bool isLoading;
-  final String? error;
+  final AppError? error;
   final RecordType? selectedType;
   final int selectedYear;
   final int selectedMonth;
@@ -30,7 +36,7 @@ class RecordState {
   RecordState copyWith({
     List<RecordDto>? allRecords,
     bool? isLoading,
-    String? error,
+    AppError? error,
     RecordType? selectedType,
     bool clearSelectedType = false,
     int? selectedYear,
@@ -48,10 +54,21 @@ class RecordState {
 }
 
 class RecordNotifier extends Notifier<RecordState> {
+  late final FetchMonthlyRecordsUseCase _fetchMonthlyRecordsUseCase;
+  late final FetchRecordsByBookUseCase _fetchRecordsByBookUseCase;
+  late final AddRecordUseCase _addRecordUseCase;
+  late final UpdateRecordUseCase _updateRecordUseCase;
+  late final DeleteRecordUseCase _deleteRecordUseCase;
+
   @override
   RecordState build() {
+    _fetchMonthlyRecordsUseCase = ref.read(fetchMonthlyRecordsUseCaseProvider);
+    _fetchRecordsByBookUseCase = ref.read(fetchRecordsByBookUseCaseProvider);
+    _addRecordUseCase = ref.read(addRecordUseCaseProvider);
+    _updateRecordUseCase = ref.read(updateRecordUseCaseProvider);
+    _deleteRecordUseCase = ref.read(deleteRecordUseCaseProvider);
+
     final now = DateTime.now();
-    // Auto-load records on initialization
     Future.microtask(() => loadMonthlyRecords());
     return RecordState(
       selectedYear: now.year,
@@ -70,45 +87,42 @@ class RecordNotifier extends Notifier<RecordState> {
       selectedMonth: targetMonth,
     );
 
-    try {
-      final api = ref.read(recordApiProvider);
-      final records = await api.getMonthlyRecords(
-        targetYear,
-        targetMonth,
-      );
-
-      state = state.copyWith(
-        allRecords: records,
-        isLoading: false,
-        error: null,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString().replaceAll('Exception: ', ''),
-      );
-    }
+    final result = await _fetchMonthlyRecordsUseCase(targetYear, targetMonth);
+    result.when(
+      success: (records) {
+        state = state.copyWith(
+          allRecords: records,
+          isLoading: false,
+        );
+      },
+      failure: (error) {
+        state = state.copyWith(
+          isLoading: false,
+          error: error,
+        );
+      },
+    );
   }
 
   /// Load records by book ID, optionally filtered by type
   Future<void> loadRecordsByBook(int bookId, {RecordType? type}) async {
     state = state.copyWith(isLoading: true);
 
-    try {
-      final api = ref.read(recordApiProvider);
-      final records = await api.getRecordsByBook(bookId, type: type);
-
-      state = state.copyWith(
-        allRecords: records,
-        isLoading: false,
-        error: null,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString().replaceAll('Exception: ', ''),
-      );
-    }
+    final result = await _fetchRecordsByBookUseCase(bookId, type: type);
+    result.when(
+      success: (records) {
+        state = state.copyWith(
+          allRecords: records,
+          isLoading: false,
+        );
+      },
+      failure: (error) {
+        state = state.copyWith(
+          isLoading: false,
+          error: error,
+        );
+      },
+    );
   }
 
   /// Set selected month and reload records
@@ -126,22 +140,22 @@ class RecordNotifier extends Notifier<RecordState> {
 
   /// Add a new record
   Future<void> addRecord(int bookId, RecordAddRequestDto data) async {
-    try {
-      final api = ref.read(recordApiProvider);
-      await api.createRecord(bookId, data);
-
-      await loadMonthlyRecords();
-    } catch (e) {
-      state = state.copyWith(
-        error: e.toString().replaceAll('Exception: ', ''),
-      );
-      rethrow;
-    }
+    final result = await _addRecordUseCase(bookId, data);
+    result.when(
+      success: (_) {
+        loadMonthlyRecords();
+      },
+      failure: (error) {
+        state = state.copyWith(error: error);
+      },
+    );
   }
 
-  /// Update an existing record
+  /// Update an existing record (optimistic update with rollback)
   Future<void> updateRecord(int id, Map<String, dynamic> updates) async {
     final originalRecords = state.allRecords;
+
+    // Optimistic update
     state = state.copyWith(
       allRecords: state.allRecords.map((r) {
         if (r.id == id) {
@@ -155,35 +169,43 @@ class RecordNotifier extends Notifier<RecordState> {
       }).toList(),
     );
 
-    try {
-      final api = ref.read(recordApiProvider);
-      await api.patchRecord(id, updates);
-    } catch (e) {
-      state = state.copyWith(
-        allRecords: originalRecords,
-        error: e.toString().replaceAll('Exception: ', ''),
-      );
-      rethrow;
-    }
+    final result = await _updateRecordUseCase(id, updates);
+    result.when(
+      success: (_) {
+        // Optimistic update already applied
+      },
+      failure: (error) {
+        // Rollback on failure
+        state = state.copyWith(
+          allRecords: originalRecords,
+          error: error,
+        );
+      },
+    );
   }
 
-  /// Delete a record
+  /// Delete a record (optimistic update with rollback)
   Future<void> deleteRecord(int id) async {
     final originalRecords = state.allRecords;
+
+    // Optimistic delete
     state = state.copyWith(
       allRecords: state.allRecords.where((r) => r.id != id).toList(),
     );
 
-    try {
-      final api = ref.read(recordApiProvider);
-      await api.deleteRecord(id);
-    } catch (e) {
-      state = state.copyWith(
-        allRecords: originalRecords,
-        error: e.toString().replaceAll('Exception: ', ''),
-      );
-      rethrow;
-    }
+    final result = await _deleteRecordUseCase(id);
+    result.when(
+      success: (_) {
+        // Optimistic delete already applied
+      },
+      failure: (error) {
+        // Rollback on failure
+        state = state.copyWith(
+          allRecords: originalRecords,
+          error: error,
+        );
+      },
+    );
   }
 
   /// Refresh current records
@@ -194,10 +216,4 @@ class RecordNotifier extends Notifier<RecordState> {
 
 final recordProvider = NotifierProvider<RecordNotifier, RecordState>(() {
   return RecordNotifier();
-});
-
-// API service provider
-final recordApiProvider = Provider<RecordApiService>((ref) {
-  final dio = ref.read(apiServiceProvider).dio;
-  return RecordApiService(dio);
 });

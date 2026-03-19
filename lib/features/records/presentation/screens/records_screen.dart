@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
-import '../components/app_refresh_indicator.dart';
-import '../providers/record_provider.dart';
-import '../providers/book_provider.dart';
-import '../models/record.dart';
-import '../widgets/records/add_record_bottom_sheet.dart';
-import '../widgets/records/record_card.dart';
-import '../components/month_navigator.dart';
-import '../components/section_header.dart';
+import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/records/data/models/record.dart';
+import 'package:snippet_app/features/records/presentation/widgets/add_record_bottom_sheet.dart';
+import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
+import 'package:snippet_app/components/month_navigator.dart';
+import 'package:snippet_app/components/section_header.dart';
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -133,13 +133,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
   }
 
   Widget _buildRecordsSliver(List<RecordDto> records, bool isLoading) {
-    // if (isLoading) {
-    //   return const SliverFillRemaining(
-    //     hasScrollBody: false,
-    //     child: Center(child: CircularProgressIndicator()),
-    //   );
-    // }
-
     if (records.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
@@ -176,7 +169,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       );
     }
 
-    // Group records by book
     final groupedRecords = <String, List<RecordDto>>{};
     for (final record in records) {
       final key = record.bookTitle;
@@ -186,7 +178,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       groupedRecords[key]!.add(record);
     }
 
-    // Flatten grouped records into a list of widgets
     final widgets = <Widget>[
       Padding(
         padding: const EdgeInsets.only(left: 8.0, bottom: 12, top: 8),

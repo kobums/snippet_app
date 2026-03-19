@@ -1,0 +1,46 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/app/providers.dart';
+import 'package:snippet_app/features/records/data/datasources/record_remote_datasource.dart';
+import 'package:snippet_app/features/records/data/repositories/record_repository_impl.dart';
+import 'package:snippet_app/features/records/domain/repositories/record_repository.dart';
+import 'package:snippet_app/features/records/domain/usecases/add_record_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/delete_record_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/fetch_monthly_records_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/fetch_records_by_book_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/update_record_usecase.dart';
+
+// DataSources
+final recordRemoteDataSourceProvider =
+    Provider<RecordRemoteDataSource>((ref) {
+  final dio = ref.read(dioProvider);
+  return RecordRemoteDataSourceImpl(dio);
+});
+
+// Repositories
+final recordRepositoryProvider = Provider<RecordRepository>((ref) {
+  final remote = ref.read(recordRemoteDataSourceProvider);
+  return RecordRepositoryImpl(remote);
+});
+
+// UseCases
+final fetchMonthlyRecordsUseCaseProvider =
+    Provider<FetchMonthlyRecordsUseCase>((ref) {
+  return FetchMonthlyRecordsUseCase(ref.read(recordRepositoryProvider));
+});
+
+final fetchRecordsByBookUseCaseProvider =
+    Provider<FetchRecordsByBookUseCase>((ref) {
+  return FetchRecordsByBookUseCase(ref.read(recordRepositoryProvider));
+});
+
+final addRecordUseCaseProvider = Provider<AddRecordUseCase>((ref) {
+  return AddRecordUseCase(ref.read(recordRepositoryProvider));
+});
+
+final updateRecordUseCaseProvider = Provider<UpdateRecordUseCase>((ref) {
+  return UpdateRecordUseCase(ref.read(recordRepositoryProvider));
+});
+
+final deleteRecordUseCaseProvider = Provider<DeleteRecordUseCase>((ref) {
+  return DeleteRecordUseCase(ref.read(recordRepositoryProvider));
+});

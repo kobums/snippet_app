@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/record.dart';
-import '../../providers/record_provider.dart';
-import '../glass_container.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
-import 'edit_record_bottom_sheet.dart';
+import 'package:snippet_app/features/records/data/models/record.dart';
+import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/features/records/presentation/widgets/edit_record_bottom_sheet.dart';
 
-/// Fintech Style Record Card
-/// 세련된 기록 카드 with 디자인 토큰
 class RecordCard extends ConsumerWidget {
   final RecordDto record;
 
@@ -124,17 +122,14 @@ class RecordCard extends ConsumerWidget {
             );
           },
           child: GlassContainer(
-            // borderRadius: DesignTokens.radiusNo,
             showBorder: false,
             padding: const EdgeInsets.all(DesignTokens.space16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header (tag + page + date)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Tag
                     if (record.tag != null && record.tag!.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -159,8 +154,6 @@ class RecordCard extends ConsumerWidget {
                       )
                     else
                       const SizedBox.shrink(),
-
-                    // Page + Date
                     Row(
                       children: [
                         if (record.relatedPage != null) ...[
@@ -182,10 +175,7 @@ class RecordCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: DesignTokens.space12),
-
-                // Text content
                 Text(
                   record.text,
                   style: AppTypography.bodyMedium.copyWith(

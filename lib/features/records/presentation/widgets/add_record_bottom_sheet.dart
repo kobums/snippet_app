@@ -1,33 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/record.dart';
-import '../../providers/record_provider.dart';
-import '../../core/design_tokens.dart';
-import '../glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/features/records/data/models/record.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
+import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/components/app_select.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
-class EditRecordBottomSheet extends ConsumerStatefulWidget {
-  final RecordDto record;
+class AddRecordBottomSheet extends ConsumerStatefulWidget {
+  final List<UserBookDto> books;
+  final RecordType? initialType;
 
-  const EditRecordBottomSheet({super.key, required this.record});
+  const AddRecordBottomSheet({
+    super.key,
+    required this.books,
+    this.initialType,
+  });
 
   @override
-  ConsumerState<EditRecordBottomSheet> createState() =>
-      _EditRecordBottomSheetState();
+  ConsumerState<AddRecordBottomSheet> createState() =>
+      _AddRecordBottomSheetState();
 }
 
-class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
-  late TextEditingController _textController;
-  late TextEditingController _tagController;
-  late TextEditingController _pageController;
+class _AddRecordBottomSheetState extends ConsumerState<AddRecordBottomSheet> {
+  late RecordType _selectedType;
+  UserBookDto? _selectedBook;
+  final _textController = TextEditingController();
+  final _tagController = TextEditingController();
+  final _pageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.record.text);
-    _tagController = TextEditingController(text: widget.record.tag ?? '');
-    _pageController = TextEditingController(
-      text: widget.record.relatedPage?.toString() ?? '',
-    );
+    _selectedType = widget.initialType ?? RecordType.snippet;
+    if (widget.books.isNotEmpty) {
+      _selectedBook = widget.books.first;
+    }
   }
 
   @override
@@ -38,7 +47,24 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
     super.dispose();
   }
 
-  Future<void> _updateRecord() async {
+  Future<void> _addRecord() async {
+    if (_selectedBook == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('책을 선택해주세요'),
+          backgroundColor: const Color(0xFFFF3B30),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.7,
+            left: 16,
+            right: 16,
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (_textController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -56,26 +82,44 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
       return;
     }
 
-    final updates = {
-      'text': _textController.text.trim(),
-      'tag': _tagController.text.trim().isEmpty
+    final data = RecordAddRequestDto(
+      type: _selectedType,
+      text: _textController.text.trim(),
+      tag: _tagController.text.trim().isEmpty
           ? null
           : _tagController.text.trim(),
-      'relatedPage': _pageController.text.trim().isEmpty
+      relatedPage: _pageController.text.trim().isEmpty
           ? null
           : int.tryParse(_pageController.text.trim()),
-    };
+    );
 
+    // Close bottom sheet immediately
+    if (mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('기록 추가 중...'),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.height * 0.1,
+            left: 16,
+            right: 16,
+          ),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+
+    // Call API in background
     try {
       await ref
           .read(recordProvider.notifier)
-          .updateRecord(widget.record.id, updates);
+          .addRecord(_selectedBook!.id, data);
 
       if (mounted) {
-        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('기록이 수정되었습니다'),
+            content: const Text('기록이 추가되었습니다'),
             backgroundColor: const Color(0xFF34C759),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.only(
@@ -95,122 +139,15 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
             backgroundColor: const Color(0xFFFF3B30),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 0.7,
-              left: 16,
-              right: 16,
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _deleteRecord() async {
-    // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('기록 삭제'),
-        content: const Text('이 기록을 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFFF3B30),
-            ),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      await ref.read(recordProvider.notifier).deleteRecord(widget.record.id);
-
-      if (mounted) {
-        Navigator.of(context).pop(); // Close bottom sheet
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('기록이 삭제되었습니다'),
-            backgroundColor: const Color(0xFF34C759),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
               bottom: MediaQuery.of(context).size.height * 0.1,
               left: 16,
               right: 16,
             ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: const Color(0xFFFF3B30),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height * 0.7,
-              left: 16,
-              right: 16,
-            ),
             duration: const Duration(seconds: 3),
           ),
         );
       }
     }
-  }
-
-  void _showMoreMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(DesignTokens.space12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.edit_outlined),
-                title: const Text('수정하기'),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _updateRecord();
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(
-                  Icons.delete_outline,
-                  color: DesignTokens.error,
-                ),
-                title: const Text(
-                  '기록 삭제',
-                  style: TextStyle(color: DesignTokens.error),
-                ),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _deleteRecord();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -233,37 +170,16 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar + more button
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: DesignTokens.space12),
-                          child: GestureDetector(
-                            onTap: () => _showMoreMenu(context),
-                            child: const Icon(
-                              Icons.more_horiz,
-                              color: DesignTokens.textTertiary,
-                              size: DesignTokens.iconMd,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              // Handle bar (고정 영역)
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
 
@@ -282,7 +198,7 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
                     children: [
                       // Title
                       const Text(
-                        '기록 수정',
+                        '기록 추가',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
@@ -292,64 +208,71 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Book title and Type (read-only)
+                      // Type selection
+                      AppSelect<RecordType>(
+                        label: '유형',
+                        value: _selectedType,
+                        options: RecordType.values.map((type) {
+                          return AppSelectOption(
+                            value: type,
+                            label: type.label,
+                            icon: _getRecordTypeIcon(type),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _selectedType = value;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Book selection
                       GlassContainer(
-                        padding: const EdgeInsets.all(12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               '책',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black.withValues(alpha: 0.6),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              widget.record.bookTitle,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 12),
-                            Text(
-                              '유형',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: DesignTokens.primaryMain.withValues(
-                                  alpha: 0.1,
+                            DropdownButtonFormField<UserBookDto>(
+                              initialValue: _selectedBook,
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                borderRadius: BorderRadius.circular(12),
+                                filled: true,
+                                fillColor: Colors.white.withValues(alpha: 0.5),
                               ),
-                              child: Text(
-                                widget.record.type.label,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: DesignTokens.primaryMain,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              items: widget.books.map((book) {
+                                return DropdownMenuItem(
+                                  value: book,
+                                  child: Text(
+                                    book.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (book) {
+                                setState(() {
+                                  _selectedBook = book;
+                                });
+                              },
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
                       // Text input
                       GlassContainer(
@@ -458,6 +381,15 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
                         ],
                       ),
                       const SizedBox(height: 24),
+
+                      // Add button
+                      AppButton(
+                        text: '추가하기',
+                        onPressed: _addRecord,
+                        variant: AppButtonVariant.primary,
+                        size: AppButtonSize.large,
+                        isFullWidth: true,
+                      ),
                     ],
                   ),
                 ),
@@ -467,5 +399,16 @@ class _EditRecordBottomSheetState extends ConsumerState<EditRecordBottomSheet> {
         ),
       ),
     ); // GestureDetector 닫기
+  }
+
+  IconData _getRecordTypeIcon(RecordType type) {
+    switch (type) {
+      case RecordType.snippet:
+        return Icons.format_quote;
+      case RecordType.diary:
+        return Icons.edit_note;
+      case RecordType.review:
+        return Icons.rate_review;
+    }
   }
 }
