@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
-import '../widgets/profile/profile_card.dart';
-import '../widgets/profile/settings_section.dart';
-import '../widgets/profile/logout_button.dart';
-import '../components/app_app_bar.dart';
+import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/profile_card.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/settings_section.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/logout_button.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
 
 class MyPageScreen extends ConsumerWidget {
   const MyPageScreen({super.key});
@@ -15,19 +15,11 @@ class MyPageScreen extends ConsumerWidget {
     final user = authState.user;
 
     if (user == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('사용자 정보를 불러올 수 없습니다'),
-        ),
-      );
+      return const Scaffold(body: Center(child: Text('사용자 정보를 불러올 수 없습니다')));
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AppAppBar(
-        title: '프로필',
-        letterSpacing: 1.5,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

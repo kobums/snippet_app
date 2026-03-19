@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/auth_provider.dart';
-import '../../screens/login_screen.dart';
-import '../glass_container.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
 class LogoutButton extends ConsumerWidget {
   const LogoutButton({super.key});
@@ -51,12 +52,7 @@ class LogoutButton extends ConsumerWidget {
           if (confirmed == true && context.mounted) {
             await ref.read(authProvider.notifier).logout();
             if (context.mounted) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const LoginScreen(),
-                ),
-                (route) => false,
-              );
+              context.go(AppRoutes.login);
             }
           }
         },

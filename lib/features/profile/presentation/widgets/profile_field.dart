@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 /// Fintech Style Profile Field
 /// 세련된 프로필 필드 with 디자인 토큰

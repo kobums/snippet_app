@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../components/section_header.dart';
-import '../glass_container.dart';
-import 'settings_tile.dart';
-import '../../core/design_tokens.dart';
+import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/settings_tile.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});

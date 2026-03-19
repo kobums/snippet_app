@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/user.dart';
-import '../glass_container.dart';
-import '../../core/design_tokens.dart';
-import '../../core/typography.dart';
+import 'package:snippet_app/features/auth/data/models/user.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'profile_field.dart';
 
 /// Fintech Style Profile Card
