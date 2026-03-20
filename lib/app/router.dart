@@ -9,8 +9,13 @@ import 'package:snippet_app/features/dashboard/presentation/screens/dashboard_sc
 import 'package:snippet_app/features/dashboard/presentation/screens/stats_screen.dart';
 import 'package:snippet_app/features/dashboard/presentation/screens/reading_calendar_screen.dart';
 import 'package:snippet_app/features/records/presentation/screens/records_screen.dart';
+import 'package:snippet_app/features/records/presentation/screens/edit_record_screen.dart';
+import 'package:snippet_app/features/records/presentation/screens/add_record_screen.dart';
+import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/library/presentation/screens/library_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_search_screen.dart';
+import 'package:snippet_app/features/library/presentation/screens/book_detail_screen.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
 import 'package:snippet_app/app/main_screen.dart';
 
@@ -28,6 +33,9 @@ class AppRoutes {
   static const profile = '/profile';
 
   // Sub-routes
+  static const bookDetail = '/bookDetail';
+  static const editRecord = '/editRecord';
+  static const addRecord = '/addRecord';
   static const bookSearch = '/book-search';
   static const archive = '/archive';
   static const stats = '/stats';
@@ -91,6 +99,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // Full-screen routes (outside shell)
+      GoRoute(
+        path: AppRoutes.bookDetail,
+        builder: (context, state) => BookDetailScreen(book: state.extra as UserBookDto),
+      ),
+      GoRoute(
+        path: AppRoutes.editRecord,
+        builder: (context, state) => EditRecordScreen(record: state.extra as RecordDto),
+      ),
+      GoRoute(
+        path: AppRoutes.addRecord,
+        builder: (context, state) {
+          final params = state.extra as AddRecordScreenParams;
+          return AddRecordScreen(
+            books: params.books,
+            initialType: params.initialType,
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.bookSearch,
         builder: (context, state) => const BookSearchScreen(),

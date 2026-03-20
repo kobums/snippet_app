@@ -5,7 +5,8 @@ import 'package:snippet_app/features/records/presentation/providers/record_provi
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
-import 'package:snippet_app/features/records/presentation/widgets/edit_record_bottom_sheet.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
 
 class RecordCard extends ConsumerWidget {
   final RecordDto record;
@@ -114,12 +115,7 @@ class RecordCard extends ConsumerWidget {
         ),
         child: GestureDetector(
           onTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => EditRecordBottomSheet(record: record),
-            );
+            context.push(AppRoutes.editRecord, extra: record);
           },
           child: GlassContainer(
             showBorder: false,

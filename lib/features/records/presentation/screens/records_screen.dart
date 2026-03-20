@@ -5,7 +5,9 @@ import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
-import 'package:snippet_app/features/records/presentation/widgets/add_record_bottom_sheet.dart';
+import 'package:snippet_app/features/records/presentation/screens/add_record_screen.dart';
+import 'package:snippet_app/app/router.dart';
+import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
@@ -59,11 +61,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddRecordBottomSheet(
+    context.push(
+      AppRoutes.addRecord,
+      extra: AddRecordScreenParams(
         books: bookState.books,
         initialType: _tabTypes[_tabController.index],
       ),
