@@ -4,7 +4,6 @@ import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/presentation/widgets/book_grid.dart';
-import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
@@ -48,13 +47,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
   }
 
   void _openBookDetail(UserBookDto book) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BookDetailBottomSheet(book: book),
-    );
+    context.push(AppRoutes.bookDetail, extra: book);
   }
 
   Future<void> _refreshBooks() async {

@@ -4,7 +4,8 @@ import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
-import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/sticky_glass_tab_bar.dart';
 
@@ -113,13 +114,7 @@ class _DashboardProgressSectionState
       padding: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
         onTap: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            useRootNavigator: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => BookDetailBottomSheet(book: book),
-          );
+          context.push(AppRoutes.bookDetail, extra: book);
         },
         child: GlassContainer(
           child: Row(

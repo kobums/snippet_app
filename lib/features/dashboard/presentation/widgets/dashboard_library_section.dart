@@ -4,7 +4,8 @@ import 'package:snippet_app/features/library/presentation/providers/library_prov
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/widgets/layout/bottom_nav_layout.dart';
-import 'package:snippet_app/features/library/presentation/widgets/book_detail_bottom_sheet.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/components/section_header.dart';
@@ -144,13 +145,7 @@ class _DashboardLibrarySectionState
       padding: const EdgeInsets.only(bottom: 8),
       child: GestureDetector(
         onTap: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            useRootNavigator: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => BookDetailBottomSheet(book: book),
-          );
+          context.push(AppRoutes.bookDetail, extra: book);
         },
         child: GlassContainer(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),

@@ -131,22 +131,18 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const AppAppBar(title: '책 검색', letterSpacing: 2),
-      body: Column(
-        children: [
-          SearchField(
-            controller: _searchController,
-            hintText: '책 제목이나 저자를 검색하세요',
-            onChanged: (value) {
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (value == _searchController.text) {
-                  _search(value);
-                }
-              });
-            },
-            onClear: () => _search(''),
-          ),
-          Expanded(child: _buildResults()),
-        ],
+      body: SearchableScrollLayout(
+        controller: _searchController,
+        hintText: '책 제목이나 저자를 검색하세요',
+        onChanged: (value) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (value == _searchController.text) {
+              _search(value);
+            }
+          });
+        },
+        onClear: () => _search(''),
+        child: _buildResults(),
       ),
     );
   }
@@ -206,7 +202,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
       itemCount: _searchResults.length + (_isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == _searchResults.length) {
