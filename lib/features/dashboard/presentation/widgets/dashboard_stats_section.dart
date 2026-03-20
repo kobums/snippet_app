@@ -8,6 +8,7 @@ import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/reading_calendar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 
@@ -35,63 +36,72 @@ class DashboardStatsSection extends ConsumerWidget {
     return AppRefreshIndicator(
       onRefresh: () => bookNotifier.refreshBooks(),
       child: CustomScrollView(
-      slivers: [
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: StickyMonthNavigator(
-            year: bookState.selectedYear,
-            month: bookState.selectedMonth,
-            isCurrentMonth: isCurrentMonth,
-            onMonthChanged: (year, month) {
-              bookNotifier.setSelectedMonth(year, month);
-            },
-            height: 64,
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyMonthNavigator(
+              year: bookState.selectedYear,
+              month: bookState.selectedMonth,
+              isCurrentMonth: isCurrentMonth,
+              onMonthChanged: (year, month) {
+                bookNotifier.setSelectedMonth(year, month);
+              },
+              height: 64,
+            ),
           ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              GestureDetector(
-                onTap: () {
-                  context.push(AppRoutes.stats);
-                },
-                child: _buildStatsCard(completedBooks.length, totalPages),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  context.push(AppRoutes.readingCalendar);
-                },
-                child: GlassContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SectionHeader('독서 캘린더'),
-                      const SizedBox(height: 8),
-                      ReadingCalendar(
-                        completedBooks: completedBooks,
-                        year: bookState.selectedYear,
-                        month: bookState.selectedMonth,
-                      ),
-                    ],
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                GestureDetector(
+                  onTap: () {
+                    context.push(AppRoutes.stats);
+                  },
+                  child: _buildStatsCard(completedBooks.length, totalPages),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    context.push(AppRoutes.readingCalendar);
+                  },
+                  child: GlassContainer(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SectionHeader('독서 캘린더'),
+                        const SizedBox(height: 8),
+                        ReadingCalendar(
+                          completedBooks: completedBooks,
+                          year: bookState.selectedYear,
+                          month: bookState.selectedMonth,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              if (completedBooks.isNotEmpty) ...[
-                SectionHeader(
-                  '완독한 책 (${completedBooks.length})',
-                  size: SectionHeaderSize.large,
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-                ),
-                ...completedBooks.map((book) => _buildCompletedBookCard(book)),
-              ],
-            ]),
+                const SizedBox(height: 16),
+                if (completedBooks.isNotEmpty) ...[
+                  SectionHeader(
+                    '완독한 책 (${completedBooks.length})',
+                    size: SectionHeaderSize.large,
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 12),
+                  ),
+                  ...completedBooks.map(
+                    (book) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AppBookCard(
+                        book: book,
+                        size: BookCardSize.medium,
+                        showTotalPage: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ]),
+            ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 
@@ -143,76 +153,6 @@ class DashboardStatsSection extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCompletedBookCard(UserBookDto book) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: GlassContainer(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                book.coverUrl,
-                width: 50,
-                height: 75,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 50,
-                    height: 75,
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    child: Icon(
-                      Icons.book,
-                      color: Colors.grey.withValues(alpha: 0.5),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    book.author,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black.withValues(alpha: 0.5),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${book.totalPage}쪽',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

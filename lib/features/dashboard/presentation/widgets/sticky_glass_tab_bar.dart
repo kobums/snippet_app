@@ -1,9 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 
-/// Sticky Glass Segmented Button Delegate for CustomScrollView
+/// Sticky Neumorphism + Glassmorphism Segmented Button Delegate
 ///
-/// Creates a sticky header with glassmorphism effect that floats above scrolling content.
+/// Soft UI 스타일의 세그먼트 버튼. 배경은 글래스모피즘, 버튼은 뉴모피즘.
 class StickyGlassSegmentedButton extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
   final List<String> segments;
@@ -29,38 +30,78 @@ class StickyGlassSegmentedButton extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Center(
-      child: SegmentedButton<int>(
-        segments: List.generate(
-          segments.length,
-          (index) =>
-              ButtonSegment<int>(value: index, label: Text(segments[index])),
-        ),
-        selected: {selectedIndex},
-        onSelectionChanged: (Set<int> selected) {
-          onChanged(selected.first);
-        },
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return DesignTokens.primaryMain.withValues(alpha: 0.9);
-            }
-            return Colors.white.withValues(alpha: 0.15); // Glass effect
-          }),
-          foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return Colors.white;
-            }
-            return Colors.black.withValues(alpha: 0.7);
-          }),
-          side: WidgetStateProperty.all(
-            BorderSide(
-              color: Colors.white.withValues(alpha: 0.5), // Glass border
-              width: 1,
-            ),
+    return ClipRect(
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: DesignTokens.neutral100,
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+            // boxShadow: [
+            //   // Neumorphism inset 효과 (오목한 배경)
+            //   BoxShadow(
+            //     color: Colors.black.withValues(alpha: 0.06),
+            //     blurRadius: 4,
+            //     offset: const Offset(0, 2),
+            //   ),
+            //   const BoxShadow(
+            //     color: Colors.white,
+            //     blurRadius: 4,
+            //     offset: Offset(0, -2),
+            //   ),
+            // ],
           ),
-          textStyle: WidgetStateProperty.all(
-            const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: List.generate(segments.length, (index) {
+              final isSelected = index == selectedIndex;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onChanged(index),
+                  child: AnimatedContainer(
+                    duration: DesignTokens.durationNormal,
+                    curve: DesignTokens.curveEaseInOut,
+                    decoration: isSelected
+                        ? BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusSm,
+                            ),
+                            boxShadow: [
+                              // Neumorphism 볼록 효과
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          )
+                        : null,
+                    alignment: Alignment.center,
+                    child: AnimatedDefaultTextStyle(
+                      duration: DesignTokens.durationNormal,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: isSelected
+                            ? FontWeight.w500
+                            : FontWeight.w400,
+                        color: isSelected
+                            ? DesignTokens.textPrimary
+                            : DesignTokens.textTertiary,
+                      ),
+                      child: Text(segments[index]),
+                    ),
+                  ),
+                ),
+              );
+            }),
           ),
         ),
       ),

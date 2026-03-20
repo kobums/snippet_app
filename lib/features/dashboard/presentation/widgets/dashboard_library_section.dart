@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
-import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/widgets/layout/bottom_nav_layout.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/components/section_header.dart';
-import 'package:snippet_app/core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerStatefulWidget {
   const DashboardLibrarySection({super.key});
@@ -143,97 +142,14 @@ class _DashboardLibrarySectionState
   Widget _buildBookCard(UserBookDto book) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: GestureDetector(
+      child: AppBookCard(
+        book: book,
+        size: BookCardSize.small,
+        showProgress: true,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         onTap: () {
           context.push(AppRoutes.bookDetail, extra: book);
         },
-        child: GlassContainer(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  book.coverUrl,
-                  width: 45,
-                  height: 68,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 45,
-                      height: 68,
-                      color: Colors.grey.withValues(alpha: 0.3),
-                      child: Icon(
-                        Icons.book,
-                        size: 20,
-                        color: Colors.grey.withValues(alpha: 0.5),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      book.title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      book.author,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.5),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    if (book.status == BookStatus.reading)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(3),
-                              child: LinearProgressIndicator(
-                                value: book.progress,
-                                minHeight: 4,
-                                backgroundColor: Colors.grey.withValues(
-                                  alpha: 0.2,
-                                ),
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  DesignTokens.primaryMain,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${(book.progress * 100).toInt()}%',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black.withValues(alpha: 0.4),
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
