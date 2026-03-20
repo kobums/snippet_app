@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
@@ -82,8 +83,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
 
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverToBoxAdapter(
-          child: AppTabBar(
+        AppAppBar.sliver(
+          title: '독서 기록',
+          bottom: AppTabBar(
             controller: _tabController,
             tabs: const ['스니펫', '독서일기', '리뷰'],
             margin: EdgeInsets.zero,

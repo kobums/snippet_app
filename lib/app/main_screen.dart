@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/widgets/glass_bottom_nav.dart';
-import 'package:snippet_app/core/design_tokens.dart';
-import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_fab.dart';
 import 'package:snippet_app/app/router.dart';
 
@@ -19,14 +17,6 @@ class MainScreen extends StatelessWidget {
     AppRoutes.profile,
   ];
 
-  static const _pageTitles = [
-    'SNIPPET',
-    '대시보드',
-    '독서 기록',
-    '서재',
-    '프로필',
-  ];
-
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     for (int i = 0; i < _tabRoutes.length; i++) {
@@ -41,12 +31,6 @@ class MainScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppAppBar(
-        title: _pageTitles[index],
-        letterSpacing: index == 0
-            ? DesignTokens.letterSpacingExtraWide
-            : DesignTokens.letterSpacingWide,
-      ),
       extendBody: false,
       body: child,
       floatingActionButton: _buildFab(context, index),

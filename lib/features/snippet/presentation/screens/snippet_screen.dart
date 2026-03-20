@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/snippet/presentation/screens/home_screen.dart';
 import 'package:snippet_app/features/snippet/presentation/screens/archive_screen.dart';
 
@@ -31,8 +33,10 @@ class _SnippetScreenState extends ConsumerState<SnippetScreen>
   Widget build(BuildContext context) {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverToBoxAdapter(
-          child: AppTabBar(
+        AppAppBar.sliver(
+          title: 'SNIPPET',
+          letterSpacing: DesignTokens.letterSpacingExtraWide,
+          bottom: AppTabBar(
             controller: _tabController,
             tabs: const ['스와이프', '보관함'],
             margin: EdgeInsets.zero,
@@ -41,10 +45,7 @@ class _SnippetScreenState extends ConsumerState<SnippetScreen>
       ],
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          HomeScreen(),
-          ArchiveScreen(),
-        ],
+        children: const [HomeScreen(), ArchiveScreen()],
       ),
     );
   }

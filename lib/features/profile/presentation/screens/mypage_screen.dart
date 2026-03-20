@@ -20,24 +20,23 @@ class MyPageScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Profile Card
-            ProfileCard(user: user),
-            const SizedBox(height: 24),
-
-            // Settings Section
-            const SettingsSection(),
-            const SizedBox(height: 24),
-
-            // Logout Button
-            const LogoutButton(),
-            const SizedBox(height: 16),
-          ],
-        ),
+      body: CustomScrollView(
+        slivers: [
+          AppAppBar.sliver(title: '프로필'),
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                ProfileCard(user: user),
+                const SizedBox(height: 24),
+                const SettingsSection(),
+                const SizedBox(height: 24),
+                const LogoutButton(),
+                const SizedBox(height: 16),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }

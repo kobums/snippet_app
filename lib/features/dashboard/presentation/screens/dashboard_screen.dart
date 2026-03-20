@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_stats_section.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_progress_section.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_library_section.dart';
@@ -32,8 +33,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   Widget build(BuildContext context) {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverToBoxAdapter(
-          child: AppTabBar(
+        AppAppBar.sliver(
+          title: '대시보드',
+          bottom: AppTabBar(
             controller: _tabController,
             tabs: const ['통계', '진행', '서재'],
             margin: EdgeInsets.zero,

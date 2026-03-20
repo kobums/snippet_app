@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
@@ -39,8 +40,9 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   Widget build(BuildContext context) {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverToBoxAdapter(
-          child: AppTabBar(
+        AppAppBar.sliver(
+          title: '서재',
+          bottom: AppTabBar(
             controller: _tabController,
             tabs: const ['소장', '대출', '위시'],
             margin: EdgeInsets.zero,
@@ -88,8 +90,7 @@ class _LibraryTabContent extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_LibraryTabContent> createState() =>
-      _LibraryTabContentState();
+  ConsumerState<_LibraryTabContent> createState() => _LibraryTabContentState();
 }
 
 class _LibraryTabContentState extends ConsumerState<_LibraryTabContent> {
