@@ -219,8 +219,7 @@ class MonthNavigator extends StatelessWidget {
             icon: Icon(
               Icons.chevron_right,
               size: 20,
-              color:
-                  isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
+              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
             ),
             onPressed: isCurrentMonth ? null : _onNextMonth,
             padding: EdgeInsets.zero,

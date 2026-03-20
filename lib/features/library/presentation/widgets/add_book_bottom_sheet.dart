@@ -148,201 +148,199 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           color: DesignTokens.bgPrimary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
+            ),
 
-              // Scrollable content
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 12,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Title
-                      const Text(
-                        '책 추가',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 2,
+            // Scrollable content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 12,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Title
+                    const Text(
+                      '책 추가',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 2,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Book info
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            widget.book.coverUrl,
+                            width: 60,
+                            height: 90,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Book info
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              widget.book.coverUrl,
-                              width: 60,
-                              height: 90,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.book.title,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.book.title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  widget.book.author,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black.withValues(alpha: 0.5),
-                                  ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.book.author,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black.withValues(alpha: 0.5),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
-                      Row(
-                        children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppSelect<BookType>(
+                            label: '분류',
+                            dense: true,
+                            value: _selectedType,
+                            options: BookType.values
+                                .where((type) => type != BookType.return_)
+                                .map((type) {
+                                  return AppSelectOption(
+                                    value: type,
+                                    label: _getTypeLabel(type),
+                                    icon: _getTypeIcon(type),
+                                  );
+                                })
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedType = value;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        // Status selection (if not wishlist)
+                        if (_selectedType != BookType.wish)
                           Expanded(
-                            child: AppSelect<BookType>(
-                              label: '분류',
+                            child: AppSelect<BookStatus>(
+                              label: '상태',
                               dense: true,
-                              value: _selectedType,
-                              options: BookType.values
-                                  .where((type) => type != BookType.return_)
-                                  .map((type) {
+                              value: _selectedStatus,
+                              options:
+                                  [
+                                    BookStatus.waiting,
+                                    BookStatus.reading,
+                                    BookStatus.completed,
+                                  ].map((status) {
                                     return AppSelectOption(
-                                      value: type,
-                                      label: _getTypeLabel(type),
-                                      icon: _getTypeIcon(type),
+                                      value: status,
+                                      label: _getStatusLabel(status),
+                                      icon: _getStatusIcon(status),
                                     );
-                                  })
-                                  .toList(),
+                                  }).toList(),
                               onChanged: (value) {
                                 if (value != null) {
                                   setState(() {
-                                    _selectedType = value;
+                                    _selectedStatus = value;
                                   });
                                 }
                               },
                             ),
                           ),
+                      ],
+                    ),
+                    // const SizedBox(height: 12),
 
-                          const SizedBox(width: 12),
+                    // // Total pages
+                    // GlassContainer(
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Text(
+                    //         '총 페이지',
+                    //         style: TextStyle(
+                    //           fontSize: 14,
+                    //           fontWeight: FontWeight.w500,
+                    //           color: Colors.black.withValues(alpha: 0.6),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 12),
+                    //       TextField(
+                    //         keyboardType: TextInputType.number,
+                    //         decoration: InputDecoration(
+                    //           hintText: '페이지 수',
+                    //           border: OutlineInputBorder(
+                    //             borderRadius: BorderRadius.circular(8),
+                    //           ),
+                    //           filled: true,
+                    //           fillColor: Colors.white.withValues(alpha: 0.5),
+                    //         ),
+                    //         controller: TextEditingController(
+                    //           text: '$_totalPages',
+                    //         ),
+                    //         onChanged: (value) {
+                    //           _totalPages = int.tryParse(value) ?? 0;
+                    //         },
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    const SizedBox(height: 24),
 
-                          // Status selection (if not wishlist)
-                          if (_selectedType != BookType.wish)
-                            Expanded(
-                              child: AppSelect<BookStatus>(
-                                label: '상태',
-                                dense: true,
-                                value: _selectedStatus,
-                                options:
-                                    [
-                                      BookStatus.waiting,
-                                      BookStatus.reading,
-                                      BookStatus.completed,
-                                    ].map((status) {
-                                      return AppSelectOption(
-                                        value: status,
-                                        label: _getStatusLabel(status),
-                                        icon: _getStatusIcon(status),
-                                      );
-                                    }).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _selectedStatus = value;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                      // const SizedBox(height: 12),
-
-                      // // Total pages
-                      // GlassContainer(
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       Text(
-                      //         '총 페이지',
-                      //         style: TextStyle(
-                      //           fontSize: 14,
-                      //           fontWeight: FontWeight.w500,
-                      //           color: Colors.black.withValues(alpha: 0.6),
-                      //         ),
-                      //       ),
-                      //       const SizedBox(height: 12),
-                      //       TextField(
-                      //         keyboardType: TextInputType.number,
-                      //         decoration: InputDecoration(
-                      //           hintText: '페이지 수',
-                      //           border: OutlineInputBorder(
-                      //             borderRadius: BorderRadius.circular(8),
-                      //           ),
-                      //           filled: true,
-                      //           fillColor: Colors.white.withValues(alpha: 0.5),
-                      //         ),
-                      //         controller: TextEditingController(
-                      //           text: '$_totalPages',
-                      //         ),
-                      //         onChanged: (value) {
-                      //           _totalPages = int.tryParse(value) ?? 0;
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      const SizedBox(height: 24),
-
-                      // Add button
-                      AppButton(
-                        text: '추가하기',
-                        onPressed: _addBook,
-                        variant: AppButtonVariant.primary,
-                        size: AppButtonSize.large,
-                        isFullWidth: true,
-                      ),
-                    ],
-                  ),
+                    // Add button
+                    AppButton(
+                      text: '추가하기',
+                      onPressed: _addBook,
+                      variant: AppButtonVariant.primary,
+                      size: AppButtonSize.large,
+                      isFullWidth: true,
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

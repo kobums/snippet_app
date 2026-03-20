@@ -290,7 +290,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               dense: true,
               value: _selectedType,
               options: BookType.values
-                  .where((type) => type != BookType.return_)
+                  .where((type) => type == BookType.return_
+                      ? _selectedType == BookType.borrow
+                      : true)
                   .map((type) => AppSelectOption(
                         value: type,
                         label: _getTypeLabel(type),
