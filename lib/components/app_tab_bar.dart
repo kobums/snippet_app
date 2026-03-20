@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/design_tokens.dart';
 
 /// Reusable TabBar component with consistent styling
-class AppTabBar extends StatelessWidget {
+class AppTabBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController controller;
   final List<String> tabs;
   final EdgeInsetsGeometry? margin;
@@ -43,4 +43,7 @@ class AppTabBar extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kTextTabBarHeight);
 }

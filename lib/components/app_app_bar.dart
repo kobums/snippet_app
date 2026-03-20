@@ -47,6 +47,36 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  /// 스크롤 시 숨겨지는 SliverAppBar 생성
+  static SliverAppBar sliver({
+    required String title,
+    double? letterSpacing,
+    List<Widget>? actions,
+    PreferredSizeWidget? bottom,
+    bool pinned = false,
+  }) {
+    return SliverAppBar(
+      backgroundColor: DesignTokens.bgPrimary,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
+      floating: true,
+      snap: true,
+      pinned: pinned,
+      centerTitle: true,
+      automaticallyImplyLeading: false,
+      title: Text(
+        title,
+        style: AppTypography.h3.copyWith(
+          letterSpacing: letterSpacing ?? DesignTokens.letterSpacingWide,
+          color: DesignTokens.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      actions: actions,
+      bottom: bottom,
+    );
+  }
+
   @override
   Size get preferredSize =>
       Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
