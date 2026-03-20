@@ -11,6 +11,7 @@ class AppSelect<T> extends StatelessWidget {
   final List<AppSelectOption<T>> options;
   final ValueChanged<T?> onChanged;
   final bool enabled;
+  final bool dense;
   final String? errorText;
   final Widget? prefixIcon;
 
@@ -22,6 +23,7 @@ class AppSelect<T> extends StatelessWidget {
     required this.options,
     required this.onChanged,
     this.enabled = true,
+    this.dense = false,
     this.errorText,
     this.prefixIcon,
   });
@@ -35,10 +37,10 @@ class AppSelect<T> extends StatelessWidget {
         // Label
         if (label.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: DesignTokens.space8),
+            padding: EdgeInsets.only(bottom: dense ? DesignTokens.space4 : DesignTokens.space8),
             child: Text(
               label,
-              style: AppTypography.labelMedium.copyWith(
+              style: (dense ? AppTypography.caption : AppTypography.labelMedium).copyWith(
                 color: enabled
                     ? DesignTokens.textPrimary
                     : DesignTokens.textDisabled,
@@ -50,7 +52,7 @@ class AppSelect<T> extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: enabled ? DesignTokens.bgPrimary : DesignTokens.neutral100,
-            borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
+            borderRadius: BorderRadius.circular(dense ? DesignTokens.radiusMd : DesignTokens.radiusLg),
             border: Border.all(
               color: errorText != null
                   ? DesignTokens.error
@@ -59,9 +61,8 @@ class AppSelect<T> extends StatelessWidget {
             ),
           ),
           child: DropdownButtonHideUnderline(
-            child: ButtonTheme(
-              alignedDropdown: true,
-              child: DropdownButton<T>(
+            child: DropdownButton<T>(
+                isDense: dense,
                 value: value,
                 hint: hint != null
                     ? Text(
@@ -77,18 +78,18 @@ class AppSelect<T> extends StatelessWidget {
                   color: enabled
                       ? DesignTokens.textSecondary
                       : DesignTokens.textDisabled,
-                  size: DesignTokens.iconMd,
+                  size: dense ? DesignTokens.iconSm : DesignTokens.iconMd,
                 ),
-                style: AppTypography.bodyMedium.copyWith(
+                style: (dense ? AppTypography.bodySmall : AppTypography.bodyMedium).copyWith(
                   color: enabled
                       ? DesignTokens.textPrimary
                       : DesignTokens.textDisabled,
                 ),
                 dropdownColor: DesignTokens.bgPrimary,
                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space16,
-                  vertical: DesignTokens.space12,
+                padding: EdgeInsets.symmetric(
+                  horizontal: dense ? DesignTokens.space12 : DesignTokens.space16,
+                  vertical: dense ? DesignTokens.space8 : DesignTokens.space12,
                 ),
                 items: options.map((option) {
                   return DropdownMenuItem<T>(
@@ -106,7 +107,7 @@ class AppSelect<T> extends StatelessWidget {
                         Expanded(
                           child: Text(
                             option.label,
-                            style: AppTypography.bodyMedium,
+                            style: dense ? AppTypography.bodySmall : AppTypography.bodyMedium,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -118,7 +119,6 @@ class AppSelect<T> extends StatelessWidget {
               ),
             ),
           ),
-        ),
 
         // Error Text
         if (errorText != null)
