@@ -161,7 +161,11 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search, size: 64, color: Colors.black.withValues(alpha: 0.2)),
+            Icon(
+              Icons.search,
+              size: 64,
+              color: Colors.black.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 16),
             Text(
               '책을 검색해보세요',
@@ -181,7 +185,11 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.black.withValues(alpha: 0.2)),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.black.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 16),
             Text(
               '검색 결과가 없습니다',
@@ -243,7 +251,10 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                     width: 60,
                     height: 90,
                     color: Colors.grey.withValues(alpha: 0.3),
-                    child: Icon(Icons.book, color: Colors.grey.withValues(alpha: 0.5)),
+                    child: Icon(
+                      Icons.book,
+                      color: Colors.grey.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
               ),
@@ -254,7 +265,10 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -280,17 +294,17 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (book.totalPage != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        '${book.totalPage}쪽',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black.withValues(alpha: 0.4),
-                        ),
-                      ),
-                    ],
+                    // if (book.totalPage != null) ...[
+                    //   const SizedBox(height: 4),
+                    //   Text(
+                    //     '${book.totalPage}쪽',
+                    //     style: TextStyle(
+                    //       fontSize: 12,
+                    //       fontWeight: FontWeight.w300,
+                    //       color: Colors.black.withValues(alpha: 0.4),
+                    //     ),
+                    //   ),
+                    // ],
                   ],
                 ),
               ),

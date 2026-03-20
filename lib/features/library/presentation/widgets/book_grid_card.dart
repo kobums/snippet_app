@@ -82,6 +82,7 @@ class BookGridCard extends StatelessWidget {
                     ),
                   ),
                   // Status badge
+                  if (book.status != BookStatus.none)
                   Positioned(
                     top: DesignTokens.space8,
                     right: DesignTokens.space8,

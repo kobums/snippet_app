@@ -36,100 +36,100 @@ class _DashboardLibrarySectionState
     return AppRefreshIndicator(
       onRefresh: () => libraryNotifier.refreshBooks(),
       child: SearchableScrollLayout(
-      controller: _searchController,
-      hintText: '제목이나 저자로 검색...',
-      onChanged: (value) {
-        libraryNotifier.setSearchQuery(value);
-      },
-      child: BottomNavLayout(
-        hasFloatingActionButton: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 64),
-            if (libraryNotifier.recentBooks.isNotEmpty) ...[
-              const SectionHeader(
-                '최근 추가',
-                size: SectionHeaderSize.small,
-                padding: EdgeInsets.only(left: 8.0),
-              ),
-              const SizedBox(height: 8),
-              _buildBookList(libraryNotifier.recentBooks),
-              const SizedBox(height: 16),
-            ],
-            if (libraryNotifier.readingBooks.isNotEmpty) ...[
-              const SectionHeader(
-                '읽고 있는 책',
-                size: SectionHeaderSize.small,
-                padding: EdgeInsets.only(left: 8.0),
-              ),
-              const SizedBox(height: 8),
-              _buildBookList(libraryNotifier.readingBooks),
-              const SizedBox(height: 16),
-            ],
-            if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
-              const SectionHeader(
-                '빌린 책',
-                size: SectionHeaderSize.small,
-                padding: EdgeInsets.only(left: 8.0),
-              ),
-              const SizedBox(height: 8),
-              _buildBookList(libraryNotifier.borrowedBooks),
-              const SizedBox(height: 16),
-            ],
-            if (libraryNotifier.wishlistBooks.isNotEmpty) ...[
-              const SectionHeader(
-                '위시리스트',
-                size: SectionHeaderSize.small,
-                padding: EdgeInsets.only(left: 8.0),
-              ),
-              const SizedBox(height: 8),
-              _buildBookList(libraryNotifier.wishlistBooks),
-              const SizedBox(height: 16),
-            ],
-            if (libraryState.allBooks.isEmpty && !libraryState.isLoading)
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 48),
-                    Icon(
-                      Icons.library_books_outlined,
-                      size: 64,
-                      color: Colors.black.withValues(alpha: 0.2),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '아직 책이 없습니다',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '첫 책을 추가해보세요!',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ],
+        controller: _searchController,
+        hintText: '제목이나 저자로 검색...',
+        onChanged: (value) {
+          libraryNotifier.setSearchQuery(value);
+        },
+        child: BottomNavLayout(
+          hasFloatingActionButton: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 64),
+              if (libraryNotifier.recentBooks.isNotEmpty) ...[
+                const SectionHeader(
+                  '최근 추가',
+                  size: SectionHeaderSize.small,
+                  padding: EdgeInsets.only(left: 8.0),
                 ),
-              ),
-            if (libraryState.isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
+                const SizedBox(height: 8),
+                _buildBookList(libraryNotifier.recentBooks),
+                const SizedBox(height: 16),
+              ],
+              if (libraryNotifier.readingBooks.isNotEmpty) ...[
+                const SectionHeader(
+                  '읽고 있는 책',
+                  size: SectionHeaderSize.small,
+                  padding: EdgeInsets.only(left: 8.0),
                 ),
-              ),
-          ],
+                const SizedBox(height: 8),
+                _buildBookList(libraryNotifier.readingBooks),
+                const SizedBox(height: 16),
+              ],
+              if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
+                const SectionHeader(
+                  '빌린 책',
+                  size: SectionHeaderSize.small,
+                  padding: EdgeInsets.only(left: 8.0),
+                ),
+                const SizedBox(height: 8),
+                _buildBookList(libraryNotifier.borrowedBooks),
+                const SizedBox(height: 16),
+              ],
+              if (libraryNotifier.wishlistBooks.isNotEmpty) ...[
+                const SectionHeader(
+                  '위시리스트',
+                  size: SectionHeaderSize.small,
+                  padding: EdgeInsets.only(left: 8.0),
+                ),
+                const SizedBox(height: 8),
+                _buildBookList(libraryNotifier.wishlistBooks),
+                const SizedBox(height: 16),
+              ],
+              if (libraryState.allBooks.isEmpty && !libraryState.isLoading)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 48),
+                      Icon(
+                        Icons.library_books_outlined,
+                        size: 64,
+                        color: Colors.black.withValues(alpha: 0.2),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '아직 책이 없습니다',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '첫 책을 추가해보세요!',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.black.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (libraryState.isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -147,6 +147,7 @@ class _DashboardLibrarySectionState
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
+            useRootNavigator: true,
             backgroundColor: Colors.transparent,
             builder: (context) => BookDetailBottomSheet(book: book),
           );
