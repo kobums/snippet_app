@@ -51,6 +51,7 @@ class _BooksHaveScreenState extends ConsumerState<BooksHaveScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (context) => BookDetailBottomSheet(book: book),
     );

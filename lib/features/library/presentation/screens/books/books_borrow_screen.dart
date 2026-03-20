@@ -51,6 +51,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (context) => BookDetailBottomSheet(book: book),
     );
