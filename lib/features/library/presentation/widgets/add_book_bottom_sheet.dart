@@ -232,88 +232,101 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Type selection
-                      AppSelect<BookType>(
-                        label: '분류',
-                        value: _selectedType,
-                        options: BookType.values.map((type) {
-                          return AppSelectOption(
-                            value: type,
-                            label: _getTypeLabel(type),
-                            icon: _getTypeIcon(type),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedType = value;
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Status selection (if not wishlist)
-                      if (_selectedType != BookType.wish)
-                        AppSelect<BookStatus>(
-                          label: '상태',
-                          value: _selectedStatus,
-                          options:
-                              [
-                                BookStatus.waiting,
-                                BookStatus.reading,
-                                BookStatus.completed,
-                              ].map((status) {
-                                return AppSelectOption(
-                                  value: status,
-                                  label: _getStatusLabel(status),
-                                  icon: _getStatusIcon(status),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _selectedStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      const SizedBox(height: 12),
-
-                      // Total pages
-                      GlassContainer(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '총 페이지',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            TextField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: '페이지 수',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.5),
-                              ),
-                              controller: TextEditingController(
-                                text: '$_totalPages',
-                              ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppSelect<BookType>(
+                              label: '분류',
+                              dense: true,
+                              value: _selectedType,
+                              options: BookType.values
+                                  .where((type) => type != BookType.return_)
+                                  .map((type) {
+                                    return AppSelectOption(
+                                      value: type,
+                                      label: _getTypeLabel(type),
+                                      icon: _getTypeIcon(type),
+                                    );
+                                  })
+                                  .toList(),
                               onChanged: (value) {
-                                _totalPages = int.tryParse(value) ?? 0;
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedType = value;
+                                  });
+                                }
                               },
                             ),
-                          ],
-                        ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // Status selection (if not wishlist)
+                          if (_selectedType != BookType.wish)
+                            Expanded(
+                              child: AppSelect<BookStatus>(
+                                label: '상태',
+                                dense: true,
+                                value: _selectedStatus,
+                                options:
+                                    [
+                                      BookStatus.waiting,
+                                      BookStatus.reading,
+                                      BookStatus.completed,
+                                    ].map((status) {
+                                      return AppSelectOption(
+                                        value: status,
+                                        label: _getStatusLabel(status),
+                                        icon: _getStatusIcon(status),
+                                      );
+                                    }).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedStatus = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                        ],
                       ),
+                      // const SizedBox(height: 12),
+
+                      // // Total pages
+                      // GlassContainer(
+                      //   child: Column(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       Text(
+                      //         '총 페이지',
+                      //         style: TextStyle(
+                      //           fontSize: 14,
+                      //           fontWeight: FontWeight.w500,
+                      //           color: Colors.black.withValues(alpha: 0.6),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 12),
+                      //       TextField(
+                      //         keyboardType: TextInputType.number,
+                      //         decoration: InputDecoration(
+                      //           hintText: '페이지 수',
+                      //           border: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(8),
+                      //           ),
+                      //           filled: true,
+                      //           fillColor: Colors.white.withValues(alpha: 0.5),
+                      //         ),
+                      //         controller: TextEditingController(
+                      //           text: '$_totalPages',
+                      //         ),
+                      //         onChanged: (value) {
+                      //           _totalPages = int.tryParse(value) ?? 0;
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(height: 24),
 
                       // Add button

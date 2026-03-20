@@ -18,6 +18,7 @@ class BookDetailBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
+  late BookType _selectedType;
   late BookStatus _selectedStatus;
   late int _readPage;
   TextEditingController? _pageController;
@@ -26,6 +27,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
   @override
   void initState() {
     super.initState();
+    _selectedType = widget.book.type;
     _selectedStatus = widget.book.status;
     _readPage = widget.book.readPage;
     _pageController = TextEditingController(text: '$_readPage');
@@ -66,6 +68,63 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
       }
     } catch (e) {
       setState(() {
+        _selectedStatus = widget.book.status;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFFF3B30),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.7,
+              left: 16,
+              right: 16,
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _updateType(BookType type) async {
+    final previousType = _selectedType;
+    setState(() {
+      _selectedType = type;
+      if (type == BookType.wish) {
+        _selectedStatus = BookStatus.none;
+      } else if (_selectedStatus == BookStatus.none) {
+        _selectedStatus = BookStatus.waiting;
+      }
+    });
+
+    try {
+      await ref
+          .read(bookProvider.notifier)
+          .updateType(widget.book.id, type);
+
+      ref.read(libraryProvider.notifier).loadAllBooks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('분류가 ${_getTypeLabel(type)}(으)로 변경되었습니다'),
+            backgroundColor: const Color(0xFF34C759),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.7,
+              left: 16,
+              right: 16,
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _selectedType = previousType;
         _selectedStatus = widget.book.status;
       });
 
@@ -385,30 +444,65 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Status
-                      AppSelect<BookStatus>(
-                        label: '상태',
-                        value: _selectedStatus,
-                        options:
-                            [
-                              BookStatus.waiting,
-                              BookStatus.reading,
-                              BookStatus.completed,
-                              BookStatus.dropped,
-                            ].map((status) {
-                              return AppSelectOption(
-                                value: status,
-                                label: _getStatusLabel(status),
-                                icon: _getStatusIcon(status),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            _updateStatus(value);
-                          }
-                        },
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppSelect<BookType>(
+                              label: '분류',
+                              dense: true,
+                              value: _selectedType,
+                              options: BookType.values
+                                  .where((type) => type != BookType.return_)
+                                  .map((type) {
+                                    return AppSelectOption(
+                                      value: type,
+                                      label: _getTypeLabel(type),
+                                      icon: _getTypeIcon(type),
+                                    );
+                                  })
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  _updateType(value);
+                                }
+                              },
+                            ),
+                          ),
+
+                          if (_selectedType != BookType.wish) ...[
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: AppSelect<BookStatus>(
+                              label: '상태',
+                              dense: true,
+                              value: _selectedStatus,
+                              options:
+                                  [
+                                    BookStatus.waiting,
+                                    BookStatus.reading,
+                                    BookStatus.completed,
+                                    BookStatus.dropped,
+                                  ].map((status) {
+                                    return AppSelectOption(
+                                      value: status,
+                                      label: _getStatusLabel(status),
+                                      icon: _getStatusIcon(status),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  _updateStatus(value);
+                                }
+                              },
+                            ),
+                          ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 12),
+
+                      if (_selectedType != BookType.wish) ...[
 
                       // Progress
                       GlassContainer(
@@ -555,6 +649,7 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      ], // end if (not wish)
                     ],
                   ),
                 ),
@@ -564,6 +659,19 @@ class _BookDetailBottomSheetState extends ConsumerState<BookDetailBottomSheet> {
         ),
       ),
     );
+  }
+
+  IconData _getTypeIcon(BookType type) {
+    switch (type) {
+      case BookType.wish:
+        return Icons.favorite_outline;
+      case BookType.have:
+        return Icons.book;
+      case BookType.borrow:
+        return Icons.auto_stories;
+      case BookType.return_:
+        return Icons.keyboard_return;
+    }
   }
 
   String _getTypeLabel(BookType type) {
