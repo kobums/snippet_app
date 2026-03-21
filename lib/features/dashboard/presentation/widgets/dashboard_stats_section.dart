@@ -12,11 +12,33 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 
-class DashboardStatsSection extends ConsumerWidget {
+class DashboardStatsSection extends ConsumerStatefulWidget {
   const DashboardStatsSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardStatsSection> createState() =>
+      _DashboardStatsSectionState();
+}
+
+class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection> {
+  bool _showTopPadding = false;
+
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      // 스크롤 offset이 0보다 크면 topPadding 활성화
+      final shouldShow = notification.metrics.pixels > 0;
+      // print(notification.metrics.pixels);
+      if (_showTopPadding != shouldShow) {
+        setState(() {
+          _showTopPadding = shouldShow;
+        });
+      }
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final bookState = ref.watch(bookProvider);
     final bookNotifier = ref.read(bookProvider.notifier);
 
@@ -33,74 +55,81 @@ class DashboardStatsSection extends ConsumerWidget {
       (sum, b) => sum + b.totalPage,
     );
 
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return AppRefreshIndicator(
       onRefresh: () => bookNotifier.refreshBooks(),
-      child: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyMonthNavigator(
-              year: bookState.selectedYear,
-              month: bookState.selectedMonth,
-              isCurrentMonth: isCurrentMonth,
-              onMonthChanged: (year, month) {
-                bookNotifier.setSelectedMonth(year, month);
-              },
-              height: 64,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onScrollNotification,
+        child: CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: StickyMonthNavigator(
+                year: bookState.selectedYear,
+                month: bookState.selectedMonth,
+                isCurrentMonth: isCurrentMonth,
+                onMonthChanged: (year, month) {
+                  bookNotifier.setSelectedMonth(year, month);
+                },
+                height: 64,
+                topPadding: topPadding,
+                showTopPadding: _showTopPadding,
+              ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                GestureDetector(
-                  onTap: () {
-                    context.push(AppRoutes.stats);
-                  },
-                  child: _buildStatsCard(completedBooks.length, totalPages),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    context.push(AppRoutes.readingCalendar);
-                  },
-                  child: GlassContainer(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SectionHeader('독서 캘린더'),
-                        const SizedBox(height: 8),
-                        ReadingCalendar(
-                          completedBooks: completedBooks,
-                          year: bookState.selectedYear,
-                          month: bookState.selectedMonth,
-                        ),
-                      ],
-                    ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  GestureDetector(
+                    onTap: () {
+                      context.push(AppRoutes.stats);
+                    },
+                    child: _buildStatsCard(completedBooks.length, totalPages),
                   ),
-                ),
-                const SizedBox(height: 16),
-                if (completedBooks.isNotEmpty) ...[
-                  SectionHeader(
-                    '완독한 책 (${completedBooks.length})',
-                    size: SectionHeaderSize.large,
-                    padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-                  ),
-                  ...completedBooks.map(
-                    (book) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: AppBookCard(
-                        book: book,
-                        size: BookCardSize.medium,
-                        showTotalPage: true,
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: () {
+                      context.push(AppRoutes.readingCalendar);
+                    },
+                    child: GlassContainer(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SectionHeader('독서 캘린더'),
+                          const SizedBox(height: 8),
+                          ReadingCalendar(
+                            completedBooks: completedBooks,
+                            year: bookState.selectedYear,
+                            month: bookState.selectedMonth,
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ]),
+                  const SizedBox(height: 16),
+                  if (completedBooks.isNotEmpty) ...[
+                    SectionHeader(
+                      '완독한 책 (${completedBooks.length})',
+                      size: SectionHeaderSize.large,
+                      padding: const EdgeInsets.only(left: 8.0, bottom: 12),
+                    ),
+                    ...completedBooks.map(
+                      (book) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: AppBookCard(
+                          book: book,
+                          size: BookCardSize.medium,
+                          showTotalPage: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ]),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -240,6 +240,8 @@ class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
   final bool isCurrentMonth;
   final Function(int year, int month) onMonthChanged;
   final double height;
+  final double topPadding;
+  final bool showTopPadding;
 
   StickyMonthNavigator({
     required this.year,
@@ -247,13 +249,15 @@ class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
     required this.isCurrentMonth,
     required this.onMonthChanged,
     this.height = 64.0,
+    this.topPadding = 0.0,
+    this.showTopPadding = false,
   });
 
   @override
-  double get minExtent => height;
+  double get minExtent => height + topPadding;
 
   @override
-  double get maxExtent => height;
+  double get maxExtent => height + topPadding;
 
   @override
   Widget build(
@@ -261,12 +265,20 @@ class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Center(
-      child: MonthNavigator(
-        year: year,
-        month: month,
-        isCurrentMonth: isCurrentMonth,
-        onMonthChanged: onMonthChanged,
+    // showTopPadding 상태에 따라 패딩 적용
+    final currentPadding = showTopPadding ? topPadding : 0.0;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      padding: EdgeInsets.only(top: currentPadding),
+      child: Center(
+        child: MonthNavigator(
+          year: year,
+          month: month,
+          isCurrentMonth: isCurrentMonth,
+          onMonthChanged: onMonthChanged,
+        ),
       ),
     );
   }
@@ -275,6 +287,7 @@ class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant StickyMonthNavigator oldDelegate) {
     return year != oldDelegate.year ||
         month != oldDelegate.month ||
-        isCurrentMonth != oldDelegate.isCurrentMonth;
+        isCurrentMonth != oldDelegate.isCurrentMonth ||
+        showTopPadding != oldDelegate.showTopPadding;
   }
 }
