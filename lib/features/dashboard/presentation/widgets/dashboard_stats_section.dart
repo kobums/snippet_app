@@ -20,18 +20,42 @@ class DashboardStatsSection extends ConsumerStatefulWidget {
       _DashboardStatsSectionState();
 }
 
-class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection> {
-  bool _showTopPadding = false;
+class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _paddingAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _paddingAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ))..addListener(() {
+        setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      // 스크롤 offset이 0보다 크면 topPadding 활성화
       final shouldShow = notification.metrics.pixels > 0;
-      // print(notification.metrics.pixels);
-      if (_showTopPadding != shouldShow) {
-        setState(() {
-          _showTopPadding = shouldShow;
-        });
+      if (shouldShow && _animationController.value < 1.0) {
+        _animationController.forward();
+      } else if (!shouldShow && _animationController.value > 0.0) {
+        _animationController.reverse();
       }
     }
     return false;
@@ -74,7 +98,7 @@ class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection> {
                 },
                 height: 64,
                 topPadding: topPadding,
-                showTopPadding: _showTopPadding,
+                paddingProgress: _paddingAnimation.value,
               ),
             ),
             SliverPadding(
