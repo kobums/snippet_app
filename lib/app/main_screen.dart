@@ -48,9 +48,7 @@ class MainScreen extends StatelessWidget {
   Widget? _buildFab(BuildContext context, int index) {
     switch (index) {
       case 1: // 대시보드
-        return AppFab(
-          onPressed: () => context.push(AppRoutes.bookSearch),
-        );
+        return AppFab(onPressed: () => context.push(AppRoutes.bookSearch));
       case 3: // 서재
         return AppFab(
           onPressed: () => context.push(AppRoutes.bookSearch),
