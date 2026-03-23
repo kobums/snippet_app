@@ -21,8 +21,15 @@ class RecordsScreen extends ConsumerStatefulWidget {
 }
 
 class _RecordsScreenState extends ConsumerState<RecordsScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+    with TickerProviderStateMixin {
+  // ============================================================================
+  // Constants
+  // ============================================================================
+  static const int _tabCount = 3;
+  static const double _fixedHeaderHeight = 64.0;
+  static const double _scrollContextSwitchThreshold = 50.0;
+  static const double _tabAnimationThreshold = 0.1;
+  static const double _swipeDetectionThreshold = 0.05;
 
   static const _tabTypes = [
     RecordType.snippet,
@@ -30,18 +37,141 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     RecordType.review,
   ];
 
+  // ============================================================================
+  // State
+  // ============================================================================
+  late TabController _tabController;
+  late List<AnimationController> _scrollAnimationControllers;
+
+  // 스크롤 추적 (각 탭별로 독립적 관리)
+  final List<double> _lastScrollPixels = List.filled(_tabCount, 0.0);
+  final List<bool> _shouldShowFixedHeader = List.filled(_tabCount, false);
+
+  // ============================================================================
+  // Lifecycle
+  // ============================================================================
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _initializeControllers();
+    _setupTabListeners();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    for (var controller in _scrollAnimationControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
+  // ============================================================================
+  // Initialization
+  // ============================================================================
+  void _initializeControllers() {
+    _tabController = TabController(length: _tabCount, vsync: this);
+
+    _scrollAnimationControllers = List.generate(
+      _tabCount,
+      (_) => AnimationController(
+        duration: Duration.zero,
+        vsync: this,
+      )..addListener(() => setState(() {})),
+    );
+  }
+
+  void _setupTabListeners() {
+    _tabController.addListener(() => setState(() {}));
+    _tabController.animation!.addListener(_handleTabSwipe);
+  }
+
+  void _handleTabSwipe() {
+    final animationValue = _tabController.animation!.value;
+    final currentTab = _tabController.index;
+
+    if (animationValue.abs() > _swipeDetectionThreshold) {
+      if (_scrollAnimationControllers[currentTab].value > 0) {
+        _scrollAnimationControllers[currentTab].reset();
+        _shouldShowFixedHeader[currentTab] = false;
+        _lastScrollPixels[currentTab] = 0.0;
+        setState(() {});
+      }
+    }
+  }
+
+  // ============================================================================
+  // Scroll Handling
+  // ============================================================================
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is! ScrollUpdateNotification) return false;
+
+    final currentTab = _tabController.index;
+    final metrics = notification.metrics;
+    final scrollDelta = notification.scrollDelta ?? 0;
+
+    final pixels = metrics.pixels;
+    final isScrollingDown = scrollDelta > 0;
+    final isContextSwitch =
+        (pixels - _lastScrollPixels[currentTab]).abs() >
+            _scrollContextSwitchThreshold;
+
+    final topPadding = MediaQuery.of(context).padding.top;
+    final triggerHeight = _fixedHeaderHeight + topPadding;
+
+    const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
+    final isInHeaderScroll = metrics.maxScrollExtent < combinedHeaderHeight + 50;
+
+    if (isScrollingDown) {
+      _handleScrollDown(currentTab, pixels, triggerHeight);
+    } else {
+      _handleScrollUp(
+          currentTab, pixels, topPadding, isInHeaderScroll, isContextSwitch);
+    }
+
+    _syncHeaderAnimation(currentTab);
+    _lastScrollPixels[currentTab] = pixels;
+    return false;
+  }
+
+  void _handleScrollDown(int tab, double pixels, double triggerHeight) {
+    if (pixels >= triggerHeight) {
+      _shouldShowFixedHeader[tab] = true;
+    }
+
+    if (_shouldShowFixedHeader[tab] &&
+        _scrollAnimationControllers[tab].value < 1.0) {
+      _scrollAnimationControllers[tab].forward();
+    }
+  }
+
+  void _handleScrollUp(
+    int tab,
+    double pixels,
+    double topPadding,
+    bool isInHeaderScroll,
+    bool isContextSwitch,
+  ) {
+    if (isInHeaderScroll &&
+        !isContextSwitch &&
+        pixels < topPadding + _fixedHeaderHeight) {
+      _shouldShowFixedHeader[tab] = false;
+      if (_scrollAnimationControllers[tab].value > 0.0) {
+        _scrollAnimationControllers[tab].reverse();
+      }
+    }
+  }
+
+  void _syncHeaderAnimation(int tab) {
+    if (!_shouldShowFixedHeader[tab] &&
+        _scrollAnimationControllers[tab].value > 0.0) {
+      _scrollAnimationControllers[tab].reverse();
+    }
+  }
+
+  // ============================================================================
+  // Actions
+  // ============================================================================
   void showAddRecordSheet(BuildContext context) {
     final bookState = ref.read(bookProvider);
 
@@ -71,63 +201,128 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     );
   }
 
+  // ============================================================================
+  // Build
+  // ============================================================================
   @override
   Widget build(BuildContext context) {
-    final recordState = ref.watch(recordProvider);
-    final recordNotifier = ref.read(recordProvider.notifier);
+    final topPadding = MediaQuery.of(context).padding.top;
+    final currentTab = _tabController.index;
+    final isScrolled = _isHeaderScrolled(currentTab);
 
-    final now = DateTime.now();
-    final isCurrentMonth =
-        recordState.selectedYear == now.year &&
-        recordState.selectedMonth == now.month;
-
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        AppAppBar.sliver(
-          title: '독서 기록',
-          bottom: AppTabBar(
-            controller: _tabController,
-            tabs: const ['스니펫', '독서일기', '리뷰'],
-            margin: EdgeInsets.zero,
-          ),
-        ),
+    return Stack(
+      children: [
+        _buildMainContent(isScrolled),
+        _buildFixedHeaders(currentTab, topPadding, isScrolled),
       ],
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          for (final type in _tabTypes)
-            _buildTabContent(type, recordState, recordNotifier, isCurrentMonth),
+    );
+  }
+
+  Widget _buildMainContent(bool isScrolled) {
+    final headerOpacity = isScrolled ? 0.0 : 1.0;
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScrollNotification,
+      child: NestedScrollView(
+        headerSliverBuilder: (context, _) => [
+          AppAppBar.sliver(
+            title: '독서 기록',
+            bottom: AppTabBar(
+              controller: _tabController,
+              tabs: const ['스니펫', '독서일기', '리뷰'],
+              margin: EdgeInsets.zero,
+            ),
+          ),
         ],
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            for (final type in _tabTypes)
+              _buildTabContent(type, headerOpacity),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTabContent(
-    RecordType type,
-    RecordState recordState,
-    RecordNotifier recordNotifier,
-    bool isCurrentMonth,
-  ) {
-    final filteredRecords = recordState.allRecords
-        .where((r) => r.type == type)
-        .toList();
+  Widget _buildFixedHeaders(int currentTab, double topPadding, bool isScrolled) {
+    if (!isScrolled) return const SizedBox.shrink();
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: AnimatedOpacity(
+        duration: Duration.zero,
+        opacity: 1.0,
+        child: _buildFixedMonthNavigator(topPadding),
+      ),
+    );
+  }
+
+  bool _isHeaderScrolled(int tab) {
+    return _scrollAnimationControllers[tab].value >= 1.0 &&
+        !_tabController.indexIsChanging &&
+        (_tabController.animation!.value - tab).abs() < _tabAnimationThreshold;
+  }
+
+  Widget _buildFixedMonthNavigator(double topPadding) {
+    final recordState = ref.watch(recordProvider);
+    final recordNotifier = ref.read(recordProvider.notifier);
+    final now = DateTime.now();
+    final isCurrentMonth = recordState.selectedYear == now.year &&
+        recordState.selectedMonth == now.month;
+
+    return Container(
+      padding: EdgeInsets.only(top: topPadding),
+      height: _fixedHeaderHeight + topPadding,
+      child: Center(
+        child: MonthNavigator(
+          year: recordState.selectedYear,
+          month: recordState.selectedMonth,
+          isCurrentMonth: isCurrentMonth,
+          onMonthChanged: recordNotifier.setSelectedMonth,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================================
+  // Tab Content
+  // ============================================================================
+  Widget _buildTabContent(RecordType type, double headerOpacity) {
+    final recordState = ref.watch(recordProvider);
+    final recordNotifier = ref.read(recordProvider.notifier);
+    final now = DateTime.now();
+    final isCurrentMonth = recordState.selectedYear == now.year &&
+        recordState.selectedMonth == now.month;
+
+    final filteredRecords =
+        recordState.allRecords.where((r) => r.type == type).toList();
 
     return AppRefreshIndicator(
       onRefresh: () => recordNotifier.refreshRecords(),
       child: CustomScrollView(
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyMonthNavigator(
-              year: recordState.selectedYear,
-              month: recordState.selectedMonth,
-              isCurrentMonth: isCurrentMonth,
-              onMonthChanged: (year, month) {
-                recordNotifier.setSelectedMonth(year, month);
-              },
-              height: 64,
+          // Conditional rendering with placeholder
+          if (headerOpacity > 0)
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: _fixedHeaderHeight,
+                child: Center(
+                  child: MonthNavigator(
+                    year: recordState.selectedYear,
+                    month: recordState.selectedMonth,
+                    isCurrentMonth: isCurrentMonth,
+                    onMonthChanged: recordNotifier.setSelectedMonth,
+                  ),
+                ),
+              ),
+            )
+          else
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 64),
             ),
-          ),
           _buildRecordsSliver(filteredRecords, recordState.isLoading),
         ],
       ),
