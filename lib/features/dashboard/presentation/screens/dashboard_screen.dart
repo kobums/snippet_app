@@ -41,10 +41,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   late TabController _tabController;
   late List<AnimationController> _scrollAnimationControllers;
 
-  // 스크롤 추적 (각 탭별로 독립적 관리)
-  final List<double> _lastScrollPixels = List.filled(_tabCount, 0.0);
-  final List<bool> _shouldShowFixedHeader = List.filled(_tabCount, false);
-
   // 2번 탭: 검색 컨트롤러 (고정 헤더와 본문 헤더 동기화용)
   final TextEditingController _searchController = TextEditingController();
 
@@ -100,8 +96,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (animationValue.abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
-        _shouldShowFixedHeader[currentTab] = false;
-        _lastScrollPixels[currentTab] = 0.0;
+        ref.read(dashboardProvider.notifier).setFixedHeaderVisible(currentTab, false);
+        ref.read(dashboardProvider.notifier).setScrollPosition(currentTab, 0.0);
         setState(() {});
       }
     }
@@ -114,13 +110,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (notification is! ScrollUpdateNotification) return false;
 
     final currentTab = _tabController.index;
+    final dashState = ref.read(dashboardProvider);
     final metrics = notification.metrics;
     final scrollDelta = notification.scrollDelta ?? 0;
 
     final pixels = metrics.pixels;
     final isScrollingDown = scrollDelta > 0;
+    final lastScrollPixels = dashState.scrollPositions[currentTab] ?? 0.0;
     final isContextSwitch =
-        (pixels - _lastScrollPixels[currentTab]).abs() > _scrollContextSwitchThreshold;
+        (pixels - lastScrollPixels).abs() > _scrollContextSwitchThreshold;
 
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
@@ -138,16 +136,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     // 헤더 표시 상태와 애니메이션 동기화
     _syncHeaderAnimation(currentTab);
 
-    _lastScrollPixels[currentTab] = pixels;
+    ref.read(dashboardProvider.notifier).setScrollPosition(currentTab, pixels);
     return false;
   }
 
   void _handleScrollDown(int tab, double pixels, double triggerHeight) {
+    final dashState = ref.read(dashboardProvider);
+
     if (pixels >= triggerHeight) {
-      _shouldShowFixedHeader[tab] = true;
+      ref.read(dashboardProvider.notifier).setFixedHeaderVisible(tab, true);
     }
 
-    if (_shouldShowFixedHeader[tab] &&
+    if ((dashState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value < 1.0) {
       _scrollAnimationControllers[tab].forward();
     }
@@ -164,7 +164,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (isInHeaderScroll &&
         !isContextSwitch &&
         pixels < topPadding + _fixedHeaderHeight) {
-      _shouldShowFixedHeader[tab] = false;
+      ref.read(dashboardProvider.notifier).setFixedHeaderVisible(tab, false);
       if (_scrollAnimationControllers[tab].value > 0.0) {
         _scrollAnimationControllers[tab].reverse();
       }
@@ -172,7 +172,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   void _syncHeaderAnimation(int tab) {
-    if (!_shouldShowFixedHeader[tab] &&
+    final dashState = ref.read(dashboardProvider);
+
+    if (!(dashState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value > 0.0) {
       _scrollAnimationControllers[tab].reverse();
     }

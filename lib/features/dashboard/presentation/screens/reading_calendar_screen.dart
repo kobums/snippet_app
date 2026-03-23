@@ -3,132 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
-import 'package:snippet_app/features/dashboard/data/datasources/calendar_share_datasource.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/calendar_provider.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/shareable_reading_calendar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 
-class ReadingCalendarScreen extends ConsumerStatefulWidget {
+class ReadingCalendarScreen extends ConsumerWidget {
   const ReadingCalendarScreen({super.key});
 
   @override
-  ConsumerState<ReadingCalendarScreen> createState() =>
-      _ReadingCalendarScreenState();
-}
-
-class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
-  late int _selectedYear;
-  late int _selectedMonth;
-  bool _isSaving = false;
-  bool _isSharing = false;
-
-  final CalendarShareService _shareService = CalendarShareService();
-
-  @override
-  void initState() {
-    super.initState();
-    final now = DateTime.now();
-    _selectedYear = now.year;
-    _selectedMonth = now.month;
-  }
-
-  Future<void> _loadData() async {
-    await ref
-        .read(bookProvider.notifier)
-        .loadDashboard(_selectedYear, _selectedMonth);
-  }
-
-  Future<void> _shareCalendar(List<UserBookDto> completedBooks) async {
-    setState(() {
-      _isSharing = true;
-    });
-
-    try {
-      final calendarWidget = ShareableReadingCalendar(
-        completedBooks: completedBooks,
-        year: _selectedYear,
-        month: _selectedMonth,
-      );
-
-      if (mounted) {
-        await _shareService.captureAndShare(
-          context,
-          calendarWidget,
-          _selectedYear,
-          _selectedMonth,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSharing = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _saveToGallery(List<UserBookDto> completedBooks) async {
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      final calendarWidget = ShareableReadingCalendar(
-        completedBooks: completedBooks,
-        year: _selectedYear,
-        month: _selectedMonth,
-      );
-
-      if (mounted) {
-        await _shareService.captureAndSaveToGallery(
-          context,
-          calendarWidget,
-          _selectedYear,
-          _selectedMonth,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final calendarState = ref.watch(calendarProvider);
     final bookState = ref.watch(bookProvider);
+
     final completedBooks = bookState.books
         .where((book) => book.status == BookStatus.completed)
         .toList();
 
     final now = DateTime.now();
-    final isCurrentMonth =
-        _selectedYear == now.year && _selectedMonth == now.month;
+    final isCurrentMonth = calendarState.selectedYear == now.year &&
+        calendarState.selectedMonth == now.month;
 
     return Scaffold(
       backgroundColor: DesignTokens.bgPrimary,
       appBar: const AppAppBar(title: '독서 캘린더'),
       body: AppRefreshIndicator(
-        onRefresh: _loadData,
+        onRefresh: () async {
+          await ref.read(bookProvider.notifier).loadDashboard(
+                calendarState.selectedYear,
+                calendarState.selectedMonth,
+              );
+        },
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPersistentHeader(
               pinned: true,
               delegate: StickyMonthNavigator(
-                year: _selectedYear,
-                month: _selectedMonth,
+                year: calendarState.selectedYear,
+                month: calendarState.selectedMonth,
                 isCurrentMonth: isCurrentMonth,
                 onMonthChanged: (year, month) {
-                  setState(() {
-                    _selectedYear = year;
-                    _selectedMonth = month;
-                  });
-                  _loadData();
+                  ref.read(calendarProvider.notifier).setMonth(year, month);
+                  ref.read(bookProvider.notifier).loadDashboard(year, month);
                 },
                 height: 64,
               ),
@@ -146,8 +65,8 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                         height: 1350,
                         child: ShareableReadingCalendar(
                           completedBooks: completedBooks,
-                          year: _selectedYear,
-                          month: _selectedMonth,
+                          year: calendarState.selectedYear,
+                          month: calendarState.selectedMonth,
                           showTitle: false,
                         ),
                       ),
@@ -195,10 +114,12 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           variant: AppButtonVariant.secondary,
                           size: AppButtonSize.large,
                           isFullWidth: true,
-                          isLoading: _isSaving,
-                          onPressed: _isSaving
+                          isLoading: calendarState.isSaving,
+                          onPressed: calendarState.isSaving
                               ? null
-                              : () => _saveToGallery(completedBooks),
+                              : () => ref
+                                  .read(calendarProvider.notifier)
+                                  .saveToGallery(context, completedBooks),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -209,10 +130,12 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           variant: AppButtonVariant.primary,
                           size: AppButtonSize.large,
                           isFullWidth: true,
-                          isLoading: _isSharing,
-                          onPressed: _isSharing
+                          isLoading: calendarState.isSharing,
+                          onPressed: calendarState.isSharing
                               ? null
-                              : () => _shareCalendar(completedBooks),
+                              : () => ref
+                                  .read(calendarProvider.notifier)
+                                  .shareCalendar(context, completedBooks),
                         ),
                       ),
                     ],

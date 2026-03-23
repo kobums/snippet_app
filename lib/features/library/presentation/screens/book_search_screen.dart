@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
-import 'package:snippet_app/features/library/library_providers.dart';
+import 'package:snippet_app/features/library/presentation/providers/book_search_provider.dart';
 import 'package:snippet_app/core/design_tokens.dart';
-import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/library/presentation/widgets/add_book_bottom_sheet.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
@@ -21,12 +20,6 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
 
-  List<BookSearchDto> _searchResults = [];
-  bool _isSearching = false;
-  bool _isLoadingMore = false;
-  int _currentPage = 1;
-  String _currentQuery = '';
-
   @override
   void initState() {
     super.initState();
@@ -41,80 +34,14 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   }
 
   void _onScroll() {
+    final searchState = ref.read(bookSearchProvider);
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.9) {
-      if (!_isLoadingMore && _searchResults.length >= _currentPage * 10) {
-        _loadMore();
+      if (!searchState.isLoadingMore &&
+          searchState.results.length >= searchState.currentPage * 10) {
+        ref.read(bookSearchProvider.notifier).loadMore();
       }
     }
-  }
-
-  Future<void> _search(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _currentPage = 1;
-      });
-      return;
-    }
-
-    setState(() {
-      _isSearching = true;
-      _currentQuery = query;
-      _currentPage = 1;
-    });
-
-    final searchUseCase = ref.read(searchBooksUseCaseProvider);
-    final result = await searchUseCase(query, 1);
-
-    result.when(
-      success: (results) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
-      },
-      failure: (error) {
-        setState(() => _isSearching = false);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.message),
-              backgroundColor: const Color(0xFFFF3B30),
-              behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.1,
-                left: 16,
-                right: 16,
-              ),
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  Future<void> _loadMore() async {
-    if (_currentQuery.isEmpty) return;
-
-    setState(() => _isLoadingMore = true);
-
-    final searchUseCase = ref.read(searchBooksUseCaseProvider);
-    final result = await searchUseCase(_currentQuery, _currentPage + 1);
-
-    result.when(
-      success: (results) {
-        setState(() {
-          _searchResults.addAll(results);
-          _currentPage++;
-          _isLoadingMore = false;
-        });
-      },
-      failure: (_) {
-        setState(() => _isLoadingMore = false);
-      },
-    );
   }
 
   void _showAddBookBottomSheet(BookSearchDto book) {
@@ -137,22 +64,24 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         onChanged: (value) {
           Future.delayed(const Duration(milliseconds: 500), () {
             if (value == _searchController.text) {
-              _search(value);
+              ref.read(bookSearchProvider.notifier).search(value);
             }
           });
         },
-        onClear: () => _search(''),
+        onClear: () => ref.read(bookSearchProvider.notifier).clearSearch(),
         child: _buildResults(),
       ),
     );
   }
 
   Widget _buildResults() {
-    if (_isSearching) {
+    final searchState = ref.watch(bookSearchProvider);
+
+    if (searchState.isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_searchResults.isEmpty && _currentQuery.isEmpty) {
+    if (searchState.results.isEmpty && searchState.currentQuery.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -176,7 +105,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       );
     }
 
-    if (_searchResults.isEmpty && _currentQuery.isNotEmpty) {
+    if (searchState.results.isEmpty && searchState.currentQuery.isNotEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -203,9 +132,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
-      itemCount: _searchResults.length + (_isLoadingMore ? 1 : 0),
+      itemCount: searchState.results.length + (searchState.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index == _searchResults.length) {
+        if (index == searchState.results.length) {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(16.0),
@@ -213,7 +142,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             ),
           );
         }
-        final book = _searchResults[index];
+        final book = searchState.results[index];
         return _buildBookCard(book);
       },
     );

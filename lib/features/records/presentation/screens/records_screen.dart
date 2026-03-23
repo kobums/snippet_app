@@ -4,6 +4,7 @@ import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
+import 'package:snippet_app/features/records/presentation/providers/records_tab_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/presentation/screens/add_record_screen.dart';
@@ -42,10 +43,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
   // ============================================================================
   late TabController _tabController;
   late List<AnimationController> _scrollAnimationControllers;
-
-  // 스크롤 추적 (각 탭별로 독립적 관리)
-  final List<double> _lastScrollPixels = List.filled(_tabCount, 0.0);
-  final List<bool> _shouldShowFixedHeader = List.filled(_tabCount, false);
 
   // ============================================================================
   // Lifecycle
@@ -93,8 +90,8 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     if (animationValue.abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
-        _shouldShowFixedHeader[currentTab] = false;
-        _lastScrollPixels[currentTab] = 0.0;
+        ref.read(recordsTabProvider.notifier).setFixedHeaderVisible(currentTab, false);
+        ref.read(recordsTabProvider.notifier).setScrollPosition(currentTab, 0.0);
         setState(() {});
       }
     }
@@ -107,14 +104,15 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     if (notification is! ScrollUpdateNotification) return false;
 
     final currentTab = _tabController.index;
+    final tabState = ref.read(recordsTabProvider);
     final metrics = notification.metrics;
     final scrollDelta = notification.scrollDelta ?? 0;
 
     final pixels = metrics.pixels;
     final isScrollingDown = scrollDelta > 0;
+    final lastScrollPixels = tabState.scrollPositions[currentTab] ?? 0.0;
     final isContextSwitch =
-        (pixels - _lastScrollPixels[currentTab]).abs() >
-            _scrollContextSwitchThreshold;
+        (pixels - lastScrollPixels).abs() > _scrollContextSwitchThreshold;
 
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
@@ -130,16 +128,18 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     }
 
     _syncHeaderAnimation(currentTab);
-    _lastScrollPixels[currentTab] = pixels;
+    ref.read(recordsTabProvider.notifier).setScrollPosition(currentTab, pixels);
     return false;
   }
 
   void _handleScrollDown(int tab, double pixels, double triggerHeight) {
+    final tabState = ref.read(recordsTabProvider);
+
     if (pixels >= triggerHeight) {
-      _shouldShowFixedHeader[tab] = true;
+      ref.read(recordsTabProvider.notifier).setFixedHeaderVisible(tab, true);
     }
 
-    if (_shouldShowFixedHeader[tab] &&
+    if ((tabState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value < 1.0) {
       _scrollAnimationControllers[tab].forward();
     }
@@ -155,7 +155,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     if (isInHeaderScroll &&
         !isContextSwitch &&
         pixels < topPadding + _fixedHeaderHeight) {
-      _shouldShowFixedHeader[tab] = false;
+      ref.read(recordsTabProvider.notifier).setFixedHeaderVisible(tab, false);
       if (_scrollAnimationControllers[tab].value > 0.0) {
         _scrollAnimationControllers[tab].reverse();
       }
@@ -163,7 +163,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
   }
 
   void _syncHeaderAnimation(int tab) {
-    if (!_shouldShowFixedHeader[tab] &&
+    final tabState = ref.read(recordsTabProvider);
+
+    if (!(tabState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value > 0.0) {
       _scrollAnimationControllers[tab].reverse();
     }

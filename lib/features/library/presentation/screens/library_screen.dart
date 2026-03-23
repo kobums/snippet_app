@@ -6,6 +6,7 @@ import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_tab_provider.dart';
 import 'package:snippet_app/features/library/presentation/widgets/book_grid_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
@@ -40,16 +41,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   late TabController _tabController;
   late List<AnimationController> _scrollAnimationControllers;
 
-  // 스크롤 추적 (각 탭별로 독립적 관리)
-  final List<double> _lastScrollPixels = List.filled(_tabCount, 0.0);
-  final List<bool> _shouldShowFixedHeader = List.filled(_tabCount, false);
-
-  // 검색 상태 (각 탭별로 독립적 관리)
-  final List<TextEditingController> _searchControllers = List.generate(
-    _tabCount,
-    (_) => TextEditingController(),
-  );
-  final List<String> _searchQueries = List.filled(_tabCount, '');
+  // TextEditingController는 로컬 유지 (dispose 필요)
+  late List<TextEditingController> _searchControllers;
 
   // ============================================================================
   // Lifecycle
@@ -89,6 +82,18 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
         vsync: this,
       )..addListener(() => setState(() {})),
     );
+
+    _searchControllers = List.generate(_tabCount, (_) => TextEditingController());
+
+    // Provider 상태와 TextController 동기화
+    for (int i = 0; i < _tabCount; i++) {
+      _searchControllers[i].addListener(() {
+        ref.read(libraryTabProvider.notifier).setSearchQuery(
+          i,
+          _searchControllers[i].text,
+        );
+      });
+    }
   }
 
   void _setupTabListeners() {
@@ -99,12 +104,13 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   void _handleTabSwipe() {
     final animationValue = _tabController.animation!.value;
     final currentTab = _tabController.index;
+    final tabState = ref.read(libraryTabProvider);
 
     if (animationValue.abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
-        _shouldShowFixedHeader[currentTab] = false;
-        _lastScrollPixels[currentTab] = 0.0;
+        ref.read(libraryTabProvider.notifier).setFixedHeaderVisible(currentTab, false);
+        ref.read(libraryTabProvider.notifier).setScrollPosition(currentTab, 0.0);
         setState(() {});
       }
     }
@@ -117,14 +123,15 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     if (notification is! ScrollUpdateNotification) return false;
 
     final currentTab = _tabController.index;
+    final tabState = ref.read(libraryTabProvider);
     final metrics = notification.metrics;
     final scrollDelta = notification.scrollDelta ?? 0;
 
     final pixels = metrics.pixels;
     final isScrollingDown = scrollDelta > 0;
+    final lastScrollPixels = tabState.scrollPositions[currentTab] ?? 0.0;
     final isContextSwitch =
-        (pixels - _lastScrollPixels[currentTab]).abs() >
-            _scrollContextSwitchThreshold;
+        (pixels - lastScrollPixels).abs() > _scrollContextSwitchThreshold;
 
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
@@ -140,16 +147,18 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     }
 
     _syncHeaderAnimation(currentTab);
-    _lastScrollPixels[currentTab] = pixels;
+    ref.read(libraryTabProvider.notifier).setScrollPosition(currentTab, pixels);
     return false;
   }
 
   void _handleScrollDown(int tab, double pixels, double triggerHeight) {
+    final tabState = ref.read(libraryTabProvider);
+
     if (pixels >= triggerHeight) {
-      _shouldShowFixedHeader[tab] = true;
+      ref.read(libraryTabProvider.notifier).setFixedHeaderVisible(tab, true);
     }
 
-    if (_shouldShowFixedHeader[tab] &&
+    if ((tabState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value < 1.0) {
       _scrollAnimationControllers[tab].forward();
     }
@@ -162,10 +171,12 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     bool isInHeaderScroll,
     bool isContextSwitch,
   ) {
+    final tabState = ref.read(libraryTabProvider);
+
     if (isInHeaderScroll &&
         !isContextSwitch &&
         pixels < topPadding + _fixedHeaderHeight) {
-      _shouldShowFixedHeader[tab] = false;
+      ref.read(libraryTabProvider.notifier).setFixedHeaderVisible(tab, false);
       if (_scrollAnimationControllers[tab].value > 0.0) {
         _scrollAnimationControllers[tab].reverse();
       }
@@ -173,7 +184,9 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   }
 
   void _syncHeaderAnimation(int tab) {
-    if (!_shouldShowFixedHeader[tab] &&
+    final tabState = ref.read(libraryTabProvider);
+
+    if (!(tabState.showFixedHeaders[tab] ?? false) &&
         _scrollAnimationControllers[tab].value > 0.0) {
       _scrollAnimationControllers[tab].reverse();
     }
@@ -259,11 +272,11 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
             controller: _searchControllers[tabIndex],
             hintText: '제목이나 저자로 검색...',
             onChanged: (value) {
-              setState(() => _searchQueries[tabIndex] = value);
+              ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, value);
             },
             onClear: () {
               _searchControllers[tabIndex].clear();
-              setState(() => _searchQueries[tabIndex] = '');
+              ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, '');
             },
           ),
         ),
@@ -281,6 +294,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   }) {
     final libraryState = ref.watch(libraryProvider);
     final libraryNotifier = ref.read(libraryProvider.notifier);
+    final tabState = ref.watch(libraryTabProvider);
+    final searchQuery = tabState.searchQueries[tabIndex] ?? '';
 
     final filteredBooks = _getFilteredBooks(bookType, tabIndex);
 
@@ -320,11 +335,11 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
                       controller: _searchControllers[tabIndex],
                       hintText: '제목이나 저자로 검색...',
                       onChanged: (value) {
-                        setState(() => _searchQueries[tabIndex] = value);
+                        ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, value);
                       },
                       onClear: () {
                         _searchControllers[tabIndex].clear();
-                        setState(() => _searchQueries[tabIndex] = '');
+                        ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, '');
                       },
                     ),
                   ),
@@ -342,10 +357,10 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
               hasScrollBody: false,
               child: _buildEmptyState(
                 emptyState.icon,
-                _searchQueries[tabIndex].isEmpty
+                searchQuery.isEmpty
                     ? emptyState.text
                     : '검색 결과가 없습니다',
-                _searchQueries[tabIndex].isEmpty
+                searchQuery.isEmpty
                     ? emptyState.subText
                     : '다른 검색어를 시도해보세요',
               ),
@@ -391,7 +406,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
 
   List<UserBookDto> _getFilteredBooks(BookType bookType, int tabIndex) {
     final libraryNotifier = ref.read(libraryProvider.notifier);
-    final searchQuery = _searchQueries[tabIndex];
+    final tabState = ref.read(libraryTabProvider);
+    final searchQuery = tabState.searchQueries[tabIndex] ?? '';
 
     if (searchQuery.isEmpty) {
       switch (bookType) {
