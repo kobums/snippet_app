@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../widgets/glass_container.dart';
 import '../core/design_tokens.dart';
+import 'app_button.dart';
 
 /// Reusable Month Navigator component
 class MonthNavigator extends StatelessWidget {
@@ -52,6 +53,8 @@ class MonthNavigator extends StatelessWidget {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      useRootNavigator: true, // 최상위 네비게이터 사용
+      elevation: 10, // FAB 및 다른 요소보다 위에 표시
       builder: (BuildContext context) {
         return Container(
           height: 300,
@@ -65,59 +68,17 @@ class MonthNavigator extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 16,
                 ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.2),
+                child: const Center(
+                  child: Text(
+                    '년월 선택',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: DesignTokens.textPrimary,
                     ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        '취소',
-                        style: TextStyle(
-                          color: DesignTokens.textSecondary,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      '년월 선택',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: DesignTokens.textPrimary,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // 미래 날짜 선택 방지
-                        if (selectedYear > currentYear ||
-                            (selectedYear == currentYear &&
-                                selectedMonth > currentMonth)) {
-                          // 현재 월로 설정
-                          selectedYear = currentYear;
-                          selectedMonth = currentMonth;
-                        }
-                        onMonthChanged(selectedYear, selectedMonth);
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        '완료',
-                        style: TextStyle(
-                          color: DesignTokens.primaryMain,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
               // Pickers
@@ -171,6 +132,29 @@ class MonthNavigator extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+              // 하단 완료 버튼
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(color: Colors.white),
+                child: AppButton(
+                  text: '완료',
+                  onPressed: () {
+                    // 미래 날짜 선택 방지
+                    if (selectedYear > currentYear ||
+                        (selectedYear == currentYear &&
+                            selectedMonth > currentMonth)) {
+                      // 현재 월로 설정
+                      selectedYear = currentYear;
+                      selectedMonth = currentMonth;
+                    }
+                    onMonthChanged(selectedYear, selectedMonth);
+                    Navigator.pop(context);
+                  },
+                  variant: AppButtonVariant.primary,
+                  size: AppButtonSize.large,
+                  isFullWidth: true,
                 ),
               ),
             ],
