@@ -7,6 +7,9 @@ import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_li
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/components/search_field.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -18,70 +21,68 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  late AnimationController _scrollAnimationController;
+  late List<AnimationController> _scrollAnimationControllers;
 
-  // 스크롤 추적 변수
-  double _lastPixels = 0.0;
-  bool _hasShownNavigator = false;
+  // 스크롤 추적 변수 (각 탭별로 관리)
+  final List<double> _lastPixels = [0.0, 0.0, 0.0];
+  final List<bool> _hasShownNavigator = [false, false, false];
+
+  // 1번 탭 (진행) SegmentedButton 상태
+  int _selectedProgressIndex = 1;
+
+  // 2번 탭 (서재) SearchField 상태
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+
+    // 각 탭마다 독립적인 AnimationController 생성
+    _scrollAnimationControllers = List.generate(
+      3,
+      (index) =>
+          AnimationController(
+            duration: const Duration(milliseconds: 0),
+            vsync: this,
+          )..addListener(() {
+            setState(() {});
+          }),
+    );
+
     _tabController.addListener(() {
-      // 탭 전환 시 0번 탭이 아니면 애니메이션 리셋
-      if (_tabController.index != 0 && _scrollAnimationController.value > 0) {
-        _scrollAnimationController.reset();
-        _hasShownNavigator = false;
-        _lastPixels = 0.0;
-      }
       setState(() {});
     });
+
     // 스와이프 애니메이션 중에도 감지
     _tabController.animation!.addListener(() {
       final animationValue = _tabController.animation!.value;
+      final currentTab = _tabController.index;
 
-      // 0번 탭에서 스와이프 시작 시 즉시 리셋
-      // animationValue가 0이 아니면 스와이프 중 (threshold: 0.05)
-      if (_tabController.index == 0 && animationValue.abs() > 0.05) {
-        if (_scrollAnimationController.value > 0) {
-          _scrollAnimationController.reset();
-          _hasShownNavigator = false;
-          _lastPixels = 0.0;
+      // 현재 탭에서 스와이프 시작 시 즉시 리셋
+      if (animationValue.abs() > 0.05) {
+        if (_scrollAnimationControllers[currentTab].value > 0) {
+          _scrollAnimationControllers[currentTab].reset();
+          _hasShownNavigator[currentTab] = false;
+          _lastPixels[currentTab] = 0.0;
           setState(() {});
         }
-      } else if (_tabController.index != 0 && _scrollAnimationController.value > 0) {
-        // 다른 탭으로 완전히 이동한 경우에도 리셋
-        _scrollAnimationController.reset();
-        _hasShownNavigator = false;
-        _lastPixels = 0.0;
-        setState(() {});
       }
     });
-    _scrollAnimationController =
-        AnimationController(
-          duration: const Duration(milliseconds: 0),
-          vsync: this,
-        )..addListener(() {
-          setState(() {});
-        });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollAnimationController.dispose();
+    for (var controller in _scrollAnimationControllers) {
+      controller.dispose();
+    }
+    _searchController.dispose();
     super.dispose();
   }
 
   bool _onScrollNotification(ScrollNotification notification) {
-    // 0번 탭(통계)일 때만 처리
-    if (_tabController.index != 0) {
-      // 다른 탭으로 이동 시 상태 초기화
-      _hasShownNavigator = false;
-      _lastPixels = 0.0;
-      return false;
-    }
+    final currentTab = _tabController.index;
 
     if (notification is ScrollUpdateNotification) {
       final pixels = notification.metrics.pixels;
@@ -92,52 +93,49 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       final isScrollingDown = scrollDelta > 0;
 
       // Context 전환 감지 (pixels가 급격히 변함)
-      final isContextSwitch = (pixels - _lastPixels).abs() > 50;
+      final isContextSwitch = (pixels - _lastPixels[currentTab]).abs() > 50;
 
       // 기기별 동적 높이 계산
       final topPadding = MediaQuery.of(context).padding.top;
-      const kMonthNavigatorHeight = 64.0;
+      const kHeaderHeight = 64.0;
       const appBarHeight = kToolbarHeight; // 56.0
       const tabBarHeight = kTextTabBarHeight; // 46.0
       const headerHeight = appBarHeight + tabBarHeight; // 102.0
 
       // Header/Body scroll 구분 (maxScrollExtent로 판단)
-      // Header scroll: maxScrollExtent가 작음 (AppBar + TabBar 높이 정도)
-      // Body scroll: maxScrollExtent가 큼 (컨텐츠 전체 높이)
       final isInHeaderScroll = maxScrollExtent < headerHeight + 50;
 
-      final monthNavigatorHeight = kMonthNavigatorHeight + topPadding;
+      final fixedHeaderHeight = kHeaderHeight + topPadding;
 
       if (isScrollingDown) {
         // 아래로 스크롤 중
-        if (pixels >= monthNavigatorHeight) {
-          // monthNavigatorHeight만큼 스크롤됨 → 나타남
-          _hasShownNavigator = true;
+        if (pixels >= fixedHeaderHeight) {
+          _hasShownNavigator[currentTab] = true;
         }
         // Context 전환이어도 이미 나타난 상태면 유지
-        if (_hasShownNavigator && _scrollAnimationController.value < 1.0) {
-          _scrollAnimationController.forward();
+        if (_hasShownNavigator[currentTab] &&
+            _scrollAnimationControllers[currentTab].value < 1.0) {
+          _scrollAnimationControllers[currentTab].forward();
         }
       } else {
         // 위로 스크롤 중
-        // Header scroll 중이고, topPadding + MonthNavigator 높이 이하로 돌아가면 사라짐
-        // (Body scroll 중에는 사라지지 않음)
         if (isInHeaderScroll &&
             !isContextSwitch &&
-            pixels < topPadding + kMonthNavigatorHeight) {
-          _hasShownNavigator = false;
-          if (_scrollAnimationController.value > 0.0) {
-            _scrollAnimationController.reverse();
+            pixels < topPadding + kHeaderHeight) {
+          _hasShownNavigator[currentTab] = false;
+          if (_scrollAnimationControllers[currentTab].value > 0.0) {
+            _scrollAnimationControllers[currentTab].reverse();
           }
         }
       }
 
       // 나타나지 않은 상태에서 숨김 처리
-      if (!_hasShownNavigator && _scrollAnimationController.value > 0.0) {
-        _scrollAnimationController.reverse();
+      if (!_hasShownNavigator[currentTab] &&
+          _scrollAnimationControllers[currentTab].value > 0.0) {
+        _scrollAnimationControllers[currentTab].reverse();
       }
 
-      _lastPixels = pixels;
+      _lastPixels[currentTab] = pixels;
     }
     return false;
   }
@@ -145,13 +143,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    // 완전히 전환되었을 때만 true
-    // 1. 0번 탭이고
-    // 2. 스크롤 애니메이션이 완료되었고
-    // 3. 탭 스와이프 중이 아닐 때만
-    final isScrolled = _tabController.index == 0 &&
-        _scrollAnimationController.value >= 1.0 &&
-        _tabController.animation!.value.abs() < 0.01;
+    final currentTab = _tabController.index;
+
+    // 완전히 전환되었을 때만 true (탭 스와이프 중이 아닐 때)
+    final isScrolled =
+        _scrollAnimationControllers[currentTab].value >= 1.0 &&
+        !_tabController.indexIsChanging &&
+        (_tabController.animation!.value - currentTab).abs() < 0.1;
 
     return Stack(
       children: [
@@ -173,25 +171,55 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               controller: _tabController,
               children: [
                 DashboardStatsSection(headerOpacity: isScrolled ? 0.0 : 1.0),
-                const DashboardProgressSection(),
-                const DashboardLibrarySection(),
+                DashboardProgressSection(headerOpacity: isScrolled ? 0.0 : 1.0),
+                DashboardLibrarySection(headerOpacity: isScrolled ? 0.0 : 1.0),
               ],
             ),
           ),
         ),
 
-        // 상단 고정 MonthNavigator (스크롤 시 나타남)
-        if (_tabController.index == 0)
+        // 상단 고정 헤더들 (각 탭별로)
+        if (currentTab == 0 && isScrolled)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: IgnorePointer(
-              ignoring: !isScrolled,
+              ignoring: false,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 0),
-                opacity: isScrolled ? 1.0 : 0.0,
+                opacity: 1.0,
                 child: _buildFixedMonthNavigator(topPadding),
+              ),
+            ),
+          ),
+
+        if (currentTab == 1 && isScrolled)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              ignoring: false,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 0),
+                opacity: 1.0,
+                child: _buildFixedSegmentedButton(topPadding),
+              ),
+            ),
+          ),
+
+        if (currentTab == 2 && isScrolled)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              ignoring: false,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 0),
+                opacity: 1.0,
+                child: _buildFixedSearchField(topPadding),
               ),
             ),
           ),
@@ -219,6 +247,104 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           onMonthChanged: (year, month) {
             bookNotifier.setSelectedMonth(year, month);
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFixedSegmentedButton(double topPadding) {
+    const segments = ['대기중', '읽는중', '완독'];
+
+    return Container(
+      padding: EdgeInsets.only(top: topPadding),
+      height: 64 + topPadding,
+      alignment: Alignment.center,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: DesignTokens.neutral100,
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: List.generate(segments.length, (index) {
+              final isSelected = index == _selectedProgressIndex;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedProgressIndex = index;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: DesignTokens.durationNormal,
+                    curve: DesignTokens.curveEaseInOut,
+                    decoration: isSelected
+                        ? BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusSm,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          )
+                        : null,
+                    alignment: Alignment.center,
+                    child: AnimatedDefaultTextStyle(
+                      duration: DesignTokens.durationNormal,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: isSelected
+                            ? FontWeight.w500
+                            : FontWeight.w400,
+                        color: isSelected
+                            ? DesignTokens.textPrimary
+                            : DesignTokens.textTertiary,
+                      ),
+                      child: Text(segments[index]),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFixedSearchField(double topPadding) {
+    final libraryNotifier = ref.read(libraryProvider.notifier);
+
+    return Container(
+      padding: EdgeInsets.only(top: topPadding),
+      height: 64 + topPadding,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SearchField(
+            controller: _searchController,
+            hintText: '제목이나 저자로 검색...',
+            onChanged: (value) {
+              libraryNotifier.setSearchQuery(value);
+            },
+            onClear: () {
+              _searchController.clear();
+              libraryNotifier.setSearchQuery('');
+            },
+          ),
         ),
       ),
     );

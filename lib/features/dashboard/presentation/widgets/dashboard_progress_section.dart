@@ -6,10 +6,12 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_book_card.dart';
-import 'package:snippet_app/features/dashboard/presentation/widgets/sticky_glass_tab_bar.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
-  const DashboardProgressSection({super.key});
+  final double headerOpacity;
+
+  const DashboardProgressSection({super.key, this.headerOpacity = 1.0});
 
   @override
   ConsumerState<DashboardProgressSection> createState() =>
@@ -42,25 +44,96 @@ class _DashboardProgressSectionState
       onRefresh: () => ref.read(bookProvider.notifier).refreshBooks(),
       child: CustomScrollView(
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyGlassSegmentedButton(
-              selectedIndex: _selectedIndex,
-              segments: const ['대기중', '읽는중', '완독'],
-              onChanged: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-                final controller = PrimaryScrollController.of(context);
-                if (controller.hasClients) {
-                  controller.jumpTo(0);
-                }
-              },
-              height: 64,
+          // Conditional rendering with placeholder
+          if (widget.headerOpacity > 0)
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 64,
+                child: Center(
+                  child: _buildSegmentedButton(),
+                ),
+              ),
+            )
+          else
+            // 빈 공간으로 높이 유지 (부드러운 스크롤)
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 64),
             ),
-          ),
           _buildBookListSliver(currentTabBooks),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentedButton() {
+    const segments = ['대기중', '읽는중', '완독'];
+
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: DesignTokens.neutral100,
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          children: List.generate(segments.length, (index) {
+            final isSelected = index == _selectedIndex;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                  final controller = PrimaryScrollController.of(context);
+                  if (controller.hasClients) {
+                    controller.jumpTo(0);
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: DesignTokens.durationNormal,
+                  curve: DesignTokens.curveEaseInOut,
+                  decoration: isSelected
+                      ? BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            DesignTokens.radiusSm,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        )
+                      : null,
+                  alignment: Alignment.center,
+                  child: AnimatedDefaultTextStyle(
+                    duration: DesignTokens.durationNormal,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: isSelected
+                          ? FontWeight.w500
+                          : FontWeight.w400,
+                      color: isSelected
+                          ? DesignTokens.textPrimary
+                          : DesignTokens.textTertiary,
+                    ),
+                    child: Text(segments[index]),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
