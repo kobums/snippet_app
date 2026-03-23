@@ -6,7 +6,6 @@ import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_pr
 import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_library_section.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
-import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -29,6 +28,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      // 탭 전환 시 0번 탭이 아니면 애니메이션 리셋
+      if (_tabController.index != 0 && _scrollAnimationController.value > 0) {
+        _scrollAnimationController.reset();
+        _hasShownNavigator = false;
+        _lastPixels = 0.0;
+      }
+      setState(() {});
+    });
+    // 스와이프 애니메이션 중에도 감지
+    _tabController.animation!.addListener(() {
+      final animationValue = _tabController.animation!.value;
+
+      // 0번 탭에서 스와이프 시작 시 즉시 리셋
+      // animationValue가 0이 아니면 스와이프 중 (threshold: 0.05)
+      if (_tabController.index == 0 && animationValue.abs() > 0.05) {
+        if (_scrollAnimationController.value > 0) {
+          _scrollAnimationController.reset();
+          _hasShownNavigator = false;
+          _lastPixels = 0.0;
+          setState(() {});
+        }
+      } else if (_tabController.index != 0 && _scrollAnimationController.value > 0) {
+        // 다른 탭으로 완전히 이동한 경우에도 리셋
+        _scrollAnimationController.reset();
+        _hasShownNavigator = false;
+        _lastPixels = 0.0;
+        setState(() {});
+      }
+    });
     _scrollAnimationController =
         AnimationController(
           duration: const Duration(milliseconds: 0),
@@ -65,14 +94,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       // Context 전환 감지 (pixels가 급격히 변함)
       final isContextSwitch = (pixels - _lastPixels).abs() > 50;
 
+      // 기기별 동적 높이 계산
+      final topPadding = MediaQuery.of(context).padding.top;
+      const kMonthNavigatorHeight = 64.0;
+      const appBarHeight = kToolbarHeight; // 56.0
+      const tabBarHeight = kTextTabBarHeight; // 46.0
+      const headerHeight = appBarHeight + tabBarHeight; // 102.0
+
       // Header/Body scroll 구분 (maxScrollExtent로 판단)
       // Header scroll: maxScrollExtent가 작음 (AppBar + TabBar 높이 정도)
       // Body scroll: maxScrollExtent가 큼 (컨텐츠 전체 높이)
-      final isInHeaderScroll = maxScrollExtent < 200;
+      final isInHeaderScroll = maxScrollExtent < headerHeight + 50;
 
-      final topPadding = MediaQuery.of(context).padding.top;
-
-      final double monthNavigatorHeight = 64 + topPadding;
+      final monthNavigatorHeight = kMonthNavigatorHeight + topPadding;
 
       if (isScrollingDown) {
         // 아래로 스크롤 중
@@ -86,9 +120,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         }
       } else {
         // 위로 스크롤 중
-        // Header scroll 중이고, topPadding 이하로 돌아가면 사라짐
+        // Header scroll 중이고, topPadding + MonthNavigator 높이 이하로 돌아가면 사라짐
         // (Body scroll 중에는 사라지지 않음)
-        if (isInHeaderScroll && !isContextSwitch && pixels < topPadding + 64) {
+        if (isInHeaderScroll &&
+            !isContextSwitch &&
+            pixels < topPadding + kMonthNavigatorHeight) {
           _hasShownNavigator = false;
           if (_scrollAnimationController.value > 0.0) {
             _scrollAnimationController.reverse();
@@ -109,8 +145,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    // 완전히 전환되었을 때만 true (0.3 threshold 대신)
-    final isScrolled = _scrollAnimationController.value >= 1.0;
+    // 완전히 전환되었을 때만 true
+    // 1. 0번 탭이고
+    // 2. 스크롤 애니메이션이 완료되었고
+    // 3. 탭 스와이프 중이 아닐 때만
+    final isScrolled = _tabController.index == 0 &&
+        _scrollAnimationController.value >= 1.0 &&
+        _tabController.animation!.value.abs() < 0.01;
 
     return Stack(
       children: [
