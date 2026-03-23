@@ -71,7 +71,7 @@ class LibraryNotifier extends Notifier<LibraryState> {
   }
 
   List<UserBookDto> get recentBooks {
-    final sorted = List<UserBookDto>.from(state.allBooks);
+    final sorted = List<UserBookDto>.from(filteredBooks);
     sorted.sort((a, b) {
       final aDate = DateTime.tryParse(a.createDate) ?? DateTime(1900);
       final bDate = DateTime.tryParse(b.createDate) ?? DateTime(1900);
@@ -81,19 +81,19 @@ class LibraryNotifier extends Notifier<LibraryState> {
   }
 
   List<UserBookDto> get readingBooks {
-    return state.allBooks
+    return filteredBooks
         .where((book) => book.status == BookStatus.reading)
         .toList();
   }
 
   List<UserBookDto> get borrowedBooks {
-    return state.allBooks
+    return filteredBooks
         .where((book) => book.type == BookType.borrow)
         .toList();
   }
 
   List<UserBookDto> get wishlistBooks {
-    return state.allBooks
+    return filteredBooks
         .where((book) => book.type == BookType.wish)
         .toList();
   }
