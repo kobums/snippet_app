@@ -13,12 +13,9 @@ import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
-  final double paddingProgress;
+  final double headerOpacity;
 
-  const DashboardStatsSection({
-    super.key,
-    this.paddingProgress = 0.0,
-  });
+  const DashboardStatsSection({super.key, this.headerOpacity = 1.0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,80 +35,86 @@ class DashboardStatsSection extends ConsumerWidget {
       (sum, b) => sum + b.totalPage,
     );
 
-    final topPadding = MediaQuery.of(context).padding.top;
-
     return AppRefreshIndicator(
       onRefresh: () => bookNotifier.refreshBooks(),
       child: CustomScrollView(
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyMonthNavigator(
-              year: bookState.selectedYear,
-              month: bookState.selectedMonth,
-              isCurrentMonth: isCurrentMonth,
-              onMonthChanged: (year, month) {
-                bookNotifier.setSelectedMonth(year, month);
-              },
-              height: 64,
-              topPadding: topPadding,
-              paddingProgress: paddingProgress,
+          // Conditional rendering with placeholder
+          if (headerOpacity > 0)
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 64,
+                child: Center(
+                  child: MonthNavigator(
+                    year: bookState.selectedYear,
+                    month: bookState.selectedMonth,
+                    isCurrentMonth: isCurrentMonth,
+                    onMonthChanged: (year, month) {
+                      bookNotifier.setSelectedMonth(year, month);
+                    },
+                  ),
+                ),
+              ),
+            )
+          else
+            // 빈 공간으로 높이 유지 (부드러운 스크롤)
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 64),
+            ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                GestureDetector(
+                  onTap: () {
+                    context.push(AppRoutes.stats);
+                  },
+                  child: _buildStatsCard(completedBooks.length, totalPages),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    context.push(AppRoutes.readingCalendar);
+                  },
+                  child: GlassContainer(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SectionHeader('독서 캘린더'),
+                        const SizedBox(height: 8),
+                        ReadingCalendar(
+                          completedBooks: completedBooks,
+                          year: bookState.selectedYear,
+                          month: bookState.selectedMonth,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (completedBooks.isNotEmpty) ...[
+                  SectionHeader(
+                    '완독한 책 (${completedBooks.length})',
+                    size: SectionHeaderSize.large,
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 12),
+                  ),
+                  ...completedBooks.map(
+                    (book) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AppBookCard(
+                        book: book,
+                        size: BookCardSize.medium,
+                        showTotalPage: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ]),
             ),
           ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  GestureDetector(
-                    onTap: () {
-                      context.push(AppRoutes.stats);
-                    },
-                    child: _buildStatsCard(completedBooks.length, totalPages),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () {
-                      context.push(AppRoutes.readingCalendar);
-                    },
-                    child: GlassContainer(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SectionHeader('독서 캘린더'),
-                          const SizedBox(height: 8),
-                          ReadingCalendar(
-                            completedBooks: completedBooks,
-                            year: bookState.selectedYear,
-                            month: bookState.selectedMonth,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (completedBooks.isNotEmpty) ...[
-                    SectionHeader(
-                      '완독한 책 (${completedBooks.length})',
-                      size: SectionHeaderSize.large,
-                      padding: const EdgeInsets.only(left: 8.0, bottom: 12),
-                    ),
-                    ...completedBooks.map(
-                      (book) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: AppBookCard(
-                          book: book,
-                          size: BookCardSize.medium,
-                          showTotalPage: true,
-                        ),
-                      ),
-                    ),
-                  ],
-                ]),
-              ),
-            ),
-          ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 
   Widget _buildStatsCard(int completedCount, int totalPages) {
