@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 /// Glass 스타일 검색 필드 컴포넌트
 class SearchField extends StatefulWidget {
@@ -60,7 +62,7 @@ class _SearchFieldState extends State<SearchField> {
       margin: widget.margin,
       decoration: BoxDecoration(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: Border.all(
           color: Colors.black.withValues(alpha: 0.15),
           width: 1,
@@ -71,8 +73,7 @@ class _SearchFieldState extends State<SearchField> {
         onChanged: widget.onChanged,
         decoration: InputDecoration(
           hintText: widget.hintText,
-          hintStyle: TextStyle(
-            fontSize: 14,
+          hintStyle: AppTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.w300,
             color: Colors.black.withValues(alpha: 0.4),
           ),
@@ -90,9 +91,9 @@ class _SearchFieldState extends State<SearchField> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(vertical: DesignTokens.space12),
         ),
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        style: AppTypography.bodyMedium,
       ),
     );
   }

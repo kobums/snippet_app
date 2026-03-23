@@ -28,7 +28,7 @@ class MonthlyChart extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 1.5,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(DesignTokens.space16),
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,

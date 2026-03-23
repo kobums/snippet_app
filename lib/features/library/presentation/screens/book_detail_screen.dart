@@ -239,7 +239,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             child: Image.network(
               widget.book.coverUrl,
               width: 80,
@@ -360,7 +360,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             ),
             const SizedBox(height: 12),
             ClipRRect(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
               child: LinearProgressIndicator(
                 value: widget.book.totalPage > 0
                     ? _readPage / widget.book.totalPage
@@ -410,7 +410,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   ],
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                 ),
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.5),

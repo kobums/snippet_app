@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'book_grid_card.dart';
 
@@ -68,7 +69,7 @@ class BookGrid extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         ),
       ),
     );

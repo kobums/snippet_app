@@ -3,6 +3,7 @@ import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/settings_tile.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
@@ -11,13 +12,13 @@ class SettingsSection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
+        title: Text(
           '준비 중입니다',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+          style: AppTypography.h4,
         ),
-        content: const Text(
+        content: Text(
           '이 기능은 곧 추가될 예정입니다.',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+          style: AppTypography.bodyMedium,
         ),
         actions: [
           TextButton(
@@ -39,19 +40,17 @@ class SettingsSection extends StatelessWidget {
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [DesignTokens.primaryMain, Color(0xFFB794F4)],
+            colors: [DesignTokens.primaryMain, DesignTokens.accentPurple],
           ),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'S',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w300,
+            style: AppTypography.displaySmall.copyWith(
               color: Colors.white,
               letterSpacing: 1,
             ),
@@ -68,7 +67,7 @@ class SettingsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader('설정'),
-          const SizedBox(height: 16),
+          const SizedBox(height: DesignTokens.space16),
 
           // Settings tiles
           SettingsTile(

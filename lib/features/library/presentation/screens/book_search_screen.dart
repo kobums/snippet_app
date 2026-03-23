@@ -137,7 +137,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         if (index == searchState.results.length) {
           return const Center(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(DesignTokens.space16),
               child: CircularProgressIndicator(),
             ),
           );
@@ -158,7 +158,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                 child: CachedNetworkImage(
                   imageUrl: book.coverUrl,
                   width: 60,

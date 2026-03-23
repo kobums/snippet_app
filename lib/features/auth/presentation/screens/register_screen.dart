@@ -6,6 +6,7 @@ import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -51,12 +52,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
-          backgroundColor: const Color(0xFFFF3B30),
+          backgroundColor: DesignTokens.errorMain,
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).size.height * 0.1,
-            left: 16,
-            right: 16,
+            left: DesignTokens.space16,
+            right: DesignTokens.space16,
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -75,7 +76,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(DesignTokens.space24),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -86,16 +87,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       height: 140,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.6),
                           width: 1,
                         ),
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(DesignTokens.space16),
                           child: Image.asset(
                             'images/snippetbook.png',
                             fit: BoxFit.contain,
@@ -103,29 +104,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const Text(
+                    Text(
                       'Snippet',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w300,
-                        letterSpacing: 5,
-                        color: DesignTokens.primaryMain,
-                      ),
+                      style: AppTypography.brand,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: DesignTokens.space40),
                     GlassContainer(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
+                          Text(
                             'Create Account',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: 2,
-                            ),
+                            style: AppTypography.h3,
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: DesignTokens.space24),
                           TextFormField(
                             controller: _nameController,
                             textInputAction: TextInputAction.next,
@@ -133,7 +125,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               labelText: 'Name',
                               prefixIcon: const Icon(Icons.person_outline),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
                               fillColor: Colors.white.withValues(alpha: 0.5),
@@ -145,7 +137,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: DesignTokens.space16),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -154,7 +146,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               labelText: 'Email',
                               prefixIcon: const Icon(Icons.email_outlined),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
                               fillColor: Colors.white.withValues(alpha: 0.5),
@@ -169,7 +161,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: DesignTokens.space16),
                           TextFormField(
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
@@ -190,7 +182,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 },
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
                               fillColor: Colors.white.withValues(alpha: 0.5),
@@ -202,7 +194,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: DesignTokens.space16),
                           TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: !_isConfirmPasswordVisible,
@@ -225,7 +217,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 },
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
                               fillColor: Colors.white.withValues(alpha: 0.5),
@@ -240,7 +232,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: DesignTokens.space24),
                           AppButton(
                             text: 'Register',
                             onPressed: _handleRegister,
@@ -249,7 +241,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             isFullWidth: true,
                             isLoading: authState.isLoading,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: DesignTokens.space16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

@@ -183,13 +183,13 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
           ],
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(DesignTokens.space24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Book title and Type (read-only)
               GlassContainer(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(DesignTokens.space12),
                 child: Row(
                   children: [
                     Expanded(
@@ -220,7 +220,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                       ),
                       child: Text(
                         widget.record.type.label,
@@ -249,7 +249,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                 decoration: InputDecoration(
                   hintText: '기록할 내용을 입력하세요',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                   ),
                   filled: true,
                   fillColor: Colors.white.withValues(alpha: 0.5),
@@ -276,7 +276,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                           decoration: InputDecoration(
                             hintText: '태그',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                             ),
                             filled: true,
                             fillColor: Colors.white.withValues(alpha: 0.5),
@@ -303,7 +303,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                           decoration: InputDecoration(
                             hintText: '페이지',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                             ),
                             filled: true,
                             fillColor: Colors.white.withValues(alpha: 0.5),

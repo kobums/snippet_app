@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class LogoutButton extends ConsumerWidget {
   const LogoutButton({super.key});
@@ -16,19 +18,13 @@ class LogoutButton extends ConsumerWidget {
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text(
+              title: Text(
                 '로그아웃',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: AppTypography.h4,
               ),
-              content: const Text(
+              content: Text(
                 '정말 로그아웃 하시겠습니까?',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: AppTypography.bodyMedium,
               ),
               actions: [
                 TextButton(
@@ -38,7 +34,7 @@ class LogoutButton extends ConsumerWidget {
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF3B30),
+                    foregroundColor: DesignTokens.errorMain,
                   ),
                   child: const Text(
                     '로그아웃',
@@ -56,24 +52,22 @@ class LogoutButton extends ConsumerWidget {
             }
           }
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: DesignTokens.space16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
                 Icons.logout,
-                color: Color(0xFFFF3B30),
+                color: DesignTokens.errorMain,
                 size: 20,
               ),
-              const SizedBox(width: 12),
-              const Text(
+              const SizedBox(width: DesignTokens.space12),
+              Text(
                 '로그아웃',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFFFF3B30),
+                style: AppTypography.bodyLarge.copyWith(
+                  color: DesignTokens.errorMain,
                 ),
               ),
             ],

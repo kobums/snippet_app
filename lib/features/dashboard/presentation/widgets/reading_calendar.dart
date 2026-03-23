@@ -34,7 +34,8 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final isCurrentMonth = widget.year == today.year && widget.month == today.month;
+    final isCurrentMonth =
+        widget.year == today.year && widget.month == today.month;
 
     // Calculate calendar grid
     final daysInMonth = DateTime(widget.year, widget.month + 1, 0).day;
@@ -101,15 +102,20 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
     );
   }
 
-  Widget _buildWeekdayHeader(String label, {bool isWeekend = false, bool isRed = false, bool isBlue = false}) {
+  Widget _buildWeekdayHeader(
+    String label, {
+    bool isWeekend = false,
+    bool isRed = false,
+    bool isBlue = false,
+  }) {
     return Expanded(
       child: Center(
         child: Text(
           label,
           style: AppTypography.caption.copyWith(
             color: isRed
-              ? Colors.red.withValues(alpha: 0.7)
-              : isBlue
+                ? Colors.red.withValues(alpha: 0.7)
+                : isBlue
                 ? Colors.blue.withValues(alpha: 0.7)
                 : DesignTokens.textSecondary,
             fontWeight: FontWeight.w500,
@@ -130,19 +136,19 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
       child: Container(
         decoration: BoxDecoration(
           color: isToday
-            ? DesignTokens.primaryMain.withValues(alpha: 0.05)
-            : Colors.grey.withValues(alpha: 0.02),
+              ? DesignTokens.primaryMain.withValues(alpha: 0.05)
+              : Colors.grey.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
           border: Border.all(
             color: isToday
-              ? DesignTokens.primaryMain.withValues(alpha: 0.3)
-              : Colors.grey.withValues(alpha: 0.1),
+                ? DesignTokens.primaryMain.withValues(alpha: 0.3)
+                : Colors.grey.withValues(alpha: 0.1),
             width: isToday ? 1.5 : 1,
           ),
         ),
         child: hasBooks
-          ? _buildBookCoverCell(day, books, isToday)
-          : _buildEmptyCell(day, isToday),
+            ? _buildBookCoverCell(day, books, isToday)
+            : _buildEmptyCell(day, isToday),
       ),
     );
   }
@@ -164,11 +170,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               errorBuilder: (_, __, ___) => Container(
                 color: Colors.blue.withValues(alpha: 0.1),
                 child: const Center(
-                  child: Icon(
-                    Icons.book,
-                    color: Colors.blue,
-                    size: 20,
-                  ),
+                  child: Icon(Icons.book, color: Colors.blue, size: 20),
                 ),
               ),
             )
@@ -193,7 +195,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(DesignTokens.space4),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -225,7 +227,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               height: 16,
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
               ),
               child: Center(
                 child: Text(
@@ -249,9 +251,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
       child: Text(
         '$day',
         style: AppTypography.caption.copyWith(
-          color: isToday
-            ? DesignTokens.primaryMain
-            : DesignTokens.textTertiary,
+          color: isToday ? DesignTokens.primaryMain : DesignTokens.textTertiary,
           fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
@@ -259,7 +259,10 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
   }
 
   void _showBooksDialog(
-      BuildContext context, int day, List<UserBookDto> books) {
+    BuildContext context,
+    int day,
+    List<UserBookDto> books,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -268,18 +271,15 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
         ),
         title: Text(
           '${widget.month}월 $day일 완독',
-          style: AppTypography.h4.copyWith(
-            color: DesignTokens.textPrimary,
-          ),
+          style: AppTypography.h4.copyWith(color: DesignTokens.textPrimary),
         ),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: books.length,
-            separatorBuilder: (context, index) => const SizedBox(
-              height: DesignTokens.space12,
-            ),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: DesignTokens.space12),
             itemBuilder: (context, index) {
               final book = books[index];
               return Container(
@@ -294,7 +294,9 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                 child: Row(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusSm,
+                      ),
                       child: Image.network(
                         book.coverUrl,
                         width: 40,
@@ -305,8 +307,12 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                             width: 40,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                              color: DesignTokens.primaryMain.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                DesignTokens.radiusSm,
+                              ),
                             ),
                             child: const Icon(
                               Icons.book_outlined,

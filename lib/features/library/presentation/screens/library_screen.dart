@@ -4,6 +4,7 @@ import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_tab_provider.dart';
@@ -367,7 +368,7 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(DesignTokens.space16),
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 3,

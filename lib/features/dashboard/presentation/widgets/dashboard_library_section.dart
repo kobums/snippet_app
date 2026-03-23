@@ -8,6 +8,7 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class DashboardLibrarySection extends ConsumerStatefulWidget {
   final double headerOpacity;
@@ -139,7 +140,7 @@ class _DashboardLibrarySectionState
                 if (libraryState.isLoading)
                   const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32.0),
+                      padding: EdgeInsets.all(DesignTokens.space32),
                       child: CircularProgressIndicator(),
                     ),
                   ),

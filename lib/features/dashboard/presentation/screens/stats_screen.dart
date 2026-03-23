@@ -10,6 +10,7 @@ import 'package:snippet_app/features/dashboard/presentation/widgets/category_bre
 import 'package:snippet_app/features/dashboard/presentation/widgets/insights_card.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/year_navigator.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
@@ -89,7 +90,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(DesignTokens.space16),
                   child: Column(
                     children: [
                       GlassContainer(
@@ -104,7 +105,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(DesignTokens.space16),
                   child: YearlySummary(stats: statsState.yearlyStats),
                 ),
               ),
@@ -113,7 +114,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(DesignTokens.space16),
                   child: CategoryBreakdown(stats: statsState.categoryStats),
                 ),
               ),
@@ -122,7 +123,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 statsState.error?.toString(),
                 SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(DesignTokens.space16),
                   child: InsightsCard(insights: statsState.insights),
                 ),
               ),
@@ -141,7 +142,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     if (error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.all(DesignTokens.space32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

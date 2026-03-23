@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
@@ -79,8 +80,8 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).size.height * 0.1,
-            left: 16,
-            right: 16,
+            left: DesignTokens.space16,
+            right: DesignTokens.space16,
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -99,12 +100,12 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${widget.book.title} 추가 완료!'),
-              backgroundColor: const Color(0xFF34C759),
+              backgroundColor: DesignTokens.successMain,
               behavior: SnackBarBehavior.floating,
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.height * 0.1,
-                left: 16,
-                right: 16,
+                left: DesignTokens.space16,
+                right: DesignTokens.space16,
               ),
               duration: const Duration(seconds: 2),
             ),
@@ -118,12 +119,12 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(error.message),
-              backgroundColor: const Color(0xFFFF3B30),
+              backgroundColor: DesignTokens.errorMain,
               behavior: SnackBarBehavior.floating,
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.height * 0.1,
-                left: 16,
-                right: 16,
+                left: DesignTokens.space16,
+                right: DesignTokens.space16,
               ),
               duration: const Duration(seconds: 3),
             ),
@@ -159,7 +160,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                 margin: const EdgeInsets.only(top: 12, bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusXxs),
                 ),
               ),
             ),
@@ -178,23 +179,19 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Title
-                    const Text(
+                    Text(
                       '책 추가',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 2,
-                      ),
+                      style: AppTypography.h3,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: DesignTokens.space24),
 
                     // Book info
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                           child: Image.network(
                             widget.book.coverUrl,
                             width: 60,
@@ -202,25 +199,21 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: DesignTokens.space12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 widget.book.title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
+                                style: AppTypography.bodyLarge,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: DesignTokens.space4),
                               Text(
                                 widget.book.author,
-                                style: TextStyle(
-                                  fontSize: 14,
+                                style: AppTypography.bodyMedium.copyWith(
                                   color: Colors.black.withValues(alpha: 0.5),
                                 ),
                               ),
@@ -229,7 +222,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: DesignTokens.space24),
 
                     Row(
                       children: [
@@ -258,7 +251,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                           ),
                         ),
 
-                        const SizedBox(width: 12),
+                        const SizedBox(width: DesignTokens.space12),
 
                         // Status selection (if not wishlist)
                         if (_selectedType != BookType.wish)
@@ -326,7 +319,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                     //     ],
                     //   ),
                     // ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: DesignTokens.space24),
 
                     // Add button
                     AppButton(

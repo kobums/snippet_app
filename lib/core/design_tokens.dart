@@ -21,8 +21,10 @@ class DesignTokens {
 
   /// Semantic Colors
   static const Color success = Color(0xFF34C759);
+  static const Color successMain = Color(0xFF34C759);
   static const Color warning = Color(0xFFFFCC00);
   static const Color error = Color(0xFFFF3B30);
+  static const Color errorMain = Color(0xFFFF3B30);
   static const Color info = Color(0xFF007AFF);
 
   /// Neutral Colors - 회색 팔레트
@@ -53,6 +55,16 @@ class DesignTokens {
   static final Color glassMedium = Colors.white.withValues(alpha: 0.95);
   static final Color glassDark = Colors.white.withValues(alpha: 0.90);
   static final Color glassBorder = Colors.white.withValues(alpha: 0.8);
+
+  /// Chart Colors - Category breakdown
+  static const Color chartColor1 = Color(0xFFFF6B9D);
+  static const Color chartColor2 = Color(0xFF4ECDC4);
+  static const Color chartColor3 = Color(0xFFFFA07A);
+  static const Color chartColor4 = Color(0xFF98D8C8);
+  static const Color chartColor5 = Color(0xFFB5838D);
+
+  /// Accent Colors
+  static const Color accentPurple = Color(0xFFB794F4);
 
   // ========== Typography ==========
 
@@ -113,6 +125,7 @@ class DesignTokens {
   // ========== Border Radius ==========
 
   static const double radiusNo = 0.0;
+  static const double radiusXxs = 3.0;
   static const double radiusXs = 4.0;
   static const double radiusSm = 8.0;
   static const double radiusMd = 12.0;

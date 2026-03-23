@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -181,7 +182,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('먼저 책을 추가해주세요'),
-          backgroundColor: const Color(0xFFFF3B30),
+          backgroundColor: DesignTokens.errorMain,
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).size.height * 0.1,

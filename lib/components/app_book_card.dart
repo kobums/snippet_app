@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 enum BookCardSize {
   small(imageWidth: 45, imageHeight: 68, titleSize: 14, authorSize: 12, borderRadius: 6),
@@ -101,10 +102,10 @@ class AppBookCard extends StatelessWidget {
                     _buildProgressIndicator(),
                   ],
                   if (showTotalPage) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: DesignTokens.space8),
                     Text(
                       '${book.totalPage}쪽',
-                      style: TextStyle(
+                      style: AppTypography.labelSmall.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                         color: Colors.black.withValues(alpha: 0.4),
@@ -126,7 +127,7 @@ class AppBookCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusXxs),
               child: LinearProgressIndicator(
                 value: book.progress,
                 minHeight: 4,
@@ -137,10 +138,10 @@ class AppBookCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: DesignTokens.space8),
           Text(
             '${(book.progress * 100).toInt()}%',
-            style: TextStyle(
+            style: AppTypography.labelSmall.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w300,
               color: Colors.black.withValues(alpha: 0.4),
@@ -154,7 +155,7 @@ class AppBookCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
           child: LinearProgressIndicator(
             value: book.progress,
             minHeight: 6,
@@ -164,11 +165,10 @@ class AppBookCard extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: DesignTokens.space4),
         Text(
           '${book.readPage} / ${book.totalPage} 페이지 (${(book.progress * 100).toInt()}%)',
-          style: TextStyle(
-            fontSize: 12,
+          style: AppTypography.labelSmall.copyWith(
             fontWeight: FontWeight.w300,
             color: Colors.black.withValues(alpha: 0.4),
           ),

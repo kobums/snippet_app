@@ -57,11 +57,11 @@ class CategoryBreakdown extends StatelessWidget {
   List<PieChartSectionData> _buildPieSections() {
     final colors = [
       DesignTokens.primaryMain,
-      const Color(0xFFFF6B9D),
-      const Color(0xFF4ECDC4),
-      const Color(0xFFFFA07A),
-      const Color(0xFF98D8C8),
-      const Color(0xFFB5838D),
+      DesignTokens.chartColor1,
+      DesignTokens.chartColor2,
+      DesignTokens.chartColor3,
+      DesignTokens.chartColor4,
+      DesignTokens.chartColor5,
     ];
 
     return stats.asMap().entries.map((entry) {
@@ -110,9 +110,9 @@ class CategoryBreakdown extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: DesignTokens.space12),
             ClipRRect(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
               child: LinearProgressIndicator(
                 value: categoryStat.completionRate / 100,
                 minHeight: 8,

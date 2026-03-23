@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../widgets/glass_container.dart';
 import '../core/design_tokens.dart';
+import '../core/typography.dart';
 
 /// Reusable Year Navigator component
 class YearNavigator extends StatelessWidget {
@@ -56,20 +57,17 @@ class YearNavigator extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text(
+                      child: Text(
                         '취소',
-                        style: TextStyle(
+                        style: AppTypography.bodyLarge.copyWith(
                           color: DesignTokens.textSecondary,
-                          fontSize: 16,
                         ),
                       ),
                     ),
-                    const Text(
+                    Text(
                       '년도 선택',
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: AppTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: DesignTokens.textPrimary,
                       ),
                     ),
                     TextButton(
@@ -77,11 +75,10 @@ class YearNavigator extends StatelessWidget {
                         onYearChanged(selectedYear);
                         Navigator.pop(context);
                       },
-                      child: const Text(
+                      child: Text(
                         '완료',
-                        style: TextStyle(
+                        style: AppTypography.bodyLarge.copyWith(
                           color: DesignTokens.primaryMain,
-                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -103,10 +100,7 @@ class YearNavigator extends StatelessWidget {
                     return Center(
                       child: Text(
                         '$y년',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: DesignTokens.textPrimary,
-                        ),
+                        style: AppTypography.h3,
                       ),
                     );
                   }).toList(),
@@ -122,10 +116,10 @@ class YearNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.5),
           width: 1,
@@ -142,15 +136,12 @@ class YearNavigator extends StatelessWidget {
           ),
           InkWell(
             onTap: () => _showYearPicker(context),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space8),
               child: Text(
                 '$year년',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: AppTypography.bodyMedium,
               ),
             ),
           ),

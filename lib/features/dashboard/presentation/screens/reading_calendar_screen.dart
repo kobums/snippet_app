@@ -74,7 +74,7 @@ class ReadingCalendarScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(DesignTokens.space16),
                     decoration: BoxDecoration(
                       color: DesignTokens.primaryMain.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(

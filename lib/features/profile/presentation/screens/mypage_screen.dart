@@ -5,6 +5,7 @@ import 'package:snippet_app/features/profile/presentation/widgets/profile_card.d
 import 'package:snippet_app/features/profile/presentation/widgets/settings_section.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/logout_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/core/design_tokens.dart';
 
 class MyPageScreen extends ConsumerWidget {
   const MyPageScreen({super.key});
@@ -24,7 +25,7 @@ class MyPageScreen extends ConsumerWidget {
         slivers: [
           AppAppBar.sliver(title: '프로필'),
           SliverPadding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(DesignTokens.space16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 ProfileCard(user: user),

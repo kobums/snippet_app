@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../widgets/glass_container.dart';
 import '../core/design_tokens.dart';
+import '../core/typography.dart';
 import 'app_button.dart';
 
 /// Reusable Month Navigator component
@@ -67,16 +68,14 @@ class MonthNavigator extends StatelessWidget {
               // Header
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
+                  horizontal: DesignTokens.space16,
+                  vertical: DesignTokens.space16,
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     '년월 선택',
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: AppTypography.bodyLarge.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: DesignTokens.textPrimary,
                     ),
                   ),
                 ),
@@ -99,10 +98,7 @@ class MonthNavigator extends StatelessWidget {
                           return Center(
                             child: Text(
                               '$y년',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: DesignTokens.textPrimary,
-                              ),
+                              style: AppTypography.h3,
                             ),
                           );
                         }).toList(),
@@ -122,10 +118,7 @@ class MonthNavigator extends StatelessWidget {
                           return Center(
                             child: Text(
                               '$m월',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: DesignTokens.textPrimary,
-                              ),
+                              style: AppTypography.h3,
                             ),
                           );
                         }).toList(),
@@ -136,7 +129,7 @@ class MonthNavigator extends StatelessWidget {
               ),
               // 하단 완료 버튼
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(DesignTokens.space16),
                 decoration: const BoxDecoration(color: Colors.white),
                 child: AppButton(
                   text: '완료',
@@ -167,10 +160,10 @@ class MonthNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.5),
           width: 1,
@@ -187,15 +180,12 @@ class MonthNavigator extends StatelessWidget {
           ),
           InkWell(
             onTap: () => _showMonthPicker(context),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space8),
               child: Text(
                 '$year년 $month월',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: AppTypography.bodyMedium,
               ),
             ),
           ),
