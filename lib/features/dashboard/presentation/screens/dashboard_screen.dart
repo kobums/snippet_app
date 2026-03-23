@@ -57,6 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (notification is ScrollUpdateNotification) {
       final pixels = notification.metrics.pixels;
       final scrollDelta = notification.scrollDelta ?? 0;
+      final maxScrollExtent = notification.metrics.maxScrollExtent;
 
       // 스크롤 방향: 양수 = 아래로, 음수 = 위로
       final isScrollingDown = scrollDelta > 0;
@@ -64,12 +65,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       // Context 전환 감지 (pixels가 급격히 변함)
       final isContextSwitch = (pixels - _lastPixels).abs() > 50;
 
-      const double monthNavigatorHeight = 104;
+      // Header/Body scroll 구분 (maxScrollExtent로 판단)
+      // Header scroll: maxScrollExtent가 작음 (AppBar + TabBar 높이 정도)
+      // Body scroll: maxScrollExtent가 큼 (컨텐츠 전체 높이)
+      final isInHeaderScroll = maxScrollExtent < 200;
+
+      final topPadding = MediaQuery.of(context).padding.top;
+
+      final double monthNavigatorHeight = 64 + topPadding;
 
       if (isScrollingDown) {
         // 아래로 스크롤 중
         if (pixels >= monthNavigatorHeight) {
-          // 64px 이상 스크롤됨 → 나타남
+          // monthNavigatorHeight만큼 스크롤됨 → 나타남
           _hasShownNavigator = true;
         }
         // Context 전환이어도 이미 나타난 상태면 유지
@@ -78,8 +86,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         }
       } else {
         // 위로 스크롤 중
-        // Context 전환이 아니고, 최상단에 가까워지면 사라짐
-        if (!isContextSwitch && pixels < 10) {
+        // Header scroll 중이고, topPadding 이하로 돌아가면 사라짐
+        // (Body scroll 중에는 사라지지 않음)
+        if (isInHeaderScroll && !isContextSwitch && pixels < topPadding + 64) {
           _hasShownNavigator = false;
           if (_scrollAnimationController.value > 0.0) {
             _scrollAnimationController.reverse();
