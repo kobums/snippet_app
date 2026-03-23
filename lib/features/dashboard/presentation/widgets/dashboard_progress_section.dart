@@ -7,11 +7,15 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/app_segmented_button.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 
 class DashboardProgressSection extends ConsumerStatefulWidget {
   final double headerOpacity;
 
-  const DashboardProgressSection({super.key, this.headerOpacity = 1.0});
+  const DashboardProgressSection({
+    super.key,
+    this.headerOpacity = 1.0,
+  });
 
   @override
   ConsumerState<DashboardProgressSection> createState() =>
@@ -20,7 +24,6 @@ class DashboardProgressSection extends ConsumerStatefulWidget {
 
 class _DashboardProgressSectionState
     extends ConsumerState<DashboardProgressSection> {
-  int _selectedIndex = 1;
 
   List<UserBookDto> _getFilteredBooks(List<UserBookDto> books, int tabIndex) {
     switch (tabIndex) {
@@ -38,7 +41,11 @@ class _DashboardProgressSectionState
   @override
   Widget build(BuildContext context) {
     final bookState = ref.watch(bookProvider);
-    final currentTabBooks = _getFilteredBooks(bookState.books, _selectedIndex);
+    final dashboardState = ref.watch(dashboardProvider);
+    final currentTabBooks = _getFilteredBooks(
+      bookState.books,
+      dashboardState.selectedProgressFilter,
+    );
 
     return AppRefreshIndicator(
       onRefresh: () => ref.read(bookProvider.notifier).refreshBooks(),
@@ -66,11 +73,14 @@ class _DashboardProgressSectionState
   }
 
   Widget _buildSegmentedButton() {
+    final dashboardState = ref.watch(dashboardProvider);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
+
     return AppSegmentedButton(
-      selectedIndex: _selectedIndex,
+      selectedIndex: dashboardState.selectedProgressFilter,
       segments: const ['대기중', '읽는중', '완독'],
       onChanged: (index) {
-        setState(() => _selectedIndex = index);
+        dashboardNotifier.setProgressFilter(index);
         final controller = PrimaryScrollController.of(context);
         if (controller.hasClients) {
           controller.jumpTo(0);

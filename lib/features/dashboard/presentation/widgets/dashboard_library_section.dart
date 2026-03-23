@@ -11,8 +11,13 @@ import 'package:snippet_app/components/section_header.dart';
 
 class DashboardLibrarySection extends ConsumerStatefulWidget {
   final double headerOpacity;
+  final TextEditingController searchController;
 
-  const DashboardLibrarySection({super.key, this.headerOpacity = 1.0});
+  const DashboardLibrarySection({
+    super.key,
+    this.headerOpacity = 1.0,
+    required this.searchController,
+  });
 
   @override
   ConsumerState<DashboardLibrarySection> createState() =>
@@ -21,13 +26,6 @@ class DashboardLibrarySection extends ConsumerStatefulWidget {
 
 class _DashboardLibrarySectionState
     extends ConsumerState<DashboardLibrarySection> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +45,13 @@ class _DashboardLibrarySectionState
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: SearchField(
-                      controller: _searchController,
+                      controller: widget.searchController,
                       hintText: '제목이나 저자로 검색...',
                       onChanged: (value) {
                         libraryNotifier.setSearchQuery(value);
                       },
                       onClear: () {
-                        _searchController.clear();
+                        widget.searchController.clear();
                         libraryNotifier.setSearchQuery('');
                       },
                     ),

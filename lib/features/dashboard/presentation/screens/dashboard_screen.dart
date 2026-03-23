@@ -10,6 +10,7 @@ import 'package:snippet_app/features/library/presentation/providers/book_provide
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/components/app_segmented_button.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 
 /// 대시보드 화면
 ///
@@ -44,9 +45,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   final List<double> _lastScrollPixels = List.filled(_tabCount, 0.0);
   final List<bool> _shouldShowFixedHeader = List.filled(_tabCount, false);
 
-  // 탭별 상태
-  int _selectedProgressIndex = 1; // 1번 탭: 진행 상태
-  final TextEditingController _searchController = TextEditingController(); // 2번 탭: 검색
+  // 2번 탭: 검색 컨트롤러 (고정 헤더와 본문 헤더 동기화용)
+  final TextEditingController _searchController = TextEditingController();
 
   // ============================================================================
   // Lifecycle
@@ -216,7 +216,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           children: [
             DashboardStatsSection(headerOpacity: headerOpacity),
             DashboardProgressSection(headerOpacity: headerOpacity),
-            DashboardLibrarySection(headerOpacity: headerOpacity),
+            DashboardLibrarySection(
+              headerOpacity: headerOpacity,
+              searchController: _searchController,
+            ),
           ],
         ),
       ),
@@ -272,12 +275,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Widget _buildFixedSegmentedButton(double topPadding) {
+    final dashboardState = ref.watch(dashboardProvider);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
+
     return _buildFixedHeaderContainer(
       topPadding: topPadding,
       child: AppSegmentedButton(
-        selectedIndex: _selectedProgressIndex,
+        selectedIndex: dashboardState.selectedProgressFilter,
         segments: _progressSegments,
-        onChanged: (index) => setState(() => _selectedProgressIndex = index),
+        onChanged: dashboardNotifier.setProgressFilter,
       ),
     );
   }
