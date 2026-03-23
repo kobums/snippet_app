@@ -12,57 +12,16 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 
-class DashboardStatsSection extends ConsumerStatefulWidget {
-  const DashboardStatsSection({super.key});
+class DashboardStatsSection extends ConsumerWidget {
+  final double paddingProgress;
+
+  const DashboardStatsSection({
+    super.key,
+    this.paddingProgress = 0.0,
+  });
 
   @override
-  ConsumerState<DashboardStatsSection> createState() =>
-      _DashboardStatsSectionState();
-}
-
-class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _paddingAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _paddingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ))..addListener(() {
-        setState(() {});
-      });
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  bool _onScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollUpdateNotification) {
-      final shouldShow = notification.metrics.pixels > 0;
-      if (shouldShow && _animationController.value < 1.0) {
-        _animationController.forward();
-      } else if (!shouldShow && _animationController.value > 0.0) {
-        _animationController.reverse();
-      }
-    }
-    return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bookState = ref.watch(bookProvider);
     final bookNotifier = ref.read(bookProvider.notifier);
 
@@ -83,24 +42,22 @@ class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection>
 
     return AppRefreshIndicator(
       onRefresh: () => bookNotifier.refreshBooks(),
-      child: NotificationListener<ScrollNotification>(
-        onNotification: _onScrollNotification,
-        child: CustomScrollView(
-          slivers: [
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: StickyMonthNavigator(
-                year: bookState.selectedYear,
-                month: bookState.selectedMonth,
-                isCurrentMonth: isCurrentMonth,
-                onMonthChanged: (year, month) {
-                  bookNotifier.setSelectedMonth(year, month);
-                },
-                height: 64,
-                topPadding: topPadding,
-                paddingProgress: _paddingAnimation.value,
-              ),
+      child: CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyMonthNavigator(
+              year: bookState.selectedYear,
+              month: bookState.selectedMonth,
+              isCurrentMonth: isCurrentMonth,
+              onMonthChanged: (year, month) {
+                bookNotifier.setSelectedMonth(year, month);
+              },
+              height: 64,
+              topPadding: topPadding,
+              paddingProgress: paddingProgress,
             ),
+          ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               sliver: SliverList(
@@ -154,8 +111,7 @@ class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection>
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildStatsCard(int completedCount, int totalPages) {
