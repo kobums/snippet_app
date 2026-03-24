@@ -6,11 +6,11 @@ import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_pr
 import 'package:snippet_app/features/dashboard/presentation/widgets/dashboard_library_section.dart';
 import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
-import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/components/app_segmented_button.dart';
 import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 
 /// 대시보드 화면
 ///
@@ -271,20 +271,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   // Fixed Header Builders
   // ============================================================================
   Widget _buildFixedMonthNavigator(double topPadding) {
-    final bookState = ref.watch(bookProvider);
-    final bookNotifier = ref.read(bookProvider.notifier);
+    final statsState = ref.watch(dashboardStatsProvider);
+    final statsNotifier = ref.read(dashboardStatsProvider.notifier);
     final now = DateTime.now();
     final isCurrentMonth =
-        bookState.selectedYear == now.year &&
-        bookState.selectedMonth == now.month;
+        statsState.selectedYear == now.year &&
+        statsState.selectedMonth == now.month;
 
     return _buildFixedHeaderContainer(
       topPadding: topPadding,
       child: MonthNavigator(
-        year: bookState.selectedYear,
-        month: bookState.selectedMonth,
+        year: statsState.selectedYear,
+        month: statsState.selectedMonth,
         isCurrentMonth: isCurrentMonth,
-        onMonthChanged: bookNotifier.setSelectedMonth,
+        onMonthChanged: statsNotifier.setSelectedMonth,
       ),
     );
   }
