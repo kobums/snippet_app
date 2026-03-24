@@ -71,6 +71,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
 
         // Calendar grid
         GridView.builder(
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

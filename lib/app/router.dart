@@ -131,7 +131,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.readingCalendar,
-        builder: (context, state) => const ReadingCalendarScreen(),
+        builder: (context, state) {
+          final year = state.uri.queryParameters['year'];
+          final month = state.uri.queryParameters['month'];
+          return ReadingCalendarScreen(
+            initialYear: year != null ? int.tryParse(year) : null,
+            initialMonth: month != null ? int.tryParse(month) : null,
+          );
+        },
       ),
     ],
   );

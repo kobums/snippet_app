@@ -74,7 +74,9 @@ class DashboardStatsSection extends ConsumerWidget {
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
-                    context.push(AppRoutes.readingCalendar);
+                    context.push(
+                      '${AppRoutes.readingCalendar}?year=${bookState.selectedYear}&month=${bookState.selectedMonth}',
+                    );
                   },
                   child: GlassContainer(
                     child: Column(

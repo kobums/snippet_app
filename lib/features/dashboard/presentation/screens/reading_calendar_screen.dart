@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
-import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/features/dashboard/presentation/providers/calendar_provider.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/shareable_reading_calendar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -10,15 +9,38 @@ import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 
-class ReadingCalendarScreen extends ConsumerWidget {
-  const ReadingCalendarScreen({super.key});
+class ReadingCalendarScreen extends ConsumerStatefulWidget {
+  final int? initialYear;
+  final int? initialMonth;
+
+  const ReadingCalendarScreen({
+    super.key,
+    this.initialYear,
+    this.initialMonth,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final calendarState = ref.watch(calendarProvider);
-    final bookState = ref.watch(bookProvider);
+  ConsumerState<ReadingCalendarScreen> createState() =>
+      _ReadingCalendarScreenState();
+}
 
-    final completedBooks = bookState.books
+class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 초기 년월이 전달되면 calendarProvider에 설정하고 데이터 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final year = widget.initialYear ?? DateTime.now().year;
+      final month = widget.initialMonth ?? DateTime.now().month;
+      ref.read(calendarProvider.notifier).setMonth(year, month);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final calendarState = ref.watch(calendarProvider);
+
+    final completedBooks = calendarState.books
         .where((book) => book.status == BookStatus.completed)
         .toList();
 
@@ -31,7 +53,7 @@ class ReadingCalendarScreen extends ConsumerWidget {
       appBar: const AppAppBar(title: '독서 캘린더'),
       body: AppRefreshIndicator(
         onRefresh: () async {
-          await ref.read(bookProvider.notifier).loadDashboard(
+          await ref.read(calendarProvider.notifier).setMonth(
                 calendarState.selectedYear,
                 calendarState.selectedMonth,
               );
@@ -47,7 +69,6 @@ class ReadingCalendarScreen extends ConsumerWidget {
                 isCurrentMonth: isCurrentMonth,
                 onMonthChanged: (year, month) {
                   ref.read(calendarProvider.notifier).setMonth(year, month);
-                  ref.read(bookProvider.notifier).loadDashboard(year, month);
                 },
                 height: 64,
               ),
