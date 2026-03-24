@@ -13,11 +13,7 @@ class ReadingCalendarScreen extends ConsumerStatefulWidget {
   final int? initialYear;
   final int? initialMonth;
 
-  const ReadingCalendarScreen({
-    super.key,
-    this.initialYear,
-    this.initialMonth,
-  });
+  const ReadingCalendarScreen({super.key, this.initialYear, this.initialMonth});
 
   @override
   ConsumerState<ReadingCalendarScreen> createState() =>
@@ -25,6 +21,8 @@ class ReadingCalendarScreen extends ConsumerStatefulWidget {
 }
 
 class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
+  bool _showStats = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +43,8 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
         .toList();
 
     final now = DateTime.now();
-    final isCurrentMonth = calendarState.selectedYear == now.year &&
+    final isCurrentMonth =
+        calendarState.selectedYear == now.year &&
         calendarState.selectedMonth == now.month;
 
     return Scaffold(
@@ -53,7 +52,9 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
       appBar: const AppAppBar(title: '독서 캘린더'),
       body: AppRefreshIndicator(
         onRefresh: () async {
-          await ref.read(calendarProvider.notifier).setMonth(
+          await ref
+              .read(calendarProvider.notifier)
+              .setMonth(
                 calendarState.selectedYear,
                 calendarState.selectedMonth,
               );
@@ -89,42 +90,87 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           year: calendarState.selectedYear,
                           month: calendarState.selectedMonth,
                           showTitle: false,
+                          showStats: _showStats,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // 통계 표시 스위치
                   Container(
-                    padding: const EdgeInsets.all(DesignTokens.space16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DesignTokens.space16,
+                      vertical: DesignTokens.space12,
+                    ),
                     decoration: BoxDecoration(
-                      color: DesignTokens.primaryMain.withValues(alpha: 0.05),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(
                         DesignTokens.radiusMd,
                       ),
-                      border: Border.all(
-                        color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-                      ),
+                      border: Border.all(color: DesignTokens.neutral200),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
+                        const Icon(
+                          Icons.bar_chart,
                           color: DesignTokens.primaryMain,
                           size: 20,
                         ),
-                        SizedBox(width: 12),
-                        Expanded(
+                        const SizedBox(width: 12),
+                        const Expanded(
                           child: Text(
-                            '저장 버튼으로 갤러리에 저장하거나, 공유 버튼으로 Instagram 등에 공유할 수 있습니다.',
+                            '캘린더에 통계 표시',
                             style: TextStyle(
                               fontSize: 14,
-                              color: DesignTokens.textSecondary,
+                              fontWeight: FontWeight.w500,
+                              color: DesignTokens.textPrimary,
                             ),
                           ),
+                        ),
+                        Switch(
+                          value: _showStats,
+                          onChanged: (value) {
+                            setState(() {
+                              _showStats = value;
+                            });
+                          },
+                          activeTrackColor: DesignTokens.primaryMain,
                         ),
                       ],
                     ),
                   ),
+                  // const SizedBox(height: 12),
+                  // Container(
+                  //   padding: const EdgeInsets.all(DesignTokens.space16),
+                  //   decoration: BoxDecoration(
+                  //     color: DesignTokens.primaryMain.withValues(alpha: 0.05),
+                  //     borderRadius: BorderRadius.circular(
+                  //       DesignTokens.radiusMd,
+                  //     ),
+                  //     border: Border.all(
+                  //       color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                  //     ),
+                  //   ),
+                  //   child: const Row(
+                  //     children: [
+                  //       Icon(
+                  //         Icons.info_outline,
+                  //         color: DesignTokens.primaryMain,
+                  //         size: 20,
+                  //       ),
+                  //       SizedBox(width: 12),
+                  //       Expanded(
+                  //         child: Text(
+                  //           '저장 버튼으로 갤러리에 저장하거나, 공유 버튼으로 Instagram 등에 공유할 수 있습니다.',
+                  //           style: TextStyle(
+                  //             fontSize: 14,
+                  //             color: DesignTokens.textSecondary,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -139,8 +185,12 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           onPressed: calendarState.isSaving
                               ? null
                               : () => ref
-                                  .read(calendarProvider.notifier)
-                                  .saveToGallery(context, completedBooks),
+                                    .read(calendarProvider.notifier)
+                                    .saveToGallery(
+                                      context,
+                                      completedBooks,
+                                      showStats: _showStats,
+                                    ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -155,8 +205,12 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           onPressed: calendarState.isSharing
                               ? null
                               : () => ref
-                                  .read(calendarProvider.notifier)
-                                  .shareCalendar(context, completedBooks),
+                                    .read(calendarProvider.notifier)
+                                    .shareCalendar(
+                                      context,
+                                      completedBooks,
+                                      showStats: _showStats,
+                                    ),
                         ),
                       ),
                     ],

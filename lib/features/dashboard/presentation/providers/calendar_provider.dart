@@ -90,14 +90,16 @@ class CalendarNotifier extends Notifier<CalendarState> {
 
   Future<void> shareCalendar(
     BuildContext context,
-    List<UserBookDto> completedBooks,
-  ) async {
+    List<UserBookDto> completedBooks, {
+    bool showStats = false,
+  }) async {
     state = state.copyWith(isSharing: true);
     try {
       final calendarWidget = ShareableReadingCalendar(
         completedBooks: completedBooks,
         year: state.selectedYear,
         month: state.selectedMonth,
+        showStats: showStats,
       );
       await _shareService.captureAndShare(
         context,
@@ -112,14 +114,16 @@ class CalendarNotifier extends Notifier<CalendarState> {
 
   Future<void> saveToGallery(
     BuildContext context,
-    List<UserBookDto> completedBooks,
-  ) async {
+    List<UserBookDto> completedBooks, {
+    bool showStats = false,
+  }) async {
     state = state.copyWith(isSaving: true);
     try {
       final calendarWidget = ShareableReadingCalendar(
         completedBooks: completedBooks,
         year: state.selectedYear,
         month: state.selectedMonth,
+        showStats: showStats,
       );
       await _shareService.captureAndSaveToGallery(
         context,

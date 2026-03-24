@@ -12,6 +12,7 @@ class ShareableReadingCalendar extends StatelessWidget {
   final int year;
   final int month;
   final bool showTitle;
+  final bool showStats;
 
   const ShareableReadingCalendar({
     super.key,
@@ -19,6 +20,7 @@ class ShareableReadingCalendar extends StatelessWidget {
     required this.year,
     required this.month,
     this.showTitle = true,
+    this.showStats = false,
   });
 
   List<UserBookDto> _getBooksCompletedOnDate(int day) {
@@ -98,9 +100,49 @@ class ShareableReadingCalendar extends StatelessWidget {
                     Expanded(
                       child: Column(
                         children: List.generate(6, (weekIndex) {
+                          final isLastRow = weekIndex == 5;
+
                           return Expanded(
                             child: Row(
                               children: List.generate(7, (dayIndex) {
+                                // showStats가 true이고 마지막 줄의 마지막 4칸이면 통계 표시
+                                if (showStats && isLastRow && dayIndex >= 3) {
+                                  if (dayIndex == 3) {
+                                    // 완독한 책 (2칸 차지)
+                                    return Expanded(
+                                      flex: 2,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1.5),
+                                        child: _buildStatCell(
+                                          label: '완독한 책',
+                                          value: '${completedBooks.length}권',
+                                          icon: Icons.auto_stories,
+                                        ),
+                                      ),
+                                    );
+                                  } else if (dayIndex == 5) {
+                                    // 총 페이지 (2칸 차지)
+                                    final totalPages = completedBooks.fold<int>(
+                                      0,
+                                      (sum, b) => sum + b.totalPage,
+                                    );
+                                    return Expanded(
+                                      flex: 2,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1.5),
+                                        child: _buildStatCell(
+                                          label: '총 페이지',
+                                          value: '$totalPages쪽',
+                                          icon: Icons.menu_book,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    // dayIndex 4와 6은 건너뜀 (위에서 flex: 2로 차지)
+                                    return const SizedBox.shrink();
+                                  }
+                                }
+
                                 final cellIndex = weekIndex * 7 + dayIndex;
                                 final day = cellIndex < allCells.length
                                     ? allCells[cellIndex]
@@ -431,6 +473,56 @@ class ShareableReadingCalendar extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStatCell({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      // decoration: BoxDecoration(
+      //   gradient: LinearGradient(
+      //     begin: Alignment.topLeft,
+      //     end: Alignment.bottomRight,
+      //     colors: [
+      //       DesignTokens.primaryMain.withValues(alpha: 0.15),
+      //       DesignTokens.primaryMain.withValues(alpha: 0.15),
+      //     ],
+      //   ),
+      //   borderRadius: BorderRadius.circular(6),
+      //   border: Border.all(
+      //     color: DesignTokens.primaryMain.withValues(alpha: 0.3),
+      //     width: 1,
+      //   ),
+      // ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: DesignTokens.primaryMain, size: 40),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: DesignTokens.primaryMain,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: DesignTokens.primaryMain.withValues(alpha: 0.7),
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
