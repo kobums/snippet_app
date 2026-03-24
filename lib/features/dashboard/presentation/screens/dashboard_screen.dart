@@ -73,10 +73,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     // 각 탭마다 독립적인 애니메이션 컨트롤러 생성 (즉시 반영)
     _scrollAnimationControllers = List.generate(
       _tabCount,
-      (_) => AnimationController(
-        duration: Duration.zero,
-        vsync: this,
-      )..addListener(() => setState(() {})),
+      (_) =>
+          AnimationController(duration: Duration.zero, vsync: this)
+            ..addListener(() => setState(() {})),
     );
   }
 
@@ -96,7 +95,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (animationValue.abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
-        ref.read(dashboardProvider.notifier).setFixedHeaderVisible(currentTab, false);
+        ref
+            .read(dashboardProvider.notifier)
+            .setFixedHeaderVisible(currentTab, false);
         ref.read(dashboardProvider.notifier).setScrollPosition(currentTab, 0.0);
         setState(() {});
       }
@@ -125,12 +126,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
     // Header/Body 스크롤 구분
     const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
-    final isInHeaderScroll = metrics.maxScrollExtent < combinedHeaderHeight + 50;
+    final isInHeaderScroll =
+        metrics.maxScrollExtent < combinedHeaderHeight + 50;
 
     if (isScrollingDown) {
       _handleScrollDown(currentTab, pixels, triggerHeight);
     } else {
-      _handleScrollUp(currentTab, pixels, topPadding, isInHeaderScroll, isContextSwitch);
+      _handleScrollUp(
+        currentTab,
+        pixels,
+        topPadding,
+        isInHeaderScroll,
+        isContextSwitch,
+      );
     }
 
     // 헤더 표시 상태와 애니메이션 동기화
@@ -228,7 +236,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     );
   }
 
-  Widget _buildFixedHeaders(int currentTab, double topPadding, bool isScrolled) {
+  Widget _buildFixedHeaders(
+    int currentTab,
+    double topPadding,
+    bool isScrolled,
+  ) {
     if (!isScrolled) return const SizedBox.shrink();
 
     final headers = [
@@ -262,7 +274,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final bookState = ref.watch(bookProvider);
     final bookNotifier = ref.read(bookProvider.notifier);
     final now = DateTime.now();
-    final isCurrentMonth = bookState.selectedYear == now.year &&
+    final isCurrentMonth =
+        bookState.selectedYear == now.year &&
         bookState.selectedMonth == now.month;
 
     return _buildFixedHeaderContainer(
@@ -295,7 +308,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
     return _buildFixedHeaderContainer(
       topPadding: topPadding,
-      usePadding: true,
+      // usePadding: true,
       child: SearchField(
         controller: _searchController,
         hintText: '제목이나 저자로 검색...',
