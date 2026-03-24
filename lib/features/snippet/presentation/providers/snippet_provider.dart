@@ -67,19 +67,33 @@ class SnippetNotifier extends Notifier<SnippetState> {
   }
 
   void handleSwipe(int id, bool isLike) async {
-    await _handleSwipeUseCase(id, isLike);
-    if (isLike) {
-      ref.invalidate(archiveProvider);
-    }
-
+    // 1. Optimistic Update - 먼저 UI에서 카드 제거
+    final removed = state.snippets.firstWhere((s) => s.id == id);
     final updated = List<Snippet>.from(state.snippets)
       ..removeWhere((s) => s.id == id);
     state = state.copyWith(snippets: updated);
     _updateWidgetUseCase(updated);
 
-    if (updated.length < AppConstants.snippetLowThreshold) {
-      fetchSnippets();
-    }
+    // 2. 백그라운드에서 API 호출
+    final result = await _handleSwipeUseCase(id, isLike);
+
+    // 3. 결과 처리
+    result.when(
+      success: (_) {
+        if (isLike) {
+          ref.invalidate(archiveProvider);
+        }
+        if (updated.length < AppConstants.snippetLowThreshold) {
+          fetchSnippets();
+        }
+      },
+      failure: (error) {
+        // 실패 시 롤백 - 카드 다시 맨 앞에 추가
+        final rollback = [removed, ...state.snippets];
+        state = state.copyWith(snippets: rollback, error: error);
+        _updateWidgetUseCase(rollback);
+      },
+    );
   }
 }
 
