@@ -39,7 +39,6 @@ class AppConstants {
 }
 
 class StorageConstants {
-  static const String likedIdsKey = 'liked_snippet_ids';
   static const String tokenKey = 'auth_token';
   static const String userKey = 'current_user';
 }

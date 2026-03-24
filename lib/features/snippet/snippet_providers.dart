@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/app/providers.dart';
-import 'package:snippet_app/features/snippet/data/datasources/snippet_local_datasource.dart';
 import 'package:snippet_app/features/snippet/data/datasources/snippet_remote_datasource.dart';
 import 'package:snippet_app/features/snippet/data/repositories/snippet_repository_impl.dart';
 import 'package:snippet_app/features/snippet/domain/repositories/snippet_repository.dart';
@@ -16,17 +15,10 @@ final snippetRemoteDataSourceProvider =
   return SnippetRemoteDataSourceImpl(dio);
 });
 
-final snippetLocalDataSourceProvider =
-    Provider<SnippetLocalDataSource>((ref) {
-  final prefs = ref.read(sharedPreferencesProvider);
-  return SnippetLocalDataSourceImpl(prefs);
-});
-
 // Repository
 final snippetRepositoryProvider = Provider<SnippetRepository>((ref) {
   final remote = ref.read(snippetRemoteDataSourceProvider);
-  final local = ref.read(snippetLocalDataSourceProvider);
-  return SnippetRepositoryImpl(remote, local);
+  return SnippetRepositoryImpl(remote);
 });
 
 // UseCases

@@ -6,7 +6,9 @@ import 'package:snippet_app/features/snippet/data/models/snippet_archive.dart';
 
 abstract class SnippetRemoteDataSource {
   Future<List<Snippet>> fetchSnippets(int count);
-  Future<List<SnippetArchive>> fetchArchive(List<int> ids);
+  Future<List<SnippetArchive>> fetchArchive();
+  Future<void> addArchive(int snippetId);
+  Future<void> removeArchive(int snippetId);
 }
 
 class SnippetRemoteDataSourceImpl implements SnippetRemoteDataSource {
@@ -32,19 +34,35 @@ class SnippetRemoteDataSourceImpl implements SnippetRemoteDataSource {
   }
 
   @override
-  Future<List<SnippetArchive>> fetchArchive(List<int> ids) async {
-    if (ids.isEmpty) return [];
+  Future<List<SnippetArchive>> fetchArchive() async {
     try {
-      final idsParam = ids.join(',');
-      final response = await _dio.get(
-        ApiConstants.snippetsArchive,
-        queryParameters: {'ids': idsParam},
-      );
+      final response = await _dio.get(ApiConstants.snippetsArchive);
       if (response.statusCode == 200) {
         final List data = response.data;
         return data.map((e) => SnippetArchive.fromJson(e)).toList();
       }
       return [];
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<void> addArchive(int snippetId) async {
+    try {
+      await _dio.post(
+        ApiConstants.snippetsArchive,
+        data: {'snippetId': snippetId},
+      );
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<void> removeArchive(int snippetId) async {
+    try {
+      await _dio.delete('${ApiConstants.snippetsArchive}/$snippetId');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
