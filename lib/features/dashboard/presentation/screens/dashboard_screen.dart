@@ -39,6 +39,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   // ============================================================================
   late TabController _tabController;
   late List<AnimationController> _scrollAnimationControllers;
+  late ScrollController _outerScrollController;
 
   // 2번 탭: 검색 컨트롤러 (고정 헤더와 본문 헤더 동기화용)
   final TextEditingController _searchController = TextEditingController();
@@ -56,6 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _outerScrollController.dispose();
     for (var controller in _scrollAnimationControllers) {
       controller.dispose();
     }
@@ -68,6 +70,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   // ============================================================================
   void _initializeControllers() {
     _tabController = TabController(length: _tabCount, vsync: this);
+    _outerScrollController = ScrollController();
 
     // 각 탭마다 독립적인 애니메이션 컨트롤러 생성 (즉시 반영)
     _scrollAnimationControllers = List.generate(
@@ -137,27 +140,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
 
-    // Header/Body 스크롤 구분
-    const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
-    final isInHeaderScroll =
-        metrics.maxScrollExtent < combinedHeaderHeight + 50;
-
     // 탭 전환 직후 스크롤 위치 점프는 위치만 갱신하고 헤더 로직 건너뜀
     if (isContextSwitch) {
-      ref.read(dashboardProvider.notifier).setScrollPosition(currentTab, pixels);
+      ref
+          .read(dashboardProvider.notifier)
+          .setScrollPosition(currentTab, pixels);
       return false;
     }
 
     if (isScrollingDown) {
       _handleScrollDown(currentTab, pixels, triggerHeight);
     } else {
-      _handleScrollUp(
-        currentTab,
-        pixels,
-        topPadding,
-        isInHeaderScroll,
-        isContextSwitch,
-      );
+      _handleScrollUp(currentTab);
     }
 
     // 헤더 표시 상태와 애니메이션 동기화
@@ -180,17 +174,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     }
   }
 
-  void _handleScrollUp(
-    int tab,
-    double pixels,
-    double topPadding,
-    bool isInHeaderScroll,
-    bool isContextSwitch,
-  ) {
-    // Header 영역 스크롤 중이고 컨텍스트 전환이 아닐 때만 숨김
-    if (isInHeaderScroll &&
-        !isContextSwitch &&
-        pixels < topPadding + _fixedHeaderHeight) {
+  void _handleScrollUp(int tab) {
+    if (!_outerScrollController.hasClients) return;
+
+    final outerPixels = _outerScrollController.position.pixels;
+    final outerMax = _outerScrollController.position.maxScrollExtent;
+
+    // outer scroll이 펼쳐지기 시작하면 (AppBar가 다시 보이면) 고정 헤더 숨김
+    if (outerPixels < (outerMax - 50)) {
       ref.read(dashboardProvider.notifier).setFixedHeaderVisible(tab, false);
       if (_scrollAnimationControllers[tab].value > 0.0) {
         _scrollAnimationControllers[tab].reverse();
@@ -230,6 +221,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
       child: NestedScrollView(
+        controller: _outerScrollController,
         headerSliverBuilder: (context, _) => [
           AppAppBar.sliver(
             title: '대시보드',
