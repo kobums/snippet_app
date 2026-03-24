@@ -11,6 +11,7 @@ import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   final double headerOpacity;
@@ -148,18 +149,14 @@ class DashboardStatsSection extends ConsumerWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w300,
+          style: AppTypography.displaySmall.copyWith(
             color: DesignTokens.primaryMain,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
+          style: AppTypography.labelMedium.copyWith(
             color: Colors.black.withValues(alpha: 0.5),
           ),
         ),
