@@ -31,7 +31,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   static const int _tabCount = 3;
   static const double _fixedHeaderHeight = 64.0;
   static const double _scrollContextSwitchThreshold = 50.0;
-  static const double _tabAnimationThreshold = 0.1;
   static const double _swipeDetectionThreshold = 0.05;
   static const List<String> _progressSegments = ['대기중', '읽는중', '완독'];
 
@@ -80,8 +79,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   void _setupTabListeners() {
-    // 탭 변경 시 UI 업데이트
-    _tabController.addListener(() => setState(() {}));
+    // 탭 클릭 시 도착 탭의 고정 헤더 리셋
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        final newTab = _tabController.index;
+        if (_scrollAnimationControllers[newTab].value > 0) {
+          _scrollAnimationControllers[newTab].reset();
+          ref
+              .read(dashboardProvider.notifier)
+              .setFixedHeaderVisible(newTab, false);
+        }
+      }
+      setState(() {});
+    });
 
     // 스와이프 감지 및 헤더 리셋
     _tabController.animation!.addListener(_handleTabSwipe);
@@ -92,7 +102,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final currentTab = _tabController.index;
 
     // 스와이프 시작 감지 시 현재 탭의 고정 헤더 즉시 리셋
-    if (animationValue.abs() > _swipeDetectionThreshold) {
+    if ((animationValue - currentTab).abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
         ref
@@ -109,6 +119,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   // ============================================================================
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is! ScrollUpdateNotification) return false;
+
+    // 탭 전환 중 스크롤 알림 무시 (탭 전환 시 스크롤 복원으로 인한 헤더 깜빡임 방지)
+    if (_tabController.indexIsChanging) return false;
 
     final currentTab = _tabController.index;
     final dashState = ref.read(dashboardProvider);
@@ -128,6 +141,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
     final isInHeaderScroll =
         metrics.maxScrollExtent < combinedHeaderHeight + 50;
+
+    // 탭 전환 직후 스크롤 위치 점프는 위치만 갱신하고 헤더 로직 건너뜀
+    if (isContextSwitch) {
+      ref.read(dashboardProvider.notifier).setScrollPosition(currentTab, pixels);
+      return false;
+    }
 
     if (isScrollingDown) {
       _handleScrollDown(currentTab, pixels, triggerHeight);
@@ -262,9 +281,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   bool _isHeaderScrolled(int tab) {
-    return _scrollAnimationControllers[tab].value >= 1.0 &&
-        !_tabController.indexIsChanging &&
-        (_tabController.animation!.value - tab).abs() < _tabAnimationThreshold;
+    // 탭 변경 중이면 고정 헤더 숨김
+    if (_tabController.indexIsChanging) return false;
+
+    final animValue = _tabController.animation!.value;
+    final nearestTab = animValue.round();
+
+    // 스와이프 중(탭 인덱스에 안착하지 않은 상태)이면 고정 헤더 숨김
+    if ((animValue - nearestTab).abs() > 0.001) return false;
+
+    // 현재 탭이 아니면 고정 헤더 숨김
+    if (nearestTab != tab) return false;
+
+    // 스크롤 애니메이션 값이 1.0 이상이면 고정 헤더 표시
+    return _scrollAnimationControllers[tab].value >= 1.0;
   }
 
   // ============================================================================
