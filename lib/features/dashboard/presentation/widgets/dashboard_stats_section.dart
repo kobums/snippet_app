@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
-import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
+import 'package:snippet_app/features/library/library_providers.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/reading_calendar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -12,22 +13,66 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 
-class DashboardStatsSection extends ConsumerWidget {
+class DashboardStatsSection extends ConsumerStatefulWidget {
   final double headerOpacity;
 
   const DashboardStatsSection({super.key, this.headerOpacity = 1.0});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bookState = ref.watch(bookProvider);
-    final bookNotifier = ref.read(bookProvider.notifier);
+  ConsumerState<DashboardStatsSection> createState() =>
+      _DashboardStatsSectionState();
+}
 
+class _DashboardStatsSectionState extends ConsumerState<DashboardStatsSection> {
+  late int _selectedYear;
+  late int _selectedMonth;
+  List<UserBookDto> _books = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
     final now = DateTime.now();
-    final isCurrentMonth =
-        bookState.selectedYear == now.year &&
-        bookState.selectedMonth == now.month;
+    _selectedYear = now.year;
+    _selectedMonth = now.month;
+    _loadBooks();
+  }
 
-    final completedBooks = bookState.books
+  Future<void> _loadBooks() async {
+    setState(() => _isLoading = true);
+
+    final useCase = ref.read(fetchMonthlyBooksUseCaseProvider);
+    final result = await useCase(_selectedYear, _selectedMonth);
+
+    if (mounted) {
+      result.when(
+        success: (books) {
+          setState(() {
+            _books = books;
+            _isLoading = false;
+          });
+        },
+        failure: (error) {
+          setState(() => _isLoading = false);
+        },
+      );
+    }
+  }
+
+  void _setSelectedMonth(int year, int month) {
+    setState(() {
+      _selectedYear = year;
+      _selectedMonth = month;
+    });
+    _loadBooks();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final isCurrentMonth = _selectedYear == now.year && _selectedMonth == now.month;
+
+    final completedBooks = _books
         .where((b) => b.status == BookStatus.completed)
         .toList();
     final totalPages = completedBooks.fold<int>(
@@ -36,22 +81,20 @@ class DashboardStatsSection extends ConsumerWidget {
     );
 
     return AppRefreshIndicator(
-      onRefresh: () => bookNotifier.refreshBooks(),
+      onRefresh: _loadBooks,
       child: CustomScrollView(
         slivers: [
           // Conditional rendering with placeholder
-          if (headerOpacity > 0)
+          if (widget.headerOpacity > 0)
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 64,
                 child: Center(
                   child: MonthNavigator(
-                    year: bookState.selectedYear,
-                    month: bookState.selectedMonth,
+                    year: _selectedYear,
+                    month: _selectedMonth,
                     isCurrentMonth: isCurrentMonth,
-                    onMonthChanged: (year, month) {
-                      bookNotifier.setSelectedMonth(year, month);
-                    },
+                    onMonthChanged: _setSelectedMonth,
                   ),
                 ),
               ),
@@ -75,7 +118,7 @@ class DashboardStatsSection extends ConsumerWidget {
                 GestureDetector(
                   onTap: () {
                     context.push(
-                      '${AppRoutes.readingCalendar}?year=${bookState.selectedYear}&month=${bookState.selectedMonth}',
+                      '${AppRoutes.readingCalendar}?year=$_selectedYear&month=$_selectedMonth',
                     );
                   },
                   child: GlassContainer(
@@ -86,8 +129,8 @@ class DashboardStatsSection extends ConsumerWidget {
                         const SizedBox(height: 8),
                         ReadingCalendar(
                           completedBooks: completedBooks,
-                          year: bookState.selectedYear,
-                          month: bookState.selectedMonth,
+                          year: _selectedYear,
+                          month: _selectedMonth,
                         ),
                       ],
                     ),
