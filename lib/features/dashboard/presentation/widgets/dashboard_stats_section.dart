@@ -28,7 +28,18 @@ class DashboardStatsSection extends ConsumerWidget {
         statsState.selectedMonth == now.month;
 
     final completedBooks = statsState.books
-        .where((b) => b.status == BookStatus.completed)
+        .where((b) {
+          if (b.status != BookStatus.completed) return false;
+          if (b.endDate.isEmpty) return false;
+
+          try {
+            final endDate = DateTime.parse(b.endDate);
+            return endDate.year == statsState.selectedYear &&
+                   endDate.month == statsState.selectedMonth;
+          } catch (e) {
+            return false;
+          }
+        })
         .toList();
     final totalPages = completedBooks.fold<int>(
       0,
@@ -105,6 +116,7 @@ class DashboardStatsSection extends ConsumerWidget {
                         book: book,
                         size: BookCardSize.medium,
                         showTotalPage: true,
+                        onTap: () => context.push(AppRoutes.bookDetail, extra: book),
                       ),
                     ),
                   ),
