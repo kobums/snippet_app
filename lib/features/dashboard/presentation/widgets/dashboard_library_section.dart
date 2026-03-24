@@ -27,80 +27,66 @@ class DashboardLibrarySection extends ConsumerStatefulWidget {
 
 class _DashboardLibrarySectionState
     extends ConsumerState<DashboardLibrarySection> {
-
   @override
   Widget build(BuildContext context) {
     final libraryState = ref.watch(libraryProvider);
     final libraryNotifier = ref.read(libraryProvider.notifier);
 
-    return AppRefreshIndicator(
-      onRefresh: () => libraryNotifier.refreshBooks(),
-      child: CustomScrollView(
-        slivers: [
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: AppRefreshIndicator(
+        onRefresh: () => libraryNotifier.refreshBooks(),
+        child: CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: [
           // Conditional rendering with placeholder
           if (widget.headerOpacity > 0)
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 64,
                 child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SearchField(
-                      controller: widget.searchController,
-                      hintText: '제목이나 저자로 검색...',
-                      onChanged: (value) {
-                        libraryNotifier.setSearchQuery(value);
-                      },
-                      onClear: () {
-                        widget.searchController.clear();
-                        libraryNotifier.setSearchQuery('');
-                      },
-                    ),
+                  child: SearchField(
+                    controller: widget.searchController,
+                    hintText: '제목이나 저자로 검색...',
+                    onChanged: (value) {
+                      libraryNotifier.setSearchQuery(value);
+                    },
+                    onClear: () {
+                      widget.searchController.clear();
+                      libraryNotifier.setSearchQuery('');
+                    },
                   ),
                 ),
               ),
             )
           else
             // 빈 공간으로 높이 유지 (부드러운 스크롤)
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 64),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 64)),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 if (libraryNotifier.recentBooks.isNotEmpty) ...[
-                  const SectionHeader(
-                    '최근 추가',
-                    size: SectionHeaderSize.small,
-                  ),
+                  const SectionHeader('최근 추가', size: SectionHeaderSize.small),
                   const SizedBox(height: 8),
                   _buildBookList(libraryNotifier.recentBooks),
                   const SizedBox(height: 16),
                 ],
                 if (libraryNotifier.readingBooks.isNotEmpty) ...[
-                  const SectionHeader(
-                    '읽고 있는 책',
-                    size: SectionHeaderSize.small,
-                  ),
+                  const SectionHeader('읽고 있는 책', size: SectionHeaderSize.small),
                   const SizedBox(height: 8),
                   _buildBookList(libraryNotifier.readingBooks),
                   const SizedBox(height: 16),
                 ],
                 if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
-                  const SectionHeader(
-                    '빌린 책',
-                    size: SectionHeaderSize.small,
-                  ),
+                  const SectionHeader('빌린 책', size: SectionHeaderSize.small),
                   const SizedBox(height: 8),
                   _buildBookList(libraryNotifier.borrowedBooks),
                   const SizedBox(height: 16),
                 ],
                 if (libraryNotifier.wishlistBooks.isNotEmpty) ...[
-                  const SectionHeader(
-                    '위시리스트',
-                    size: SectionHeaderSize.small,
-                  ),
+                  const SectionHeader('위시리스트', size: SectionHeaderSize.small),
                   const SizedBox(height: 8),
                   _buildBookList(libraryNotifier.wishlistBooks),
                   const SizedBox(height: 16),
@@ -149,6 +135,7 @@ class _DashboardLibrarySectionState
           ),
         ],
       ),
+    ),
     );
   }
 

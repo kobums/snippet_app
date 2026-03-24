@@ -71,6 +71,7 @@ class _SearchFieldState extends State<SearchField> {
       child: TextField(
         controller: _controller,
         onChanged: widget.onChanged,
+        scrollPadding: EdgeInsets.zero,
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: AppTypography.bodyMedium.copyWith(
