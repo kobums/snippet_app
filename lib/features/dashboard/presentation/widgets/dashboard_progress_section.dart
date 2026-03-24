@@ -12,10 +12,7 @@ import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_
 class DashboardProgressSection extends ConsumerStatefulWidget {
   final double headerOpacity;
 
-  const DashboardProgressSection({
-    super.key,
-    this.headerOpacity = 1.0,
-  });
+  const DashboardProgressSection({super.key, this.headerOpacity = 1.0});
 
   @override
   ConsumerState<DashboardProgressSection> createState() =>
@@ -24,7 +21,6 @@ class DashboardProgressSection extends ConsumerStatefulWidget {
 
 class _DashboardProgressSectionState
     extends ConsumerState<DashboardProgressSection> {
-
   List<UserBookDto> _getFilteredBooks(List<UserBookDto> books, int tabIndex) {
     switch (tabIndex) {
       case 0:
@@ -56,16 +52,12 @@ class _DashboardProgressSectionState
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 64,
-                child: Center(
-                  child: _buildSegmentedButton(),
-                ),
+                child: Center(child: _buildSegmentedButton()),
               ),
             )
           else
             // 빈 공간으로 높이 유지 (부드러운 스크롤)
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 64),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 64)),
           _buildBookListSliver(currentTabBooks),
         ],
       ),
@@ -81,10 +73,10 @@ class _DashboardProgressSectionState
       segments: const ['대기중', '읽는중', '완독'],
       onChanged: (index) {
         dashboardNotifier.setProgressFilter(index);
-        final controller = PrimaryScrollController.of(context);
-        if (controller.hasClients) {
-          controller.jumpTo(0);
-        }
+        // final controller = PrimaryScrollController.of(context);
+        // if (controller.hasClients) {
+        // controller.jumpTo(0);
+        // }
       },
     );
   }
@@ -118,11 +110,7 @@ class _DashboardProgressSectionState
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.only(
-        left: 8,
-        right: 8,
-        bottom: 20,
-      ),
+      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => _buildBookCard(books[index]),
