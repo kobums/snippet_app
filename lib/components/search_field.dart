@@ -5,6 +5,7 @@ import 'package:snippet_app/core/typography.dart';
 /// Glass 스타일 검색 필드 컴포넌트
 class SearchField extends StatefulWidget {
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final String hintText;
   final ValueChanged<String> onChanged;
   final VoidCallback? onClear;
@@ -13,6 +14,7 @@ class SearchField extends StatefulWidget {
   const SearchField({
     super.key,
     this.controller,
+    this.focusNode,
     this.hintText = '검색...',
     required this.onChanged,
     this.onClear,
@@ -70,6 +72,7 @@ class _SearchFieldState extends State<SearchField> {
       ),
       child: TextField(
         controller: _controller,
+        focusNode: widget.focusNode,
         onChanged: widget.onChanged,
         scrollPadding: EdgeInsets.zero,
         decoration: InputDecoration(
@@ -106,6 +109,7 @@ class _SearchFieldState extends State<SearchField> {
 /// 스크롤 offset에 따라 opacity만 변경합니다.
 class SearchableScrollLayout extends StatefulWidget {
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final String hintText;
   final ValueChanged<String> onChanged;
   final VoidCallback? onClear;
@@ -115,6 +119,7 @@ class SearchableScrollLayout extends StatefulWidget {
   const SearchableScrollLayout({
     super.key,
     this.controller,
+    this.focusNode,
     this.hintText = '검색...',
     required this.onChanged,
     this.onClear,
@@ -155,6 +160,7 @@ class _SearchableScrollLayoutState extends State<SearchableScrollLayout> {
             opacity: opacity,
             child: SearchField(
               controller: widget.controller,
+              focusNode: widget.focusNode,
               hintText: widget.hintText,
               onChanged: widget.onChanged,
               onClear: widget.onClear,

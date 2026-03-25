@@ -19,17 +19,22 @@ class BookSearchScreen extends ConsumerStatefulWidget {
 class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
+  final _searchFocusNode = FocusNode();
+  BookSearchNotifier? _searchNotifier;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _searchNotifier = ref.read(bookSearchProvider.notifier);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _searchFocusNode.dispose();
+    Future(() => _searchNotifier?.clearSearch());
     super.dispose();
   }
 
@@ -44,13 +49,21 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     }
   }
 
-  void _showAddBookBottomSheet(BookSearchDto book) {
-    showModalBottomSheet(
+  void _showAddBookBottomSheet(BookSearchDto book) async {
+    // 키보드 내리기
+    _searchFocusNode.unfocus();
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddBookBottomSheet(book: book),
     );
+
+    // BottomSheet 닫힌 후에도 키보드가 올라오지 않도록 focus 제거
+    if (mounted) {
+      _searchFocusNode.unfocus();
+    }
   }
 
   @override
@@ -60,6 +73,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       appBar: const AppAppBar(title: '책 검색', letterSpacing: 2),
       body: SearchableScrollLayout(
         controller: _searchController,
+        focusNode: _searchFocusNode,
         hintText: '책 제목이나 저자를 검색하세요',
         onChanged: (value) {
           Future.delayed(const Duration(milliseconds: 500), () {
@@ -132,7 +146,8 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
-      itemCount: searchState.results.length + (searchState.isLoadingMore ? 1 : 0),
+      itemCount:
+          searchState.results.length + (searchState.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == searchState.results.length) {
           return const Center(
