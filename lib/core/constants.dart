@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://10.0.1.23:8008/api';
+  static const String baseUrl = 'http://10.0.1.14:8008/api';
   static const String prodUrl = 'https://snippetapi.gowoobro.com/api';
 
   // Auth
