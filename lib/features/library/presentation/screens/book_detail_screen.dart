@@ -591,46 +591,55 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // 종료일
+            // 종료일 (완독 상태일 때만 수정 가능)
             InkWell(
-              onTap: () => _pickDate(isStartDate: false),
+              onTap: _selectedStatus == BookStatus.completed
+                  ? () => _pickDate(isStartDate: false)
+                  : null,
               borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: DesignTokens.space8,
-                  horizontal: DesignTokens.space12,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.flag,
-                      size: 18,
-                      color: DesignTokens.success,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '완료',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: DesignTokens.textSecondary,
+              child: Opacity(
+                opacity: _selectedStatus == BookStatus.completed ? 1.0 : 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: DesignTokens.space8,
+                    horizontal: DesignTokens.space12,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.flag,
+                        size: 18,
+                        color: _selectedStatus == BookStatus.completed
+                            ? DesignTokens.success
+                            : DesignTokens.neutral300,
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        _formatDate(_endDate),
+                      const SizedBox(width: 12),
+                      Text(
+                        '완료',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: _endDate.isEmpty
-                              ? DesignTokens.textTertiary
-                              : DesignTokens.textPrimary,
+                          color: DesignTokens.textSecondary,
                         ),
                       ),
-                    ),
-                    const Icon(
-                      Icons.edit_calendar,
-                      size: 18,
-                      color: DesignTokens.textTertiary,
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          _formatDate(_endDate),
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: _endDate.isEmpty
+                                ? DesignTokens.textTertiary
+                                : DesignTokens.textPrimary,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.edit_calendar,
+                        size: 18,
+                        color: _selectedStatus == BookStatus.completed
+                            ? DesignTokens.textTertiary
+                            : DesignTokens.neutral300,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
