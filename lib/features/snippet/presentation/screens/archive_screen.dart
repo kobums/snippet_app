@@ -98,20 +98,21 @@ class _ArchiveCardState extends State<ArchiveCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Text(
-                widget.snippet.tag,
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.black.withValues(alpha: 0.55),
+            if (widget.snippet.tag != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Text(
+                  widget.snippet.tag!,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: Colors.black.withValues(alpha: 0.55),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: DesignTokens.space12),
+            if (widget.snippet.tag != null) const SizedBox(height: DesignTokens.space12),
             Text(
               '"${widget.snippet.text}"',
               style: AppTypography.bodyLarge.copyWith(

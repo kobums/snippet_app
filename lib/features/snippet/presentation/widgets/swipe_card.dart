@@ -17,31 +17,32 @@ class SwipeCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: DesignTokens.space12,
-                vertical: DesignTokens.space4,
-              ),
-              decoration: BoxDecoration(
-                color: DesignTokens.primaryMain.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
-                border: Border.all(
-                  color: DesignTokens.primaryMain.withValues(alpha: 0.2),
-                  width: 0.5,
+          if (snippet.tag != null)
+            Align(
+              alignment: Alignment.topLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: DesignTokens.space12,
+                  vertical: DesignTokens.space4,
                 ),
-              ),
-              child: Text(
-                snippet.tag,
-                style: AppTypography.caption.copyWith(
-                  color: DesignTokens.primaryMain,
-                  fontWeight: DesignTokens.fontMedium,
+                decoration: BoxDecoration(
+                  color: DesignTokens.primaryMain.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
+                  border: Border.all(
+                    color: DesignTokens.primaryMain.withValues(alpha: 0.2),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  snippet.tag!,
+                  style: AppTypography.caption.copyWith(
+                    color: DesignTokens.primaryMain,
+                    fontWeight: DesignTokens.fontMedium,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: DesignTokens.space20),
+          if (snippet.tag != null) const SizedBox(height: DesignTokens.space20),
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),

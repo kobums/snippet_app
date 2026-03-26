@@ -1,7 +1,7 @@
 class SnippetArchive {
   final int id;
   final String text;
-  final String tag;
+  final String? tag;
   final String bookTitle;
   final String bookAuthor;
   final String coverUrl;
@@ -10,7 +10,7 @@ class SnippetArchive {
   SnippetArchive({
     required this.id,
     required this.text,
-    required this.tag,
+    this.tag,
     required this.bookTitle,
     required this.bookAuthor,
     required this.coverUrl,
@@ -21,7 +21,7 @@ class SnippetArchive {
     return SnippetArchive(
       id: json['id'] as int,
       text: json['text'] as String,
-      tag: json['tag'] as String,
+      tag: json['tag'] as String?,
       bookTitle: json['bookTitle'] ?? '',
       bookAuthor: json['bookAuthor'] ?? '',
       coverUrl: json['coverUrl'] ?? '',
