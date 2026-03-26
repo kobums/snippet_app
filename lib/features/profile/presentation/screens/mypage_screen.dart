@@ -4,6 +4,7 @@ import 'package:snippet_app/features/auth/presentation/providers/auth_provider.d
 import 'package:snippet_app/features/profile/presentation/widgets/profile_card.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/settings_section.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/logout_button.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/delete_account_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 
@@ -33,6 +34,8 @@ class MyPageScreen extends ConsumerWidget {
                 const SettingsSection(),
                 const SizedBox(height: 24),
                 const LogoutButton(),
+                const SizedBox(height: 12),
+                const DeleteAccountButton(),
                 const SizedBox(height: 16),
               ]),
             ),

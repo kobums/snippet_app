@@ -5,6 +5,7 @@ import 'package:snippet_app/features/auth/data/datasources/auth_remote_datasourc
 import 'package:snippet_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:snippet_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:snippet_app/features/auth/domain/usecases/check_auth_usecase.dart';
+import 'package:snippet_app/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/register_usecase.dart';
@@ -43,4 +44,8 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
 
 final checkAuthUseCaseProvider = Provider<CheckAuthUseCase>((ref) {
   return CheckAuthUseCase(ref.read(authRepositoryProvider));
+});
+
+final deleteAccountUseCaseProvider = Provider<DeleteAccountUseCase>((ref) {
+  return DeleteAccountUseCase(ref.read(authRepositoryProvider));
 });

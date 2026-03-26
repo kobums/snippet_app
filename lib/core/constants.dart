@@ -1,10 +1,12 @@
 class ApiConstants {
+  // static const String baseUrl = 'https://snippetapi.gowoobro.com/api';
   static const String baseUrl = 'http://10.0.1.23:8008/api';
   static const String prodUrl = 'https://snippetapi.gowoobro.com/api';
 
   // Auth
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
+  static const String authDeleteAccount = '/auth/account';
 
   // Snippets
   static const String snippetsCards = '/snippets/cards';

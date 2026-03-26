@@ -4,6 +4,7 @@ import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/auth/auth_providers.dart';
 import 'package:snippet_app/features/auth/data/models/user.dart';
 import 'package:snippet_app/features/auth/domain/usecases/check_auth_usecase.dart';
+import 'package:snippet_app/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/register_usecase.dart';
@@ -40,6 +41,7 @@ class AuthNotifier extends Notifier<AuthState> {
   late final LoginUseCase _loginUseCase;
   late final RegisterUseCase _registerUseCase;
   late final LogoutUseCase _logoutUseCase;
+  late final DeleteAccountUseCase _deleteAccountUseCase;
 
   @override
   AuthState build() {
@@ -47,6 +49,7 @@ class AuthNotifier extends Notifier<AuthState> {
     _loginUseCase = ref.read(loginUseCaseProvider);
     _registerUseCase = ref.read(registerUseCaseProvider);
     _logoutUseCase = ref.read(logoutUseCaseProvider);
+    _deleteAccountUseCase = ref.read(deleteAccountUseCaseProvider);
 
     _checkAuth();
     return AuthState();
@@ -97,6 +100,21 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> logout() async {
     await _logoutUseCase();
     state = AuthState();
+  }
+
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    final result = await _deleteAccountUseCase();
+    result.when(
+      success: (_) {
+        state = AuthState(); // 회원탈퇴 성공 시 상태 초기화
+      },
+      failure: (error) {
+        state = state.copyWith(isLoading: false, error: error);
+        throw error;
+      },
+    );
   }
 }
 

@@ -8,6 +8,7 @@ import 'package:snippet_app/features/auth/data/models/user.dart';
 abstract class AuthRemoteDataSource {
   Future<User> login(LoginParams params);
   Future<User> register(RegisterParams params);
+  Future<void> deleteAccount();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -42,6 +43,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return User.fromJson(response.data);
       }
       throw const ServerError('회원가입에 실패했습니다');
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      final response = await _dio.delete(ApiConstants.authDeleteAccount);
+      if (response.statusCode == 200) {
+        return;
+      }
+      throw const ServerError('회원탈퇴에 실패했습니다');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
