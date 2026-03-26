@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/screens/splash_screen.dart';
@@ -67,33 +68,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: AppRoutes.snippet,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: SnippetScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SnippetScreen()),
           ),
           GoRoute(
             path: AppRoutes.dashboard,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: DashboardScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: DashboardScreen()),
           ),
           GoRoute(
             path: AppRoutes.records,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: RecordsScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: RecordsScreen()),
           ),
           GoRoute(
             path: AppRoutes.library,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: LibraryScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: LibraryScreen()),
           ),
           GoRoute(
             path: AppRoutes.profile,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: MyPageScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: MyPageScreen()),
           ),
         ],
       ),
@@ -101,11 +97,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Full-screen routes (outside shell)
       GoRoute(
         path: AppRoutes.bookDetail,
-        builder: (context, state) => BookDetailScreen(book: state.extra as UserBookDto),
+        builder: (context, state) =>
+            BookDetailScreen(book: state.extra as UserBookDto),
       ),
       GoRoute(
         path: AppRoutes.editRecord,
-        builder: (context, state) => EditRecordScreen(record: state.extra as RecordDto),
+        builder: (context, state) =>
+            EditRecordScreen(record: state.extra as RecordDto),
       ),
       GoRoute(
         path: AppRoutes.addRecord,
@@ -119,7 +117,31 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.bookSearch,
-        builder: (context, state) => const BookSearchScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const BookSearchScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final scaleTween = Tween(
+              begin: 0.5,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.easeOutCubic));
+            final fadeTween = Tween(
+              begin: 0.0,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.easeIn));
+
+            return FadeTransition(
+              opacity: animation.drive(fadeTween),
+              child: ScaleTransition(
+                scale: animation.drive(scaleTween),
+                alignment: Alignment.bottomRight,
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 250),
+        ),
       ),
       GoRoute(
         path: AppRoutes.archive,
