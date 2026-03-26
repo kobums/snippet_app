@@ -67,6 +67,16 @@ class DashboardStatsNotifier extends Notifier<DashboardStatsState> {
   Future<void> refreshBooks() async {
     await loadBooks(state.selectedYear, state.selectedMonth);
   }
+
+  /// 낙관적 업데이트: 서버 응답 없이 로컬 state 즉시 업데이트
+  void updateBookLocally(UserBookDto updatedBook) {
+    state = state.copyWith(
+      books: state.books.map((b) {
+        if (b.id == updatedBook.id) return updatedBook;
+        return b;
+      }).toList(),
+    );
+  }
 }
 
 final dashboardStatsProvider =

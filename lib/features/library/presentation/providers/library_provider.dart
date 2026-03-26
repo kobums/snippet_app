@@ -129,6 +129,16 @@ class LibraryNotifier extends Notifier<LibraryState> {
   Future<void> refreshBooks() async {
     await loadAllBooks();
   }
+
+  /// 낙관적 업데이트: 서버 응답 없이 로컬 state 즉시 업데이트
+  void updateBookLocally(UserBookDto updatedBook) {
+    state = state.copyWith(
+      allBooks: state.allBooks.map((b) {
+        if (b.id == updatedBook.id) return updatedBook;
+        return b;
+      }).toList(),
+    );
+  }
 }
 
 final libraryProvider = NotifierProvider<LibraryNotifier, LibraryState>(() {

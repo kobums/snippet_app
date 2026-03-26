@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/records_providers.dart';
 import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
@@ -31,6 +32,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   late int _readPage;
   TextEditingController? _pageController;
   bool _isUpdating = false;
+  bool _isSaving = false; // 저장 중 뒤로가기 차단용
   late String _startDate;
   late String _endDate;
 
@@ -109,18 +111,85 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   }
 
   Future<void> _updateStatus(BookStatus status) async {
-    setState(() => _selectedStatus = status);
+    final previousStatus = _selectedStatus;
+    final previousEndDate = _endDate;
+    final previousReadPage = _readPage;
 
+    // 1. 낙관적 업데이트된 book 객체 생성
+    final now = DateTime.now();
+    final dateOnly = now.toIso8601String().split('T')[0];
+
+    final updatedBook = widget.book.copyWith(
+      status: status,
+      endDate: (status == BookStatus.completed || status == BookStatus.dropped)
+          ? dateOnly
+          : widget.book.endDate,
+      readPage: status == BookStatus.completed
+          ? widget.book.totalPage
+          : widget.book.readPage,
+    );
+
+    // 2. 로컬 state 즉시 업데이트 (동기)
+    setState(() {
+      _selectedStatus = status;
+      _endDate = updatedBook.endDate;
+      _readPage = updatedBook.readPage;
+      _isSaving = true; // 저장 시작 - 뒤로가기 차단
+    });
+
+    // 3. 모든 provider에 즉시 전파 (동기)
+    ref.read(bookProvider.notifier).updateBookLocally(updatedBook);
+    ref.read(dashboardStatsProvider.notifier).updateBookLocally(updatedBook);
+    ref.read(libraryProvider.notifier).updateBookLocally(updatedBook);
+
+    // 4. 서버에 저장 (완료될 때까지 대기)
     try {
       await ref
           .read(bookProvider.notifier)
           .updateStatus(widget.book.id, status);
-      ref.read(libraryProvider.notifier).loadAllBooks();
-    } catch (e) {
+
+      // 5. 모든 provider refresh
+      await ref.read(libraryProvider.notifier).loadAllBooks();
+      await ref.read(dashboardStatsProvider.notifier).refreshBooks();
+      await ref.read(bookProvider.notifier).refreshBooks();
+
+      // 6. 서버 응답으로 최종 동기화 (날짜가 서버에서 설정될 수 있음)
+      final syncedBook = ref
+          .read(libraryProvider)
+          .allBooks
+          .firstWhere((b) => b.id == widget.book.id, orElse: () => widget.book);
+
       if (mounted) {
-        setState(() => _selectedStatus = widget.book.status);
+        setState(() {
+          _endDate = syncedBook.endDate;
+          _readPage = syncedBook.readPage;
+          _isSaving = false; // 저장 완료 - 뒤로가기 허용
+        });
       }
-      _showError(e);
+    } catch (e) {
+      // 에러 시 롤백
+      if (mounted) {
+        setState(() {
+          _selectedStatus = previousStatus;
+          _endDate = previousEndDate;
+          _readPage = previousReadPage;
+          _isSaving = false; // 에러 발생 - 뒤로가기 허용
+        });
+
+        // 모든 provider도 롤백
+        final rolledBackBook = widget.book.copyWith(
+          status: previousStatus,
+          endDate: previousEndDate,
+          readPage: previousReadPage,
+        );
+        ref.read(bookProvider.notifier).updateBookLocally(rolledBackBook);
+        ref
+            .read(dashboardStatsProvider.notifier)
+            .updateBookLocally(rolledBackBook);
+        ref.read(libraryProvider.notifier).updateBookLocally(rolledBackBook);
+
+        _showError(e);
+      }
     }
   }
 
@@ -207,11 +276,25 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
 
-    return Material(
-      color: Colors.white,
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Stack(
+    return PopScope(
+      canPop: !_isSaving, // 저장 중일 때는 뒤로가기 차단
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _isSaving) {
+          // 저장 중이라는 메시지 표시
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('저장 중입니다. 잠시만 기다려주세요.'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+      child: Material(
+        color: Colors.white,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Stack(
           children: [
             // Main scroll content
             CustomScrollView(
@@ -303,7 +386,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
           ],
         ),
       ),
-    );
+    ), // Material의 끝
+    ); // PopScope의 끝
   }
 
   Widget _buildBookInfo() {
@@ -816,33 +900,97 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
 
   Future<void> _updateStartDate(String date) async {
     final previousDate = _startDate;
-    setState(() => _startDate = date);
 
+    // 1. 낙관적 업데이트된 book 객체 생성
+    final updatedBook = widget.book.copyWith(startDate: date);
+
+    // 2. 로컬 state 즉시 업데이트
+    setState(() {
+      _startDate = date;
+      _isSaving = true; // 저장 시작 - 뒤로가기 차단
+    });
+
+    // 3. bookProvider, libraryProvider는 즉시 전파 (낙관적)
+    ref.read(bookProvider.notifier).updateBookLocally(updatedBook);
+    ref.read(libraryProvider.notifier).updateBookLocally(updatedBook);
+
+    // 4. 서버에 저장 (완료될 때까지 대기)
     try {
       await ref
           .read(bookProvider.notifier)
           .updateStartDate(widget.book.id, date);
-      ref.read(libraryProvider.notifier).loadAllBooks();
-    } catch (e) {
+
+      // 5. 모든 provider refresh
+      await ref.read(libraryProvider.notifier).loadAllBooks();
+      await ref.read(dashboardStatsProvider.notifier).refreshBooks();
+      await ref.read(bookProvider.notifier).refreshBooks();
+
       if (mounted) {
-        setState(() => _startDate = previousDate);
+        setState(() => _isSaving = false); // 저장 완료 - 뒤로가기 허용
       }
-      _showError(e);
+    } catch (e) {
+      // 에러 시 롤백
+      if (mounted) {
+        setState(() {
+          _startDate = previousDate;
+          _isSaving = false; // 에러 발생 - 뒤로가기 허용
+        });
+        ref
+            .read(bookProvider.notifier)
+            .updateBookLocally(widget.book.copyWith(startDate: previousDate));
+        ref
+            .read(libraryProvider.notifier)
+            .updateBookLocally(widget.book.copyWith(startDate: previousDate));
+        await ref.read(dashboardStatsProvider.notifier).refreshBooks();
+        _showError(e);
+      }
     }
   }
 
   Future<void> _updateEndDate(String date) async {
     final previousDate = _endDate;
-    setState(() => _endDate = date);
 
+    // 1. 낙관적 업데이트된 book 객체 생성
+    final updatedBook = widget.book.copyWith(endDate: date);
+
+    // 2. 로컬 state 즉시 업데이트
+    setState(() {
+      _endDate = date;
+      _isSaving = true; // 저장 시작 - 뒤로가기 차단
+    });
+
+    // 3. bookProvider, libraryProvider는 즉시 전파 (낙관적)
+    ref.read(bookProvider.notifier).updateBookLocally(updatedBook);
+    ref.read(libraryProvider.notifier).updateBookLocally(updatedBook);
+
+    // 4. 서버에 저장 (완료될 때까지 대기 - 날짜 변경은 덜 빈번하므로 acceptable)
     try {
       await ref.read(bookProvider.notifier).updateEndDate(widget.book.id, date);
-      ref.read(libraryProvider.notifier).loadAllBooks();
-    } catch (e) {
+
+      // 5. 모든 provider refresh
+      await ref.read(libraryProvider.notifier).loadAllBooks();
+      await ref.read(dashboardStatsProvider.notifier).refreshBooks();
+      await ref.read(bookProvider.notifier).refreshBooks();
+
       if (mounted) {
-        setState(() => _endDate = previousDate);
+        setState(() => _isSaving = false); // 저장 완료 - 뒤로가기 허용
       }
-      _showError(e);
+    } catch (e) {
+      // 에러 시 롤백
+      if (mounted) {
+        setState(() {
+          _endDate = previousDate;
+          _isSaving = false; // 에러 발생 - 뒤로가기 허용
+        });
+        ref
+            .read(bookProvider.notifier)
+            .updateBookLocally(widget.book.copyWith(endDate: previousDate));
+        ref
+            .read(libraryProvider.notifier)
+            .updateBookLocally(widget.book.copyWith(endDate: previousDate));
+        await ref.read(dashboardStatsProvider.notifier).refreshBooks();
+        _showError(e);
+      }
     }
   }
 
