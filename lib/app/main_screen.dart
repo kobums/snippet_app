@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/widgets/glass_bottom_nav.dart';
 import 'package:snippet_app/components/app_fab.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_tab_provider.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends ConsumerWidget {
   final Widget child;
 
   const MainScreen({super.key, required this.child});
@@ -26,14 +29,14 @@ class MainScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final index = _currentIndex(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: false,
       body: child,
-      floatingActionButton: _buildFab(context, index),
+      floatingActionButton: _buildFab(context, ref, index),
       bottomNavigationBar: GlassBottomNav(
         currentIndex: index,
         onTap: (i) {
@@ -45,18 +48,33 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget? _buildFab(BuildContext context, int index) {
+  Widget? _buildFab(BuildContext context, WidgetRef ref, int index) {
     switch (index) {
       case 1: // 대시보드
         return AppFab(onPressed: () => context.push(AppRoutes.bookSearch));
       case 3: // 서재
+        final libraryTab = ref.watch(libraryTabProvider).currentTab;
+        final bookType = _getBookTypeFromTab(libraryTab);
         return AppFab(
-          onPressed: () => context.push(AppRoutes.bookSearch),
+          onPressed: () => context.push(AppRoutes.bookSearch, extra: bookType),
           label: '책 추가',
           icon: Icons.add_rounded,
         );
       default:
         return null;
+    }
+  }
+
+  BookType _getBookTypeFromTab(int tabIndex) {
+    switch (tabIndex) {
+      case 0:
+        return BookType.have;
+      case 1:
+        return BookType.borrow;
+      case 2:
+        return BookType.wish;
+      default:
+        return BookType.have;
     }
   }
 }

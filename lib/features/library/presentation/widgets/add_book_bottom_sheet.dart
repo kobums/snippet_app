@@ -13,15 +13,20 @@ import 'package:snippet_app/widgets/glass_container.dart';
 
 class AddBookBottomSheet extends ConsumerStatefulWidget {
   final BookSearchDto book;
+  final BookType? initialBookType;
 
-  const AddBookBottomSheet({super.key, required this.book});
+  const AddBookBottomSheet({
+    super.key,
+    required this.book,
+    this.initialBookType,
+  });
 
   @override
   ConsumerState<AddBookBottomSheet> createState() => _AddBookBottomSheetState();
 }
 
 class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
-  BookType _selectedType = BookType.have;
+  late BookType _selectedType;
   BookStatus _selectedStatus = BookStatus.waiting;
   int _totalPages = 0;
   DateTime? _startDate;
@@ -29,6 +34,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
   @override
   void initState() {
     super.initState();
+    _selectedType = widget.initialBookType ?? BookType.have;
     _totalPages = widget.book.totalPage ?? 0;
   }
 

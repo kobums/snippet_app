@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
+import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_search_provider.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
@@ -10,7 +11,9 @@ import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/search_field.dart';
 
 class BookSearchScreen extends ConsumerStatefulWidget {
-  const BookSearchScreen({super.key});
+  final BookType? initialBookType;
+
+  const BookSearchScreen({super.key, this.initialBookType});
 
   @override
   ConsumerState<BookSearchScreen> createState() => _BookSearchScreenState();
@@ -57,7 +60,10 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddBookBottomSheet(book: book),
+      builder: (context) => AddBookBottomSheet(
+        book: book,
+        initialBookType: widget.initialBookType,
+      ),
     );
 
     // BottomSheet 닫힌 후에도 키보드가 올라오지 않도록 focus 제거

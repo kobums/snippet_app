@@ -119,7 +119,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.bookSearch,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const BookSearchScreen(),
+          child: BookSearchScreen(
+            initialBookType: state.extra as BookType?,
+          ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final scaleTween = Tween(
               begin: 0.5,

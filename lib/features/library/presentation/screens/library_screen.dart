@@ -55,6 +55,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     _setupTabListeners();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(libraryProvider.notifier).loadAllBooks();
+      // 초기 탭 설정
+      ref.read(libraryTabProvider.notifier).setCurrentTab(_tabController.index);
     });
   }
 
@@ -98,7 +100,12 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   }
 
   void _setupTabListeners() {
-    _tabController.addListener(() => setState(() {}));
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        ref.read(libraryTabProvider.notifier).setCurrentTab(_tabController.index);
+      }
+      setState(() {});
+    });
     _tabController.animation!.addListener(_handleTabSwipe);
   }
 
