@@ -5,6 +5,7 @@ import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/library_providers.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/components/app_button.dart';
@@ -101,6 +102,9 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
     result.when(
       success: (realId) {
         bookNotifier.updateBookId(tempId, realId);
+
+        // 서재 provider도 갱신
+        ref.read(libraryProvider.notifier).refreshBooks();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
