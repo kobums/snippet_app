@@ -57,7 +57,6 @@ class MainScreen extends ConsumerWidget {
         final bookType = _getBookTypeFromTab(libraryTab);
         return AppFab(
           onPressed: () => context.push(AppRoutes.bookSearch, extra: bookType),
-          label: '책 추가',
           icon: Icons.add_rounded,
         );
       default:
