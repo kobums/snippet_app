@@ -69,6 +69,8 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>독서 캘린더 이미지를 갤러리에 저장하기 위해 사진 라이브러리 접근 권한이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>독서 캘린더 이미지를 갤러리에 저장하기 위해 사진 라이브러리 접근 권한이 필요합니다.</string>
+	<string>독서 캘린더 이미지를 갤러리에 저장하거나, 갤러리에서 책 사진을 선택하기 위해 사진 라이브러리 접근 권한이 필요합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>책 속 문장을 촬영하여 스니펫으로 저장하기 위해 카메라 접근이 필요합니다.</string>
 </dict>
 </plist>
