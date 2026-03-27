@@ -13,15 +13,26 @@ import 'package:snippet_app/widgets/glass_container.dart';
 class AddRecordScreenParams {
   final List<UserBookDto> books;
   final RecordType? initialType;
+  final String? initialText;
 
-  const AddRecordScreenParams({required this.books, this.initialType});
+  const AddRecordScreenParams({
+    required this.books,
+    this.initialType,
+    this.initialText,
+  });
 }
 
 class AddRecordScreen extends ConsumerStatefulWidget {
   final List<UserBookDto> books;
   final RecordType? initialType;
+  final String? initialText;
 
-  const AddRecordScreen({super.key, required this.books, this.initialType});
+  const AddRecordScreen({
+    super.key,
+    required this.books,
+    this.initialType,
+    this.initialText,
+  });
 
   @override
   ConsumerState<AddRecordScreen> createState() => _AddRecordScreenState();
@@ -41,6 +52,10 @@ class _AddRecordScreenState extends ConsumerState<AddRecordScreen> {
     _selectedType = widget.initialType ?? RecordType.snippet;
     if (widget.books.isNotEmpty) {
       _selectedBook = widget.books.first;
+    }
+    // OCR 결과 텍스트로 프리필
+    if (widget.initialText != null) {
+      _textController.text = widget.initialText!;
     }
   }
 

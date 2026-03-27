@@ -12,6 +12,9 @@ import 'package:snippet_app/features/dashboard/presentation/screens/reading_cale
 import 'package:snippet_app/features/records/presentation/screens/records_screen.dart';
 import 'package:snippet_app/features/records/presentation/screens/edit_record_screen.dart';
 import 'package:snippet_app/features/records/presentation/screens/add_record_screen.dart';
+import 'package:snippet_app/features/records/presentation/screens/camera_screen.dart';
+import 'package:snippet_app/features/records/presentation/screens/image_highlighter_screen.dart';
+import 'package:snippet_app/features/records/presentation/screens/ocr_result_screen.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/library/presentation/screens/library_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_search_screen.dart';
@@ -41,6 +44,9 @@ class AppRoutes {
   static const archive = '/archive';
   static const stats = '/stats';
   static const readingCalendar = '/readingCalendar';
+  static const camera = '/camera';
+  static const imageHighlighter = '/imageHighlighter';
+  static const ocrResult = '/ocrResult';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -112,6 +118,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           return AddRecordScreen(
             books: params.books,
             initialType: params.initialType,
+            initialText: params.initialText,
           );
         },
       ),
@@ -162,6 +169,24 @@ final routerProvider = Provider<GoRouter>((ref) {
             initialYear: year != null ? int.tryParse(year) : null,
             initialMonth: month != null ? int.tryParse(month) : null,
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.camera,
+        builder: (context, state) => const CameraScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.imageHighlighter,
+        builder: (context, state) {
+          final imagePath = state.extra as String;
+          return ImageHighlighterScreen(imagePath: imagePath);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.ocrResult,
+        builder: (context, state) {
+          final imagePath = state.extra as String;
+          return OcrResultScreen(imagePath: imagePath);
         },
       ),
     ],

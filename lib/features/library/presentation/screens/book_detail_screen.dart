@@ -250,6 +250,17 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   }
 
   void _addRecord() async {
+    // 스니펫 탭일 때는 카메라로 이동
+    if (_selectedRecordType == RecordType.snippet) {
+      final imagePath = await context.push<String>(AppRoutes.camera);
+      if (imagePath != null) {
+        // 카메라에서 돌아온 경우 레코드 새로고침
+        _loadRecords();
+      }
+      return;
+    }
+
+    // 일기/리뷰 탭일 때는 기존대로 직접 입력 화면으로
     final result = await context.push<bool>(
       AppRoutes.addRecord,
       extra: AddRecordScreenParams(
@@ -380,7 +391,12 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 child: FloatingActionButton(
                   onPressed: _addRecord,
                   backgroundColor: DesignTokens.primaryMain,
-                  child: const Icon(Icons.add, color: Colors.white),
+                  child: Icon(
+                    _selectedRecordType == RecordType.snippet
+                        ? Icons.camera_alt
+                        : Icons.add,
+                    color: Colors.white,
+                  ),
                 ),
               ),
           ],
