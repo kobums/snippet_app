@@ -1,13 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/features/records/data/datasources/record_remote_datasource.dart';
+import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
 import 'package:snippet_app/features/records/data/repositories/record_repository_impl.dart';
+import 'package:snippet_app/features/records/data/repositories/ocr_repository_impl.dart';
 import 'package:snippet_app/features/records/domain/repositories/record_repository.dart';
+import 'package:snippet_app/features/records/domain/repositories/ocr_repository.dart';
 import 'package:snippet_app/features/records/domain/usecases/add_record_usecase.dart';
 import 'package:snippet_app/features/records/domain/usecases/delete_record_usecase.dart';
 import 'package:snippet_app/features/records/domain/usecases/fetch_monthly_records_usecase.dart';
 import 'package:snippet_app/features/records/domain/usecases/fetch_records_by_book_usecase.dart';
 import 'package:snippet_app/features/records/domain/usecases/update_record_usecase.dart';
+import 'package:snippet_app/features/records/domain/usecases/extract_text_from_image_usecase.dart';
 
 // DataSources
 final recordRemoteDataSourceProvider =
@@ -43,4 +47,20 @@ final updateRecordUseCaseProvider = Provider<UpdateRecordUseCase>((ref) {
 
 final deleteRecordUseCaseProvider = Provider<DeleteRecordUseCase>((ref) {
   return DeleteRecordUseCase(ref.read(recordRepositoryProvider));
+});
+
+// OCR DataSources
+final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
+  return MlKitOcrDataSource();
+});
+
+// OCR Repositories
+final ocrRepositoryProvider = Provider<OcrRepository>((ref) {
+  return OcrRepositoryImpl(ref.read(ocrDataSourceProvider));
+});
+
+// OCR UseCases
+final extractTextFromImageUseCaseProvider =
+    Provider<ExtractTextFromImageUseCase>((ref) {
+  return ExtractTextFromImageUseCase(ref.read(ocrRepositoryProvider));
 });
