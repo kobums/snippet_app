@@ -65,7 +65,7 @@ class CameraNotifier extends Notifier<CameraState> {
       final camera = cameras.first;
       final controller = CameraController(
         camera,
-        ResolutionPreset.high,
+        ResolutionPreset.veryHigh,  // high → veryHigh로 변경 (OCR 정확도 향상)
         enableAudio: false,
       );
 
