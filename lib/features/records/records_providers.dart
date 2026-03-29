@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/app/providers.dart';
+import 'package:snippet_app/core/config/ocr_config.dart';
 import 'package:snippet_app/features/records/data/datasources/record_remote_datasource.dart';
 import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
+import 'package:snippet_app/features/records/data/datasources/naver_clova_ocr_datasource.dart';
+import 'package:snippet_app/features/records/data/datasources/google_vision_ocr_datasource.dart';
 import 'package:snippet_app/features/records/data/repositories/record_repository_impl.dart';
 import 'package:snippet_app/features/records/data/repositories/ocr_repository_impl.dart';
 import 'package:snippet_app/features/records/domain/repositories/record_repository.dart';
@@ -49,9 +52,31 @@ final deleteRecordUseCaseProvider = Provider<DeleteRecordUseCase>((ref) {
   return DeleteRecordUseCase(ref.read(recordRepositoryProvider));
 });
 
-// OCR DataSources
+// OCR Engine 선택 (설정에서 변경 가능)
+final selectedOcrEngineProvider = NotifierProvider<_SelectedOcrEngineNotifier, OcrEngine>(() {
+  return _SelectedOcrEngineNotifier();
+});
+
+class _SelectedOcrEngineNotifier extends Notifier<OcrEngine> {
+  @override
+  OcrEngine build() {
+    return OcrConfig.defaultEngine;
+  }
+
+  void setEngine(OcrEngine engine) {
+    state = engine;
+  }
+}
+
+// OCR DataSources (선택된 엔진에 따라 다른 datasource 반환)
 final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
-  return MlKitOcrDataSource();
+  final selectedEngine = ref.watch(selectedOcrEngineProvider);
+
+  return switch (selectedEngine) {
+    OcrEngine.mlKit => MlKitOcrDataSource(),
+    OcrEngine.naverClova => NaverClovaOcrDataSource(),
+    OcrEngine.googleVision => GoogleVisionOcrDataSource(),
+  };
 });
 
 // OCR Repositories
