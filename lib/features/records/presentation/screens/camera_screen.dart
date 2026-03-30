@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:camera/camera.dart';
 import 'package:snippet_app/features/records/presentation/providers/camera_provider.dart';
+import 'package:snippet_app/features/records/records_providers.dart';
+import 'package:snippet_app/core/config/ocr_config.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/widgets/glass_container.dart';
 
 class CameraScreen extends ConsumerStatefulWidget {
   const CameraScreen({super.key});
@@ -99,7 +102,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
           else
             const Center(child: CircularProgressIndicator(color: Colors.white)),
 
-          // 닫기 버튼
+          // 상단 UI (닫기 버튼 + OCR 엔진 선택)
           Positioned(
             top: 0,
             left: 0,
@@ -107,16 +110,24 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 32,
+                child: Column(
+                  children: [
+                    // 닫기 버튼
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                        onPressed: () => context.pop(),
+                      ),
                     ),
-                    onPressed: () => context.pop(),
-                  ),
+                    const SizedBox(height: 16),
+                    // OCR 엔진 선택
+                    const _OcrEngineSelector(),
+                  ],
                 ),
               ),
             ),
@@ -187,6 +198,135 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// OCR 엔진 선택 위젯
+class _OcrEngineSelector extends ConsumerWidget {
+  const _OcrEngineSelector();
+
+  String _getEngineName(OcrEngine engine) {
+    return switch (engine) {
+      OcrEngine.mlKit => 'ML Kit',
+      OcrEngine.googleVision => 'Google',
+      OcrEngine.naverClova => 'Naver',
+    };
+  }
+
+  String _getEngineDescription(OcrEngine engine) {
+    return switch (engine) {
+      OcrEngine.mlKit => '온디바이스 • 빠름',
+      OcrEngine.googleVision => '최고 정확도',
+      OcrEngine.naverClova => '한글 특화',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedEngine = ref.watch(selectedOcrEngineProvider);
+
+    return GlassContainer(
+      level: GlassLevel.medium,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'OCR 엔진',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: OcrEngine.values.map((engine) {
+              final isSelected = engine == selectedEngine;
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: _EngineButton(
+                    engine: engine,
+                    isSelected: isSelected,
+                    name: _getEngineName(engine),
+                    description: _getEngineDescription(engine),
+                    onTap: () {
+                      ref.read(selectedOcrEngineProvider.notifier).setEngine(engine);
+                    },
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 개별 엔진 선택 버튼
+class _EngineButton extends StatelessWidget {
+  final OcrEngine engine;
+  final bool isSelected;
+  final String name;
+  final String description;
+  final VoidCallback onTap;
+
+  const _EngineButton({
+    required this.engine,
+    required this.isSelected,
+    required this.name,
+    required this.description,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: DesignTokens.durationFast,
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white.withValues(alpha: 0.25)
+              : Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? Colors.white.withValues(alpha: 0.5)
+                : Colors.white.withValues(alpha: 0.15),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              name,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              description,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -72,6 +72,7 @@ class SettingsSection extends ConsumerWidget {
         title: Text('OCR 엔진 선택', style: AppTypography.h4),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RadioListTile<OcrEngine>(
               title: const Text('ML Kit (무료, 오프라인)'),
@@ -86,24 +87,68 @@ class SettingsSection extends ConsumerWidget {
               },
             ),
             RadioListTile<OcrEngine>(
-              title: const Text('Naver Clova (한글 특화)'),
-              subtitle: const Text('API 키 필요, 온라인'),
+              title: Row(
+                children: [
+                  const Text('Naver Clova (한글 특화)'),
+                  if (!OcrConfig.isNaverClovaConfigured) ...[
+                    const SizedBox(width: 8),
+                    Icon(Icons.warning_amber_rounded,
+                        size: 16, color: Colors.orange[700]),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                OcrConfig.isNaverClovaConfigured
+                    ? 'API 키 설정됨'
+                    : '.env 파일에 API 키를 설정하세요',
+                style: TextStyle(
+                  color: OcrConfig.isNaverClovaConfigured
+                      ? Colors.green[700]
+                      : Colors.orange[700],
+                ),
+              ),
               value: OcrEngine.naverClova,
               groupValue: currentEngine,
               onChanged: (value) {
                 if (value != null) {
+                  if (!OcrConfig.isNaverClovaConfigured) {
+                    _showApiKeyWarning(context, 'Naver Clova');
+                    return;
+                  }
                   ref.read(selectedOcrEngineProvider.notifier).setEngine(value);
                   Navigator.pop(context);
                 }
               },
             ),
             RadioListTile<OcrEngine>(
-              title: const Text('Google Vision (최고 정확도)'),
-              subtitle: const Text('API 키 필요, 온라인'),
+              title: Row(
+                children: [
+                  const Text('Google Vision (최고 정확도)'),
+                  if (!OcrConfig.isGoogleVisionConfigured) ...[
+                    const SizedBox(width: 8),
+                    Icon(Icons.warning_amber_rounded,
+                        size: 16, color: Colors.orange[700]),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                OcrConfig.isGoogleVisionConfigured
+                    ? 'API 키 설정됨'
+                    : '.env 파일에 API 키를 설정하세요',
+                style: TextStyle(
+                  color: OcrConfig.isGoogleVisionConfigured
+                      ? Colors.green[700]
+                      : Colors.orange[700],
+                ),
+              ),
               value: OcrEngine.googleVision,
               groupValue: currentEngine,
               onChanged: (value) {
                 if (value != null) {
+                  if (!OcrConfig.isGoogleVisionConfigured) {
+                    _showApiKeyWarning(context, 'Google Vision');
+                    return;
+                  }
                   ref.read(selectedOcrEngineProvider.notifier).setEngine(value);
                   Navigator.pop(context);
                 }
@@ -115,6 +160,26 @@ class SettingsSection extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('닫기'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showApiKeyWarning(BuildContext context, String engineName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('API 키 필요', style: AppTypography.h4),
+        content: Text(
+          '$engineName OCR을 사용하려면 .env 파일에 API 키를 설정해야 합니다.\n\n'
+          '자세한 내용은 README.md를 참고하세요.',
+          style: AppTypography.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('확인'),
           ),
         ],
       ),

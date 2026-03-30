@@ -1,84 +1,54 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:snippet_app/core/config/ocr_config.dart';
+import 'package:dio/dio.dart';
 import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
 
+/// 백엔드 서버를 통해 Google Cloud Vision API 호출
+/// 서비스 계정은 백엔드에서 안전하게 관리
 class GoogleVisionOcrDataSource implements OcrDataSource {
-  final http.Client _httpClient;
+  final Dio _dio;
+  static const String _baseUrl = 'https://snippet.gowoobro.com'; // 프로덕션 URL
 
-  GoogleVisionOcrDataSource({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client() {
-    print('📝 [OCR] Initialized Google Cloud Vision OCR (최고 정확도)');
+  GoogleVisionOcrDataSource(this._dio) {
+    print('📝 [OCR] Initialized Google Cloud Vision OCR via Backend (최고 정확도)');
   }
 
   @override
   Future<String> extractTextFromImage(String imagePath) async {
-    print('📝 [OCR] Processing with Google Cloud Vision: $imagePath');
+    print('📝 [OCR] Processing with Google Cloud Vision via Backend: $imagePath');
 
     try {
       // 1. 이미지를 base64로 인코딩
       final imageBytes = await File(imagePath).readAsBytes();
       final base64Image = base64Encode(imageBytes);
 
-      // 2. API 요청 준비
-      final requestBody = {
-        'requests': [
-          {
-            'image': {
-              'content': base64Image,
-            },
-            'features': [
-              {
-                'type': 'TEXT_DETECTION',  // 또는 DOCUMENT_TEXT_DETECTION
-                'maxResults': 1,
-              }
-            ],
-            // 한글 인식을 위한 언어 힌트
-            'imageContext': {
-              'languageHints': ['ko', 'en'],
-            }
-          }
-        ]
-      };
+      print('📝 [OCR] Sending request to backend server...');
 
-      print('📝 [OCR] Sending request to Google Cloud Vision API...');
-
-      // 3. API 호출
-      final response = await _httpClient.post(
-        Uri.parse('${OcrConfig.googleCloudVisionApiUrl}?key=${OcrConfig.googleCloudVisionApiKey}'),
-        headers: {
-          'Content-Type': 'application/json',
+      // 2. 백엔드 API 호출
+      final response = await _dio.post(
+        '$_baseUrl/api/ocr/extract',
+        data: {
+          'imageBase64': base64Image,
         },
-        body: jsonEncode(requestBody),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
       );
 
       if (response.statusCode != 200) {
-        print('❌ [OCR] Google Vision API error: ${response.statusCode}');
-        print('❌ [OCR] Response: ${response.body}');
-        throw Exception('Google Cloud Vision API failed: ${response.statusCode}');
+        print('❌ [OCR] Backend API error: ${response.statusCode}');
+        print('❌ [OCR] Response: ${response.data}');
+        throw Exception('Backend OCR API failed: ${response.statusCode}');
       }
 
-      // 4. 응답 파싱
-      final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      final responses = jsonResponse['responses'] as List<dynamic>?;
-
-      if (responses == null || responses.isEmpty) {
-        print('⚠️ [OCR] No responses from API');
-        return '';
-      }
-
-      final textAnnotations = responses[0]['textAnnotations'] as List<dynamic>?;
-      if (textAnnotations == null || textAnnotations.isEmpty) {
-        print('⚠️ [OCR] No text detected in image');
-        return '';
-      }
-
-      // 5. 텍스트 추출 (첫 번째 annotation이 전체 텍스트)
-      final extractedText = textAnnotations[0]['description'] as String? ?? '';
+      // 3. 응답 파싱
+      final extractedText = response.data['extractedText'] as String? ?? '';
+      final confidence = response.data['confidence'] as int? ?? 0;
 
       print('📝 [OCR] Recognition complete');
-      print('📝 [OCR] Text annotations found: ${textAnnotations.length}');
+      print('📊 [OCR] Confidence: $confidence%');
       print('📝 [OCR] Extracted text length: ${extractedText.length} characters');
       print('📝 [OCR] Extracted text:\n$extractedText');
 
@@ -91,7 +61,7 @@ class GoogleVisionOcrDataSource implements OcrDataSource {
 
   @override
   void dispose() {
-    _httpClient.close();
-    print('📝 [OCR] Google Cloud Vision OCR client closed');
+    // Dio 인스턴스는 공유되므로 닫지 않음
+    print('📝 [OCR] Google Cloud Vision OCR client disposed');
   }
 }

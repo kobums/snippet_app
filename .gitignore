@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables (API keys, secrets)
+.env
+
+# Google Cloud Service Account credentials (NEVER commit!)
+snippet-*.json
+*-service-account.json

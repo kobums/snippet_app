@@ -71,11 +71,12 @@ class _SelectedOcrEngineNotifier extends Notifier<OcrEngine> {
 // OCR DataSources (선택된 엔진에 따라 다른 datasource 반환)
 final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
   final selectedEngine = ref.watch(selectedOcrEngineProvider);
+  final dio = ref.read(dioProvider);
 
   return switch (selectedEngine) {
     OcrEngine.mlKit => MlKitOcrDataSource(),
-    OcrEngine.naverClova => NaverClovaOcrDataSource(),
-    OcrEngine.googleVision => GoogleVisionOcrDataSource(),
+    OcrEngine.naverClova => NaverClovaOcrDataSource(dio),
+    OcrEngine.googleVision => GoogleVisionOcrDataSource(dio),
   };
 });
 
