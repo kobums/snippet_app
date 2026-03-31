@@ -62,10 +62,7 @@ class NaverClovaOcrDataSource implements OcrDataSource {
       }
 
       // 4. 응답 파싱 및 텍스트 정리
-      final extractedText = (response.data['extractedText'] as String? ?? '')
-          .replaceAll('\n', ' ') // 줄바꿈을 공백으로
-          .replaceAll(RegExp(r'\s+'), ' ') // 연속된 공백을 하나로
-          .trim(); // 앞뒤 공백 제거
+      final extractedText = (response.data['extractedText'] as String? ?? '');
       final confidence = response.data['confidence'] as int? ?? 0;
 
       print('📝 [OCR] Recognition complete');
