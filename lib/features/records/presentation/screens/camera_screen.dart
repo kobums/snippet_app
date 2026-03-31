@@ -18,18 +18,22 @@ class CameraScreen extends ConsumerStatefulWidget {
 
 class _CameraScreenState extends ConsumerState<CameraScreen> {
   late final CameraNotifier _cameraNotifier;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
     _cameraNotifier = ref.read(cameraProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _cameraNotifier.initializeCamera();
+      if (mounted && !_isDisposed) {
+        _cameraNotifier.initializeCamera();
+      }
     });
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     _cameraNotifier.disposeCamera();
     super.dispose();
   }
@@ -97,7 +101,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       body: Stack(
         children: [
           // 카메라 프리뷰
-          if (state.isInitialized && state.controller != null)
+          if (state.isInitialized &&
+              state.controller != null &&
+              !_isDisposed &&
+              state.controller!.value.isInitialized)
             Center(child: CameraPreview(state.controller!))
           else
             const Center(child: CircularProgressIndicator(color: Colors.white)),

@@ -168,6 +168,7 @@ class CameraNotifier extends Notifier<CameraState> {
 
   void disposeCamera() {
     state.controller?.dispose();
+    state = CameraState(); // state를 초기화하여 dispose된 controller 참조 제거
   }
 }
 

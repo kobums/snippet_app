@@ -23,7 +23,7 @@ class OcrResultScreen extends ConsumerStatefulWidget {
 
 class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
   final _textController = TextEditingController();
-  bool _hasProcessed = false;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -31,29 +31,17 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
 
     // OCR 처리 시작
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         ref.read(ocrProvider.notifier).processImage(widget.imagePath);
       }
     });
-
-    // OCR 결과를 감지하여 텍스트 필드에 채우기
-    ref.listenManual(
-      ocrProvider,
-      (previous, next) {
-        if (mounted && next.result != null && !_hasProcessed) {
-          _textController.text = next.result!.extractedText;
-          _hasProcessed = true;
-        }
-      },
-    );
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     _textController.dispose();
-    if (mounted) {
-      ref.read(ocrProvider.notifier).reset();
-    }
+    ref.read(ocrProvider.notifier).reset();
     super.dispose();
   }
 
@@ -107,6 +95,16 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(ocrProvider);
+
+    // OCR 결과를 감지하여 텍스트 필드에 채우기
+    ref.listen<OcrState>(
+      ocrProvider,
+      (previous, next) {
+        if (!_isDisposed && mounted && next.result != null) {
+          _textController.text = next.result!.extractedText;
+        }
+      },
+    );
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
