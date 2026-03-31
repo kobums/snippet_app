@@ -1,13 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:snippet_app/core/constants.dart';
 import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
 
 /// 백엔드 서버를 통해 Naver Clova OCR API 호출
 /// API 키는 백엔드에서 안전하게 관리
 class NaverClovaOcrDataSource implements OcrDataSource {
   final Dio _dio;
-  static const String _baseUrl = 'https://snippet.gowoobro.com'; // 프로덕션 URL
+  static const String _baseUrl = ApiConstants.baseUrl; // 프로덕션 URL
 
   NaverClovaOcrDataSource(this._dio) {
     print('📝 [OCR] Initialized Naver Clova OCR via Backend (한글 특화)');
@@ -18,23 +19,39 @@ class NaverClovaOcrDataSource implements OcrDataSource {
     print('📝 [OCR] Processing with Naver Clova via Backend: $imagePath');
 
     try {
-      // 1. 이미지를 base64로 인코딩
-      final imageBytes = await File(imagePath).readAsBytes();
-      final base64Image = base64Encode(imageBytes);
+      // 1. 파일 존재 확인
+      final file = File(imagePath);
+      final fileExists = await file.exists();
+      print('📝 [OCR] File exists: $fileExists');
+
+      if (!fileExists) {
+        throw Exception('File does not exist: $imagePath');
+      }
+
+      final fileSize = await file.length();
+      print('📝 [OCR] File size: $fileSize bytes (${fileSize ~/ 1024} KB)');
+
+      print('📝 [OCR] Creating FormData...');
+
+      // 2. FormData 생성 (multipart/form-data)
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split('/').last,
+        ),
+        'engine': 'naver', // Naver Clova 엔진 지정
+      });
 
       print('📝 [OCR] Sending request to backend server...');
+      print('📝 [OCR] URL: $_baseUrl/api/ocr/extract');
 
-      // 2. 백엔드 API 호출 (Naver 엔진 지정)
+      // 3. 백엔드 API 호출
       final response = await _dio.post(
-        '$_baseUrl/api/ocr/extract',
-        data: {
-          'imageBase64': base64Image,
-          'engine': 'naver', // Naver Clova 엔진 지정
-        },
+        '$_baseUrl/ocr/extract',
+        data: formData,
         options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          followRedirects: false,
+          validateStatus: (status) => status! < 500,
         ),
       );
 
@@ -44,13 +61,18 @@ class NaverClovaOcrDataSource implements OcrDataSource {
         throw Exception('Backend OCR API failed: ${response.statusCode}');
       }
 
-      // 3. 응답 파싱
-      final extractedText = response.data['extractedText'] as String? ?? '';
+      // 4. 응답 파싱 및 텍스트 정리
+      final extractedText = (response.data['extractedText'] as String? ?? '')
+          .replaceAll('\n', ' ') // 줄바꿈을 공백으로
+          .replaceAll(RegExp(r'\s+'), ' ') // 연속된 공백을 하나로
+          .trim(); // 앞뒤 공백 제거
       final confidence = response.data['confidence'] as int? ?? 0;
 
       print('📝 [OCR] Recognition complete');
       print('📊 [OCR] Confidence: $confidence%');
-      print('📝 [OCR] Extracted text length: ${extractedText.length} characters');
+      print(
+        '📝 [OCR] Extracted text length: ${extractedText.length} characters',
+      );
       print('📝 [OCR] Extracted text:\n$extractedText');
 
       return extractedText;
