@@ -48,11 +48,8 @@ class CameraNotifier extends Notifier<CameraState> {
   }
 
   Future<void> initializeCamera() async {
-    print('🎥 [Camera] Starting camera initialization...');
     try {
-      print('🎥 [Camera] Getting available cameras...');
       final cameras = await availableCameras();
-      print('🎥 [Camera] Found ${cameras.length} cameras');
 
       if (cameras.isEmpty) {
         state = state.copyWith(
@@ -61,19 +58,14 @@ class CameraNotifier extends Notifier<CameraState> {
         return;
       }
 
-      print('🎥 [Camera] Initializing camera controller...');
       final camera = cameras.first;
       final controller = CameraController(
         camera,
-        ResolutionPreset.veryHigh,  // high → veryHigh로 변경 (OCR 정확도 향상)
+        ResolutionPreset.veryHigh,
         enableAudio: false,
       );
 
-      // CameraController.initialize() will automatically request camera permission
-      // and show iOS system dialog if needed
-      print('🎥 [Camera] Calling controller.initialize() - this will request permission if needed');
       await controller.initialize();
-      print('🎥 [Camera] Camera controller initialized successfully');
 
       state = state.copyWith(
         controller: controller,
@@ -81,9 +73,6 @@ class CameraNotifier extends Notifier<CameraState> {
         clearError: true,
       );
     } catch (e) {
-      print('🎥 [Camera] ERROR: $e');
-
-      // Check if error is permission-related
       final errorMessage = e.toString().toLowerCase();
       if (errorMessage.contains('permission') ||
           errorMessage.contains('authorized') ||
@@ -109,7 +98,6 @@ class CameraNotifier extends Notifier<CameraState> {
 
       final image = await state.controller!.takePicture();
 
-      // 임시 디렉토리에 이미지 저장
       final directory = await getTemporaryDirectory();
       final imagePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(image.path).copy(imagePath);
@@ -142,7 +130,6 @@ class CameraNotifier extends Notifier<CameraState> {
         return null;
       }
 
-      // 임시 디렉토리에 이미지 복사
       final directory = await getTemporaryDirectory();
       final imagePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(image.path).copy(imagePath);
@@ -168,7 +155,7 @@ class CameraNotifier extends Notifier<CameraState> {
 
   void disposeCamera() {
     state.controller?.dispose();
-    state = CameraState(); // state를 초기화하여 dispose된 controller 참조 제거
+    state = CameraState();
   }
 }
 

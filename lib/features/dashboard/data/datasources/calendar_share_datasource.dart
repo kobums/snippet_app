@@ -5,19 +5,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:gal/gal.dart';
 
-/// 독서 캘린더 스크린샷 캡처 및 공유 서비스
 class CalendarShareService {
   final ScreenshotController _screenshotController = ScreenshotController();
 
-  /// ScreenshotController를 외부에서 접근할 수 있도록 제공
   ScreenshotController get controller => _screenshotController;
 
-  /// 캘린더 위젯을 이미지로 캡처하고 공유합니다.
-  ///
-  /// [context]: BuildContext (SnackBar 표시용)
-  /// [calendarWidget]: 캡처할 캘린더 위젯
-  /// [year]: 년도
-  /// [month]: 월
   Future<void> captureAndShare(
     BuildContext context,
     Widget calendarWidget,
@@ -25,20 +17,17 @@ class CalendarShareService {
     int month,
   ) async {
     try {
-      // 1. 이미지 로딩을 위한 약간의 지연
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 2. 위젯을 정확히 1080x1350 (4:5 비율)로 캡처
       final imageBytes = await _screenshotController.captureFromWidget(
         Directionality(
           textDirection: TextDirection.ltr,
           child: calendarWidget,
         ),
-        targetSize: const Size(1080, 1350), // Instagram 피드 최적 크기
-        delay: const Duration(milliseconds: 500), // 이미지 로딩 대기
+        targetSize: const Size(1080, 1350),
+        delay: const Duration(milliseconds: 500),
       );
 
-      // 2. 임시 디렉토리에 파일 저장
       final directory = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filePath =
@@ -46,12 +35,9 @@ class CalendarShareService {
       final file = File(filePath);
       await file.writeAsBytes(imageBytes);
 
-      // 3. 공유 메시지 생성
       final shareText = '$year년 $month월 독서 기록 📚 #Snippet #독서';
 
-      // 4. 네이티브 공유 시트 호출
       if (context.mounted) {
-        // iOS iPad에서 공유 시트 위치 지정
         final box = context.findRenderObject() as RenderBox?;
         final sharePositionOrigin = box != null
             ? box.localToGlobal(Offset.zero) & box.size
@@ -64,14 +50,11 @@ class CalendarShareService {
         );
       }
 
-      // 5. 공유 완료 후 임시 파일 삭제
-      // 약간의 지연을 두어 공유가 완료될 시간을 줌
       await Future.delayed(const Duration(seconds: 2));
       if (await file.exists()) {
         await file.delete();
       }
 
-      // 6. 성공 메시지 표시
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -81,10 +64,6 @@ class CalendarShareService {
         );
       }
     } catch (e, stackTrace) {
-      // 에러 발생 시 사용자에게 알림
-      print('공유 오류: $e');
-      print('스택 트레이스: $stackTrace');
-
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -97,12 +76,6 @@ class CalendarShareService {
     }
   }
 
-  /// 캘린더 위젯을 이미지로 캡처하고 갤러리에 저장합니다.
-  ///
-  /// [context]: BuildContext (SnackBar 표시용)
-  /// [calendarWidget]: 캡처할 캘린더 위젯
-  /// [year]: 년도
-  /// [month]: 월
   Future<void> captureAndSaveToGallery(
     BuildContext context,
     Widget calendarWidget,
@@ -110,23 +83,19 @@ class CalendarShareService {
     int month,
   ) async {
     try {
-      // 1. 이미지 로딩을 위한 약간의 지연
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 2. 위젯을 정확히 1080x1350 (4:5 비율)로 캡처
       final imageBytes = await _screenshotController.captureFromWidget(
         Directionality(
           textDirection: TextDirection.ltr,
           child: calendarWidget,
         ),
-        targetSize: const Size(1080, 1350), // Instagram 피드 최적 크기
-        delay: const Duration(milliseconds: 500), // 이미지 로딩 대기
+        targetSize: const Size(1080, 1350),
+        delay: const Duration(milliseconds: 500),
       );
 
-      // 2. 갤러리에 저장
       await Gal.putImageBytes(imageBytes, album: 'Snippet');
 
-      // 3. 성공 메시지 표시
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -137,11 +106,6 @@ class CalendarShareService {
         );
       }
     } catch (e, stackTrace) {
-      // 에러 발생 시 사용자에게 알림
-      print('갤러리 저장 오류: $e');
-      print('스택 트레이스: $stackTrace');
-
-      // 권한 관련 에러 확인
       String errorMessage = '갤러리 저장 중 오류가 발생했습니다';
       if (e.toString().contains('permission') ||
           e.toString().contains('Permission')) {
