@@ -9,6 +9,8 @@
 - **fl_chart** 차트 / **table_calendar** 캘린더
 - **home_widget** 홈 화면 위젯
 - **Google Fonts** (Inter)
+- **OCR**: camera, image_picker, google_mlkit_text_recognition, image, http
+- **flutter_dotenv** 환경 변수 관리
 
 ## 아키텍처
 
@@ -67,6 +69,19 @@ lib/
     │   └── presentation/
     │       ├── providers/         # auth_provider.dart (AuthNotifier)
     │       └── screens/           # splash, login, register
+    ├── ocr/
+    │   ├── ocr_providers.dart      # DI (datasource → repository → usecase)
+    │   ├── data/
+    │   │   ├── datasources/       # ocr_remote_datasource.dart
+    │   │   ├── models/            # ocr_result.dart
+    │   │   └── repositories/      # ocr_repository_impl.dart
+    │   ├── domain/
+    │   │   ├── repositories/      # ocr_repository.dart (추상)
+    │   │   └── usecases/          # extract_text_usecase.dart
+    │   └── presentation/
+    │       ├── providers/         # ocr_provider.dart
+    │       ├── screens/           # ocr_screen.dart
+    │       └── widgets/           # camera_preview_widget.dart, text_result_widget.dart
     ├── snippet/
     │   ├── snippet_providers.dart
     │   ├── data/                  # datasources, models (snippet, snippet_archive), repositories
