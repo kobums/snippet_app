@@ -9,12 +9,18 @@ class LibraryState {
   final List<UserBookDto> allBooks;
   final String searchQuery;
   final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final int currentPage;
   final AppError? error;
 
   LibraryState({
     this.allBooks = const [],
     this.searchQuery = '',
     this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasMore = true,
+    this.currentPage = 0,
     this.error,
   });
 
@@ -22,12 +28,18 @@ class LibraryState {
     List<UserBookDto>? allBooks,
     String? searchQuery,
     bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    int? currentPage,
     AppError? error,
   }) {
     return LibraryState(
       allBooks: allBooks ?? this.allBooks,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
+      currentPage: currentPage ?? this.currentPage,
       error: error,
     );
   }
@@ -35,6 +47,7 @@ class LibraryState {
 
 class LibraryNotifier extends Notifier<LibraryState> {
   late final FetchAllBooksUseCase _fetchAllBooksUseCase;
+  static const int _pageSize = 20;
 
   @override
   LibraryState build() {
@@ -44,15 +57,47 @@ class LibraryNotifier extends Notifier<LibraryState> {
   }
 
   Future<void> loadAllBooks() async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(
+      isLoading: true,
+      allBooks: [],
+      currentPage: 0,
+      hasMore: true,
+    );
 
-    final result = await _fetchAllBooksUseCase();
+    final result = await _fetchAllBooksUseCase(0, _pageSize);
     result.when(
       success: (books) {
-        state = state.copyWith(allBooks: books, isLoading: false);
+        state = state.copyWith(
+          allBooks: books,
+          isLoading: false,
+          hasMore: books.length == _pageSize,
+        );
       },
       failure: (error) {
         state = state.copyWith(isLoading: false, error: error);
+      },
+    );
+  }
+
+  Future<void> loadMoreBooks() async {
+    if (state.isLoadingMore || !state.hasMore) return;
+
+    state = state.copyWith(isLoadingMore: true);
+    final nextPage = state.currentPage + 1;
+
+    final result = await _fetchAllBooksUseCase(nextPage, _pageSize);
+    result.when(
+      success: (books) {
+        final updatedBooks = [...state.allBooks, ...books];
+        state = state.copyWith(
+          allBooks: updatedBooks,
+          currentPage: nextPage,
+          isLoadingMore: false,
+          hasMore: books.length == _pageSize,
+        );
+      },
+      failure: (error) {
+        state = state.copyWith(isLoadingMore: false, error: error);
       },
     );
   }

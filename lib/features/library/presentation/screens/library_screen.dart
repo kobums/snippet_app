@@ -147,6 +147,11 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
     final isInHeaderScroll = metrics.maxScrollExtent < combinedHeaderHeight + 50;
 
+    // 무한 스크롤: 하단 근처에 도달하면 더 로드
+    if (metrics.pixels >= metrics.maxScrollExtent - 200) {
+      ref.read(libraryProvider.notifier).loadMoreBooks();
+    }
+
     if (isScrollingDown) {
       _handleScrollDown(currentTab, pixels, triggerHeight);
     } else {

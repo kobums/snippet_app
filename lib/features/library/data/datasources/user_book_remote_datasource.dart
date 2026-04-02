@@ -5,6 +5,8 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 
 abstract class UserBookRemoteDataSource {
   Future<List<UserBookDto>> getMonthlyUserBooks([int? year, int? month]);
+  Future<List<UserBookDto>> getProgressUserBooks([int? year, int? month]);
+  Future<List<UserBookDto>> getAllUserBooksPaginated(int page, int size);
   Future<int> addUserBook(Map<String, dynamic> bookData);
   Future<void> patchUserBook(int id, Map<String, dynamic> updates);
   Future<void> deleteUserBook(int id);
@@ -25,6 +27,46 @@ class UserBookRemoteDataSourceImpl implements UserBookRemoteDataSource {
       final response = await _dio.get(
         ApiConstants.userbooksMonthly,
         queryParameters: queryParams.isEmpty ? null : queryParams,
+      );
+
+      if (response.statusCode == 200) {
+        final List data = response.data;
+        return data.map((e) => UserBookDto.fromJson(e)).toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<List<UserBookDto>> getProgressUserBooks([int? year, int? month]) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (year != null) queryParams['year'] = year;
+      if (month != null) queryParams['month'] = month;
+
+      final response = await _dio.get(
+        ApiConstants.userbooksProgress,
+        queryParameters: queryParams.isEmpty ? null : queryParams,
+      );
+
+      if (response.statusCode == 200) {
+        final List data = response.data;
+        return data.map((e) => UserBookDto.fromJson(e)).toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<List<UserBookDto>> getAllUserBooksPaginated(int page, int size) async {
+    try {
+      final response = await _dio.get(
+        ApiConstants.userbooksAll,
+        queryParameters: {'page': page, 'size': size},
       );
 
       if (response.statusCode == 200) {

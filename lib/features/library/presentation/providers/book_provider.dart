@@ -6,7 +6,7 @@ import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/core/utils/temp_id_generator.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/domain/usecases/delete_book_usecase.dart';
-import 'package:snippet_app/features/library/domain/usecases/fetch_monthly_books_usecase.dart';
+import 'package:snippet_app/features/library/domain/usecases/fetch_progress_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/update_book_usecase.dart';
 import 'package:snippet_app/features/library/library_providers.dart';
 
@@ -44,13 +44,13 @@ class BookState {
 }
 
 class BookNotifier extends Notifier<BookState> {
-  late final FetchMonthlyBooksUseCase _fetchMonthlyBooksUseCase;
+  late final FetchProgressBooksUseCase _fetchProgressBooksUseCase;
   late final UpdateBookUseCase _updateBookUseCase;
   late final DeleteBookUseCase _deleteBookUseCase;
 
   @override
   BookState build() {
-    _fetchMonthlyBooksUseCase = ref.read(fetchMonthlyBooksUseCaseProvider);
+    _fetchProgressBooksUseCase = ref.read(fetchProgressBooksUseCaseProvider);
     _updateBookUseCase = ref.read(updateBookUseCaseProvider);
     _deleteBookUseCase = ref.read(deleteBookUseCaseProvider);
     Future.microtask(() => loadDashboard());
@@ -63,7 +63,7 @@ class BookNotifier extends Notifier<BookState> {
 
     state = state.copyWith(isLoading: true, selectedYear: y, selectedMonth: m);
 
-    final result = await _fetchMonthlyBooksUseCase(y, m);
+    final result = await _fetchProgressBooksUseCase(y, m);
     result.when(
       success: (books) {
         state = state.copyWith(books: books, isLoading: false);
@@ -85,8 +85,13 @@ class BookNotifier extends Notifier<BookState> {
     state = state.copyWith(
       books: state.books.map((b) {
         if (b.id == id) {
+          // 읽는중으로 변경 시, 대기중에서 변경되거나 시작일이 없으면 현재 시간으로 설정
+          final shouldUpdateStartDate = status == BookStatus.reading &&
+              (b.status == BookStatus.waiting || b.startDate.isEmpty);
+
           return b.copyWith(
             status: status,
+            startDate: shouldUpdateStartDate ? now : b.startDate,
             endDate: (status == BookStatus.completed || status == BookStatus.dropped) ? now : b.endDate,
             readPage: status == BookStatus.completed ? b.totalPage : b.readPage,
           );

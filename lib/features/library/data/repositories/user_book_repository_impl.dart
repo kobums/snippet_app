@@ -23,6 +23,30 @@ class UserBookRepositoryImpl implements UserBookRepository {
   }
 
   @override
+  Future<Result<List<UserBookDto>>> getProgressUserBooks([int? year, int? month]) async {
+    try {
+      final books = await _remoteDataSource.getProgressUserBooks(year, month);
+      return Success(books);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
+  Future<Result<List<UserBookDto>>> getAllUserBooksPaginated(int page, int size) async {
+    try {
+      final books = await _remoteDataSource.getAllUserBooksPaginated(page, size);
+      return Success(books);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
   Future<Result<int>> addUserBook(Map<String, dynamic> bookData) async {
     try {
       final id = await _remoteDataSource.addUserBook(bookData);

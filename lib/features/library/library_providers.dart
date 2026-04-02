@@ -10,6 +10,7 @@ import 'package:snippet_app/features/library/domain/usecases/add_book_usecase.da
 import 'package:snippet_app/features/library/domain/usecases/delete_book_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_all_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_monthly_books_usecase.dart';
+import 'package:snippet_app/features/library/domain/usecases/fetch_progress_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/search_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/update_book_usecase.dart';
 
@@ -40,6 +41,11 @@ final bookRepositoryProvider = Provider<BookRepository>((ref) {
 final fetchMonthlyBooksUseCaseProvider =
     Provider<FetchMonthlyBooksUseCase>((ref) {
   return FetchMonthlyBooksUseCase(ref.read(userBookRepositoryProvider));
+});
+
+final fetchProgressBooksUseCaseProvider =
+    Provider<FetchProgressBooksUseCase>((ref) {
+  return FetchProgressBooksUseCase(ref.read(userBookRepositoryProvider));
 });
 
 final fetchAllBooksUseCaseProvider = Provider<FetchAllBooksUseCase>((ref) {
