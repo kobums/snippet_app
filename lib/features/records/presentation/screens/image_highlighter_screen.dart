@@ -1,54 +1,113 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// 형광펜 스트로크 데이터
-class HighlighterStroke {
-  final List<Offset> points;
+/// 수평 직선 밑줄 데이터
+class UnderlineHighlight {
+  final String id;
+  final Offset startPoint;
+  final Offset endPoint;
+  final double yPosition;
+  final double height;
   final Color color;
-  final double width;
+  final bool isSelected;
 
-  HighlighterStroke({
-    required this.points,
+  UnderlineHighlight({
+    required this.id,
+    required this.startPoint,
+    required this.endPoint,
+    required this.yPosition,
+    required this.height,
     required this.color,
-    this.width = 20.0,
+    this.isSelected = false,
   });
+
+  UnderlineHighlight copyWith({
+    String? id,
+    Offset? startPoint,
+    Offset? endPoint,
+    double? yPosition,
+    double? height,
+    Color? color,
+    bool? isSelected,
+  }) {
+    return UnderlineHighlight(
+      id: id ?? this.id,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+      yPosition: yPosition ?? this.yPosition,
+      height: height ?? this.height,
+      color: color ?? this.color,
+      isSelected: isSelected ?? this.isSelected,
+    );
+  }
 }
 
-/// 형광펜 드로잉을 위한 CustomPainter
-class HighlighterPainter extends CustomPainter {
-  final List<HighlighterStroke> strokes;
+/// 수평 밑줄 드로잉을 위한 CustomPainter
+class UnderlinePainter extends CustomPainter {
+  final List<UnderlineHighlight> underlines;
+  final UnderlineHighlight? previewUnderline;
 
-  HighlighterPainter(this.strokes);
+  UnderlinePainter({
+    required this.underlines,
+    this.previewUnderline,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final stroke in strokes) {
-      if (stroke.points.isEmpty) continue;
+    final allUnderlines = [
+      ...underlines,
+      if (previewUnderline != null) previewUnderline!,
+    ];
 
-      final paint = Paint()
-        ..color = stroke.color
-        ..strokeWidth = stroke.width
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke;
+    for (final underline in allUnderlines) {
+      // 1. 배경 영역 (반투명 사각형)
+      final rect = Rect.fromLTRB(
+        underline.startPoint.dx,
+        underline.yPosition - underline.height / 2,
+        underline.endPoint.dx,
+        underline.yPosition + underline.height / 2,
+      );
 
-      for (int i = 0; i < stroke.points.length - 1; i++) {
-        canvas.drawLine(stroke.points[i], stroke.points[i + 1], paint);
+      final bgPaint = Paint()
+        ..color = underline.color.withValues(alpha: 0.2)
+        ..style = PaintingStyle.fill;
+      canvas.drawRect(rect, bgPaint);
+
+      // 2. 수평 밑줄 (두꺼운 직선)
+      final linePaint = Paint()
+        ..color = underline.color
+        ..strokeWidth = 3.0
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(
+        Offset(underline.startPoint.dx, underline.yPosition),
+        Offset(underline.endPoint.dx, underline.yPosition),
+        linePaint,
+      );
+
+      // 3. 선택된 밑줄 테두리 표시
+      if (underline.isSelected) {
+        final borderPaint = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 2.0
+          ..style = PaintingStyle.stroke;
+        canvas.drawRect(rect, borderPaint);
       }
     }
   }
 
   @override
-  bool shouldRepaint(HighlighterPainter oldDelegate) {
-    return oldDelegate.strokes != strokes;
+  bool shouldRepaint(UnderlinePainter oldDelegate) {
+    return oldDelegate.underlines != underlines ||
+        oldDelegate.previewUnderline != previewUnderline;
   }
 }
 
@@ -62,93 +121,141 @@ class ImageHighlighterScreen extends StatefulWidget {
 }
 
 class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
-  final List<HighlighterStroke> _strokes = [];
-  List<Offset> _currentStroke = [];
+  List<UnderlineHighlight> _underlines = [];
+  List<Offset> _tempPoints = [];
+  UnderlineHighlight? _previewUnderline;
+  String? _selectedId;
   final GlobalKey _imageKey = GlobalKey();
 
-  // 형광펜 색상 (반투명 노란색)
+  // 밑줄 색상 (반투명 노란색)
   final Color _highlighterColor = Colors.yellow.withValues(alpha: 0.5);
+
+  /// 자유 곡선을 수평 직선 밑줄로 변환
+  UnderlineHighlight _convertToStraightLine(List<Offset> points) {
+    // 1. X 범위 (시작점 ~ 끝점)
+    final minX = points.map((p) => p.dx).reduce(min);
+    final maxX = points.map((p) => p.dx).reduce(max);
+
+    // 2. Y 평균 (수평선 위치)
+    final avgY = points.map((p) => p.dy).reduce((a, b) => a + b) / points.length;
+
+    // 3. 밑줄 높이 추정 (Y축 분산도 기반)
+    final minY = points.map((p) => p.dy).reduce(min);
+    final maxY = points.map((p) => p.dy).reduce(max);
+    final yRange = maxY - minY;
+    final height = (yRange * 3).clamp(40.0, 80.0); // 한글 텍스트 라인 고려
+
+    return UnderlineHighlight(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      startPoint: Offset(minX, avgY),
+      endPoint: Offset(maxX, avgY),
+      yPosition: avgY,
+      height: height,
+      color: _highlighterColor,
+      isSelected: false,
+    );
+  }
 
   void _handlePanStart(DragStartDetails details) {
     setState(() {
-      _currentStroke = [details.localPosition];
+      _tempPoints = [details.localPosition];
+      _previewUnderline = null;
     });
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
     setState(() {
-      _currentStroke.add(details.localPosition);
+      _tempPoints.add(details.localPosition);
+      // 실시간 직선 변환 미리보기
+      if (_tempPoints.length >= 2) {
+        _previewUnderline = _convertToStraightLine(_tempPoints);
+      }
     });
   }
 
   void _handlePanEnd(DragEndDetails details) {
     setState(() {
-      if (_currentStroke.isNotEmpty) {
-        _strokes.add(HighlighterStroke(
-          points: List.from(_currentStroke),
-          color: _highlighterColor,
-        ));
-        _currentStroke = [];
+      if (_tempPoints.length >= 2) {
+        _underlines.add(_convertToStraightLine(_tempPoints));
       }
+      _tempPoints = [];
+      _previewUnderline = null;
     });
+  }
+
+  void _handleTap(TapDownDetails details) {
+    final tapPosition = details.localPosition;
+
+    for (final underline in _underlines) {
+      final rect = Rect.fromLTRB(
+        underline.startPoint.dx,
+        underline.yPosition - underline.height / 2,
+        underline.endPoint.dx,
+        underline.yPosition + underline.height / 2,
+      );
+
+      if (rect.contains(tapPosition)) {
+        setState(() {
+          _selectedId = underline.id;
+          // 선택 상태 업데이트
+          _underlines = _underlines
+              .map((u) => u.copyWith(isSelected: u.id == underline.id))
+              .toList();
+        });
+        return;
+      }
+    }
+
+    // 빈 곳 탭 시 선택 해제
+    setState(() {
+      _selectedId = null;
+      _underlines = _underlines.map((u) => u.copyWith(isSelected: false)).toList();
+    });
+  }
+
+  void _deleteSelected() {
+    if (_selectedId != null) {
+      setState(() {
+        _underlines.removeWhere((u) => u.id == _selectedId);
+        _selectedId = null;
+      });
+    }
   }
 
   void _clearAll() {
     setState(() {
-      _strokes.clear();
-      _currentStroke = [];
+      _underlines.clear();
+      _tempPoints = [];
+      _previewUnderline = null;
+      _selectedId = null;
     });
   }
 
-  Rect? _calculateBoundingBox() {
-    if (_strokes.isEmpty) return null;
-
-    double minX = double.infinity;
-    double minY = double.infinity;
-    double maxX = double.negativeInfinity;
-    double maxY = double.negativeInfinity;
-
-    for (final stroke in _strokes) {
-      for (final point in stroke.points) {
-        minX = point.dx < minX ? point.dx : minX;
-        minY = point.dy < minY ? point.dy : minY;
-        maxX = point.dx > maxX ? point.dx : maxX;
-        maxY = point.dy > maxY ? point.dy : maxY;
+  Future<List<String>> _cropAndProcessMultiple() async {
+    if (_underlines.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('밑줄을 먼저 그어주세요'),
+            backgroundColor: DesignTokens.errorMain,
+          ),
+        );
       }
-    }
-
-    // 여유 공간 추가 (형광펜 굵기의 절반)
-    const padding = 10.0;
-    return Rect.fromLTRB(
-      minX - padding,
-      minY - padding,
-      maxX + padding,
-      maxY + padding,
-    );
-  }
-
-  Future<String?> _cropAndSave() async {
-    if (_strokes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('형광펜으로 영역을 표시해주세요'),
-          backgroundColor: DesignTokens.errorMain,
-        ),
-      );
-      return null;
+      return [];
     }
 
     try {
-      // 이미지 로드
+      // 1. 원본 이미지 로드
       final imageFile = File(widget.imagePath);
       final imageBytes = await imageFile.readAsBytes();
       final codec = await ui.instantiateImageCodec(imageBytes);
       final frame = await codec.getNextFrame();
       final originalImage = frame.image;
 
-      // 화면에 표시된 이미지의 크기
-      final RenderBox? renderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox == null) return null;
+      // 2. 스케일 계산
+      final RenderBox? renderBox =
+          _imageKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox == null) return [];
 
       final displaySize = renderBox.size;
       final imageSize = Size(
@@ -156,64 +263,80 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
         originalImage.height.toDouble(),
       );
 
-      // 스케일 계산
       final scaleX = imageSize.width / displaySize.width;
       final scaleY = imageSize.height / displaySize.height;
 
-      // 바운딩 박스 계산 (화면 좌표)
-      final displayBounds = _calculateBoundingBox();
-      if (displayBounds == null) return null;
-
-      // 원본 이미지 좌표로 변환
-      final cropRect = Rect.fromLTRB(
-        (displayBounds.left * scaleX).clamp(0, imageSize.width),
-        (displayBounds.top * scaleY).clamp(0, imageSize.height),
-        (displayBounds.right * scaleX).clamp(0, imageSize.width),
-        (displayBounds.bottom * scaleY).clamp(0, imageSize.height),
-      );
-
-      // 이미지 크롭
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-
-      canvas.drawImageRect(
-        originalImage,
-        cropRect,
-        Rect.fromLTWH(0, 0, cropRect.width, cropRect.height),
-        Paint(),
-      );
-
-      final picture = recorder.endRecording();
-      final croppedImage = await picture.toImage(
-        cropRect.width.toInt(),
-        cropRect.height.toInt(),
-      );
-
-      // 크롭된 이미지 저장
-      final byteData = await croppedImage.toByteData(format: ui.ImageByteFormat.png);
-      final buffer = byteData!.buffer.asUint8List();
-
+      // 3. 각 밑줄마다 크롭
+      final List<String> croppedPaths = [];
       final directory = await getTemporaryDirectory();
-      final croppedPath = '${directory.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.png';
-      final croppedFile = File(croppedPath);
-      await croppedFile.writeAsBytes(buffer);
 
-      return croppedPath;
+      for (int i = 0; i < _underlines.length; i++) {
+        final underline = _underlines[i];
+
+        // 3-1. 바운딩 박스 (화면 좌표)
+        final displayRect = Rect.fromLTRB(
+          underline.startPoint.dx,
+          underline.yPosition - underline.height / 2,
+          underline.endPoint.dx,
+          underline.yPosition + underline.height / 2,
+        );
+
+        // 3-2. 원본 이미지 좌표로 변환
+        final cropRect = Rect.fromLTRB(
+          (displayRect.left * scaleX).clamp(0.0, imageSize.width),
+          (displayRect.top * scaleY).clamp(0.0, imageSize.height),
+          (displayRect.right * scaleX).clamp(0.0, imageSize.width),
+          (displayRect.bottom * scaleY).clamp(0.0, imageSize.height),
+        );
+
+        // 3-3. 크롭
+        final recorder = ui.PictureRecorder();
+        final canvas = Canvas(recorder);
+        canvas.drawImageRect(
+          originalImage,
+          cropRect,
+          Rect.fromLTWH(0, 0, cropRect.width, cropRect.height),
+          Paint(),
+        );
+
+        final picture = recorder.endRecording();
+        final croppedImage = await picture.toImage(
+          cropRect.width.toInt(),
+          cropRect.height.toInt(),
+        );
+
+        // 3-4. 저장
+        final byteData =
+            await croppedImage.toByteData(format: ui.ImageByteFormat.png);
+        final buffer = byteData!.buffer.asUint8List();
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final croppedPath = '${directory.path}/underline_${i}_$timestamp.png';
+        final croppedFile = File(croppedPath);
+        await croppedFile.writeAsBytes(buffer);
+
+        croppedPaths.add(croppedPath);
+      }
+
+      return croppedPaths;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('이미지 처리 실패: $e'),
-          backgroundColor: DesignTokens.errorMain,
-        ),
-      );
-      return null;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 처리 실패: $e'),
+            backgroundColor: DesignTokens.errorMain,
+          ),
+        );
+      }
+      return [];
     }
   }
 
   Future<void> _handleNext() async {
-    final croppedPath = await _cropAndSave();
-    if (croppedPath != null && mounted) {
-      context.push(AppRoutes.ocrResult, extra: croppedPath);
+    final croppedPaths = await _cropAndProcessMultiple();
+    if (croppedPaths.isNotEmpty && mounted) {
+      // 여러 이미지 경로를 전달
+      context.push(AppRoutes.ocrResult, extra: croppedPaths);
     }
   }
 
@@ -225,7 +348,7 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
         title: '영역 선택',
         letterSpacing: 2,
         actions: [
-          if (_strokes.isNotEmpty)
+          if (_underlines.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _clearAll,
@@ -240,33 +363,59 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: DesignTokens.primaryMain,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '손가락으로 텍스트 위에 형광펜을 그려주세요',
-                    style: const TextStyle(
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
                       color: DesignTokens.primaryMain,
-                      fontSize: 14,
+                      size: 20,
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '손가락으로 텍스트에 밑줄을 그어주세요',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: DesignTokens.primaryMain,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.only(left: 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• 자동으로 수평선으로 변환됩니다',
+                        style: AppTypography.caption.copyWith(
+                          color: DesignTokens.primaryMain,
+                        ),
+                      ),
+                      Text(
+                        '• 밑줄을 탭하면 삭제할 수 있습니다',
+                        style: AppTypography.caption.copyWith(
+                          color: DesignTokens.primaryMain,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
 
-          // 이미지 + 형광펜 레이어
+          // 이미지 + 밑줄 레이어
           Expanded(
             child: GestureDetector(
               onPanStart: _handlePanStart,
               onPanUpdate: _handlePanUpdate,
               onPanEnd: _handlePanEnd,
+              onTapDown: _handleTap,
               child: Stack(
                 children: [
                   // 원본 이미지
@@ -278,17 +427,13 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                     ),
                   ),
 
-                  // 형광펜 레이어
+                  // 밑줄 레이어
                   Positioned.fill(
                     child: CustomPaint(
-                      painter: HighlighterPainter([
-                        ..._strokes,
-                        if (_currentStroke.isNotEmpty)
-                          HighlighterStroke(
-                            points: _currentStroke,
-                            color: _highlighterColor,
-                          ),
-                      ]),
+                      painter: UnderlinePainter(
+                        underlines: _underlines,
+                        previewUnderline: _previewUnderline,
+                      ),
                     ),
                   ),
                 ],
@@ -302,6 +447,22 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
+                  // 선택 삭제 버튼
+                  if (_selectedId != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: _deleteSelected,
+                      color: DesignTokens.errorMain,
+                      tooltip: '선택된 밑줄 삭제',
+                    ),
+                  // 전체 지우기
+                  if (_underlines.isNotEmpty && _selectedId == null)
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _clearAll,
+                      tooltip: '전체 지우기',
+                    ),
+                  const Spacer(),
                   Expanded(
                     child: AppButton(
                       text: '취소',
@@ -311,9 +472,12 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
+                    flex: 2,
                     child: AppButton(
-                      text: 'OCR 실행',
-                      onPressed: _handleNext,
+                      text: _underlines.isEmpty
+                          ? 'OCR 실행'
+                          : 'OCR 실행 (${_underlines.length}개)',
+                      onPressed: _underlines.isEmpty ? null : _handleNext,
                       variant: AppButtonVariant.primary,
                     ),
                   ),
