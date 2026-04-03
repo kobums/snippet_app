@@ -185,8 +185,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.ocrResult,
         builder: (context, state) {
-          final imagePath = state.extra as String;
-          return OcrResultScreen(imagePath: imagePath);
+          // String(단일) 또는 List<String>(다중) 모두 지원
+          return OcrResultScreen(imagePathOrPaths: state.extra);
         },
       ),
     ],
