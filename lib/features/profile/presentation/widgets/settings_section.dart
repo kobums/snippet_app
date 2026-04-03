@@ -89,7 +89,9 @@ class SettingsSection extends ConsumerWidget {
             RadioListTile<OcrEngine>(
               title: Row(
                 children: [
-                  const Text('Naver Clova (한글 특화)'),
+                  const Expanded(
+                    child: Text('Naver Clova (한글 특화)'),
+                  ),
                   if (!OcrConfig.isNaverClovaConfigured) ...[
                     const SizedBox(width: 8),
                     Icon(Icons.warning_amber_rounded,
@@ -123,7 +125,9 @@ class SettingsSection extends ConsumerWidget {
             RadioListTile<OcrEngine>(
               title: Row(
                 children: [
-                  const Text('Google Vision (최고 정확도)'),
+                  const Expanded(
+                    child: Text('Google Vision (최고 정확도)'),
+                  ),
                   if (!OcrConfig.isGoogleVisionConfigured) ...[
                     const SizedBox(width: 8),
                     Icon(Icons.warning_amber_rounded,
