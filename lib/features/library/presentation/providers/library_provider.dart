@@ -59,7 +59,6 @@ class LibraryNotifier extends Notifier<LibraryState> {
   Future<void> loadAllBooks() async {
     state = state.copyWith(
       isLoading: true,
-      allBooks: [],
       currentPage: 0,
       hasMore: true,
     );
@@ -128,6 +127,12 @@ class LibraryNotifier extends Notifier<LibraryState> {
   List<UserBookDto> get readingBooks {
     return filteredBooks
         .where((book) => book.status == BookStatus.reading)
+        .toList();
+  }
+
+  List<UserBookDto> get completedBooks {
+    return filteredBooks
+        .where((book) => book.status == BookStatus.completed)
         .toList();
   }
 

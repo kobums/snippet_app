@@ -79,6 +79,12 @@ class _DashboardLibrarySectionState
                   _buildBookList(libraryNotifier.readingBooks),
                   const SizedBox(height: 16),
                 ],
+                if (libraryNotifier.completedBooks.isNotEmpty) ...[
+                  const SectionHeader('완독한 책', size: SectionHeaderSize.small),
+                  const SizedBox(height: 8),
+                  _buildBookList(libraryNotifier.completedBooks),
+                  const SizedBox(height: 16),
+                ],
                 if (libraryNotifier.borrowedBooks.isNotEmpty) ...[
                   const SectionHeader('빌린 책', size: SectionHeaderSize.small),
                   const SizedBox(height: 8),
