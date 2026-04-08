@@ -74,7 +74,6 @@ final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
   final dio = ref.read(dioProvider);
 
   return switch (selectedEngine) {
-    OcrEngine.mlKit => MlKitOcrDataSource(),
     OcrEngine.naverClova => NaverClovaOcrDataSource(dio),
     OcrEngine.googleVision => GoogleVisionOcrDataSource(dio),
   };
