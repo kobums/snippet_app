@@ -85,6 +85,12 @@ class _AppButtonState extends State<AppButton>
     final padding = _getPadding();
     final textStyle = _getTextStyle();
 
+    final style = buttonStyle.copyWith(
+      padding: WidgetStateProperty.all(padding),
+      minimumSize: WidgetStateProperty.all(Size(0, height)),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
@@ -96,13 +102,8 @@ class _AppButtonState extends State<AppButton>
           height: height,
           child: ElevatedButton(
             onPressed: widget.isLoading ? null : widget.onPressed,
-            style: buttonStyle,
-            child: Padding(
-              padding: padding,
-              child: widget.isLoading
-                  ? _buildLoader()
-                  : _buildContent(textStyle),
-            ),
+            style: style,
+            child: widget.isLoading ? _buildLoader() : _buildContent(textStyle),
           ),
         ),
       ),
