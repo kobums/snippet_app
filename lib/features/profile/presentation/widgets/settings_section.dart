@@ -75,18 +75,6 @@ class SettingsSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RadioListTile<OcrEngine>(
-              title: const Text('ML Kit (무료, 오프라인)'),
-              subtitle: const Text('Google ML Kit - 온디바이스 처리'),
-              value: OcrEngine.mlKit,
-              groupValue: currentEngine,
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(selectedOcrEngineProvider.notifier).setEngine(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<OcrEngine>(
               title: Row(
                 children: [
                   const Expanded(
@@ -192,7 +180,6 @@ class SettingsSection extends ConsumerWidget {
 
   String _getOcrEngineName(OcrEngine engine) {
     return switch (engine) {
-      OcrEngine.mlKit => 'ML Kit (무료)',
       OcrEngine.naverClova => 'Naver Clova (한글 특화)',
       OcrEngine.googleVision => 'Google Vision (최고 정확도)',
     };

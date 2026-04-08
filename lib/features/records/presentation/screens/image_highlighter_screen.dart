@@ -8,7 +8,7 @@ import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:snippet_app/features/records/data/models/ocr_result.dart';
 
 /// 수평 직선 밑줄 데이터
 class UnderlineHighlight {
@@ -125,25 +125,21 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
   List<Offset> _tempPoints = [];
   UnderlineHighlight? _previewUnderline;
   String? _selectedId;
+  bool _isProcessing = false;
   final GlobalKey _imageKey = GlobalKey();
+  final GlobalKey _containerKey = GlobalKey();
 
-  // 밑줄 색상 (반투명 노란색)
   final Color _highlighterColor = Colors.yellow.withValues(alpha: 0.5);
 
   /// 자유 곡선을 수평 직선 밑줄로 변환
   UnderlineHighlight _convertToStraightLine(List<Offset> points) {
-    // 1. X 범위 (시작점 ~ 끝점)
     final minX = points.map((p) => p.dx).reduce(min);
     final maxX = points.map((p) => p.dx).reduce(max);
-
-    // 2. Y 평균 (수평선 위치)
     final avgY = points.map((p) => p.dy).reduce((a, b) => a + b) / points.length;
-
-    // 3. 밑줄 높이 추정 (Y축 분산도 기반)
     final minY = points.map((p) => p.dy).reduce(min);
     final maxY = points.map((p) => p.dy).reduce(max);
     final yRange = maxY - minY;
-    final height = (yRange * 3).clamp(40.0, 80.0); // 한글 텍스트 라인 고려
+    final height = (yRange * 3).clamp(40.0, 80.0);
 
     return UnderlineHighlight(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -166,7 +162,6 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
   void _handlePanUpdate(DragUpdateDetails details) {
     setState(() {
       _tempPoints.add(details.localPosition);
-      // 실시간 직선 변환 미리보기
       if (_tempPoints.length >= 2) {
         _previewUnderline = _convertToStraightLine(_tempPoints);
       }
@@ -197,7 +192,6 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
       if (rect.contains(tapPosition)) {
         setState(() {
           _selectedId = underline.id;
-          // 선택 상태 업데이트
           _underlines = _underlines
               .map((u) => u.copyWith(isSelected: u.id == underline.id))
               .toList();
@@ -206,7 +200,6 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
       }
     }
 
-    // 빈 곳 탭 시 선택 해제
     setState(() {
       _selectedId = null;
       _underlines = _underlines.map((u) => u.copyWith(isSelected: false)).toList();
@@ -231,112 +224,63 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
     });
   }
 
-  Future<List<String>> _cropAndProcessMultiple() async {
+  /// 밑줄 좌표를 이미지 픽셀 좌표로 변환하여 OcrRequest 생성
+  Future<void> _handleNext() async {
     if (_underlines.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('밑줄을 먼저 그어주세요'),
-            backgroundColor: DesignTokens.errorMain,
-          ),
-        );
-      }
-      return [];
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('밑줄을 먼저 그어주세요'),
+          backgroundColor: DesignTokens.errorMain,
+        ),
+      );
+      return;
     }
 
+    setState(() => _isProcessing = true);
+
     try {
-      // 1. 원본 이미지 로드
-      final imageFile = File(widget.imagePath);
-      final imageBytes = await imageFile.readAsBytes();
+      // 원본 이미지 크기 로드
+      final imageBytes = await File(widget.imagePath).readAsBytes();
       final codec = await ui.instantiateImageCodec(imageBytes);
       final frame = await codec.getNextFrame();
       final originalImage = frame.image;
+      final imageWidth = originalImage.width.toDouble();
+      final imageHeight = originalImage.height.toDouble();
 
-      // 2. 스케일 계산
-      final RenderBox? renderBox =
-          _imageKey.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox == null) return [];
+      // Image.file 위젯 (실제 렌더링된 이미지 크기)
+      final imageBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
+      // Stack 위젯 (GestureDetector와 동일한 좌표계)
+      final containerBox = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+      if (imageBox == null || containerBox == null || !mounted) return;
 
-      final displaySize = renderBox.size;
-      final imageSize = Size(
-        originalImage.width.toDouble(),
-        originalImage.height.toDouble(),
-      );
+      // Image.file 위젯의 top-left 위치를 Stack 로컬 좌표계로 변환
+      // → 이것이 곧 letterbox 오프셋 (offsetX, offsetY)
+      final imageOrigin = containerBox.globalToLocal(imageBox.localToGlobal(Offset.zero));
+      final offsetX = imageOrigin.dx;
+      final offsetY = imageOrigin.dy;
 
-      final scaleX = imageSize.width / displaySize.width;
-      final scaleY = imageSize.height / displaySize.height;
+      // Image.file 위젯 크기 = 실제 렌더링된 이미지 크기 (BoxFit.contain 결과)
+      final scaleX = imageWidth / imageBox.size.width;
+      final scaleY = imageHeight / imageBox.size.height;
 
-      // 3. 각 밑줄마다 크롭
-      final List<String> croppedPaths = [];
-      final directory = await getTemporaryDirectory();
-
-      for (int i = 0; i < _underlines.length; i++) {
-        final underline = _underlines[i];
-
-        // 3-1. 바운딩 박스 (화면 좌표)
-        final displayRect = Rect.fromLTRB(
-          underline.startPoint.dx,
-          underline.yPosition - underline.height / 2,
-          underline.endPoint.dx,
-          underline.yPosition + underline.height / 2,
+      // GestureDetector 좌표 → 이미지 픽셀 좌표 변환
+      final imageRegions = _underlines.map((u) {
+        return Rect.fromLTRB(
+          ((u.startPoint.dx - offsetX) * scaleX).clamp(0.0, imageWidth),
+          ((u.yPosition - u.height / 2 - offsetY) * scaleY).clamp(0.0, imageHeight),
+          ((u.endPoint.dx - offsetX) * scaleX).clamp(0.0, imageWidth),
+          ((u.yPosition + u.height / 2 - offsetY) * scaleY).clamp(0.0, imageHeight),
         );
+      }).toList();
 
-        // 3-2. 원본 이미지 좌표로 변환
-        final cropRect = Rect.fromLTRB(
-          (displayRect.left * scaleX).clamp(0.0, imageSize.width),
-          (displayRect.top * scaleY).clamp(0.0, imageSize.height),
-          (displayRect.right * scaleX).clamp(0.0, imageSize.width),
-          (displayRect.bottom * scaleY).clamp(0.0, imageSize.height),
-        );
-
-        // 3-3. 크롭
-        final recorder = ui.PictureRecorder();
-        final canvas = Canvas(recorder);
-        canvas.drawImageRect(
-          originalImage,
-          cropRect,
-          Rect.fromLTWH(0, 0, cropRect.width, cropRect.height),
-          Paint(),
-        );
-
-        final picture = recorder.endRecording();
-        final croppedImage = await picture.toImage(
-          cropRect.width.toInt(),
-          cropRect.height.toInt(),
-        );
-
-        // 3-4. 저장
-        final byteData =
-            await croppedImage.toByteData(format: ui.ImageByteFormat.png);
-        final buffer = byteData!.buffer.asUint8List();
-
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final croppedPath = '${directory.path}/underline_${i}_$timestamp.png';
-        final croppedFile = File(croppedPath);
-        await croppedFile.writeAsBytes(buffer);
-
-        croppedPaths.add(croppedPath);
-      }
-
-      return croppedPaths;
-    } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이미지 처리 실패: $e'),
-            backgroundColor: DesignTokens.errorMain,
-          ),
+        context.push(
+          AppRoutes.ocrResult,
+          extra: OcrRequest(imagePath: widget.imagePath, regions: imageRegions),
         );
       }
-      return [];
-    }
-  }
-
-  Future<void> _handleNext() async {
-    final croppedPaths = await _cropAndProcessMultiple();
-    if (croppedPaths.isNotEmpty && mounted) {
-      // 여러 이미지 경로를 전달
-      context.push(AppRoutes.ocrResult, extra: croppedPaths);
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -368,18 +312,12 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.info_outline,
-                      color: DesignTokens.primaryMain,
-                      size: 20,
-                    ),
+                    const Icon(Icons.info_outline, color: DesignTokens.primaryMain, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '손가락으로 텍스트에 밑줄을 그어주세요',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: DesignTokens.primaryMain,
-                        ),
+                        style: AppTypography.bodySmall.copyWith(color: DesignTokens.primaryMain),
                       ),
                     ),
                   ],
@@ -392,15 +330,11 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                     children: [
                       Text(
                         '• 자동으로 수평선으로 변환됩니다',
-                        style: AppTypography.caption.copyWith(
-                          color: DesignTokens.primaryMain,
-                        ),
+                        style: AppTypography.caption.copyWith(color: DesignTokens.primaryMain),
                       ),
                       Text(
                         '• 밑줄을 탭하면 삭제할 수 있습니다',
-                        style: AppTypography.caption.copyWith(
-                          color: DesignTokens.primaryMain,
-                        ),
+                        style: AppTypography.caption.copyWith(color: DesignTokens.primaryMain),
                       ),
                     ],
                   ),
@@ -417,8 +351,8 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
               onPanEnd: _handlePanEnd,
               onTapDown: _handleTap,
               child: Stack(
+                key: _containerKey,
                 children: [
-                  // 원본 이미지
                   Center(
                     child: Image.file(
                       File(widget.imagePath),
@@ -426,8 +360,6 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-
-                  // 밑줄 레이어
                   Positioned.fill(
                     child: CustomPaint(
                       painter: UnderlinePainter(
@@ -447,7 +379,6 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // 선택 삭제 버튼
                   if (_selectedId != null)
                     IconButton(
                       icon: const Icon(Icons.delete),
@@ -455,14 +386,12 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                       color: DesignTokens.errorMain,
                       tooltip: '선택된 밑줄 삭제',
                     ),
-                  // 전체 지우기
                   if (_underlines.isNotEmpty && _selectedId == null)
                     IconButton(
                       icon: const Icon(Icons.refresh),
                       onPressed: _clearAll,
                       tooltip: '전체 지우기',
                     ),
-                  const Spacer(),
                   Expanded(
                     child: AppButton(
                       text: '취소',
@@ -477,7 +406,7 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                       text: _underlines.isEmpty
                           ? 'OCR 실행'
                           : 'OCR 실행 (${_underlines.length}개)',
-                      onPressed: _underlines.isEmpty ? null : _handleNext,
+                      onPressed: (_underlines.isEmpty || _isProcessing) ? null : _handleNext,
                       variant: AppButtonVariant.primary,
                     ),
                   ),

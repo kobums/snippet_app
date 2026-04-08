@@ -1,3 +1,4 @@
+import 'dart:ui' show Rect;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/core/error/app_error.dart';
 import 'package:snippet_app/core/result/result.dart';
@@ -6,12 +7,12 @@ import 'package:snippet_app/features/records/domain/usecases/extract_text_from_i
 import 'package:snippet_app/features/records/records_providers.dart';
 
 class OcrState {
-  final OcrResult? result; // 단일 결과 (하위 호환성)
-  final List<OcrResult> results; // 다중 결과
+  final OcrResult? result;
+  final List<OcrResult> results;
   final bool isProcessing;
   final AppError? error;
-  final int currentIndex; // 현재 처리 중인 인덱스
-  final int totalCount; // 전체 개수
+  final int currentIndex;
+  final int totalCount;
 
   OcrState({
     this.result,
@@ -52,10 +53,10 @@ class OcrNotifier extends Notifier<OcrState> {
     return OcrState();
   }
 
-  Future<void> processImage(String imagePath) async {
+  /// 원본 이미지 1회 OCR + 밑줄 영역 필터링
+  Future<void> processImageWithRegions(String imagePath, List<Rect> regions) async {
     state = OcrState(isProcessing: true);
-
-    final result = await _extractTextUseCase(imagePath);
+    final result = await _extractTextUseCase(imagePath, regions: regions);
     result.when(
       success: (ocrResult) {
         state = OcrState(result: ocrResult, results: [ocrResult]);
@@ -66,41 +67,16 @@ class OcrNotifier extends Notifier<OcrState> {
     );
   }
 
-  /// 여러 이미지를 순차적으로 처리
-  Future<void> processMultipleImages(List<String> imagePaths) async {
-    state = OcrState(
-      isProcessing: true,
-      totalCount: imagePaths.length,
-    );
-
-    final results = <OcrResult>[];
-
-    for (int i = 0; i < imagePaths.length; i++) {
-      state = state.copyWith(
-        currentIndex: i,
-        isProcessing: true,
-      );
-
-      final result = await _extractTextUseCase(imagePaths[i]);
-      result.when(
-        success: (ocrResult) {
-          results.add(ocrResult);
-        },
-        failure: (error) {
-          // 실패해도 빈 결과로 추가 (인덱스 유지)
-          results.add(OcrResult(
-            extractedText: '',
-            imagePath: imagePaths[i],
-            timestamp: DateTime.now(),
-          ));
-        },
-      );
-    }
-
-    state = OcrState(
-      results: results,
-      isProcessing: false,
-      totalCount: imagePaths.length,
+  Future<void> processImage(String imagePath) async {
+    state = OcrState(isProcessing: true);
+    final result = await _extractTextUseCase(imagePath);
+    result.when(
+      success: (ocrResult) {
+        state = OcrState(result: ocrResult, results: [ocrResult]);
+      },
+      failure: (error) {
+        state = OcrState(error: error);
+      },
     );
   }
 

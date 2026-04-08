@@ -32,7 +32,9 @@ class CameraState {
     return CameraState(
       controller: controller ?? this.controller,
       isInitialized: isInitialized ?? this.isInitialized,
-      capturedImagePath: clearImage ? null : (capturedImagePath ?? this.capturedImagePath),
+      capturedImagePath: clearImage
+          ? null
+          : (capturedImagePath ?? this.capturedImagePath),
       isProcessing: isProcessing ?? this.isProcessing,
       error: clearError ? null : (error ?? this.error),
     );
@@ -48,13 +50,12 @@ class CameraNotifier extends Notifier<CameraState> {
   }
 
   Future<void> initializeCamera() async {
+    state = CameraState();
     try {
       final cameras = await availableCameras();
 
       if (cameras.isEmpty) {
-        state = state.copyWith(
-          error: const UnknownError('사용 가능한 카메라가 없습니다.'),
-        );
+        state = state.copyWith(error: const UnknownError('사용 가능한 카메라가 없습니다.'));
         return;
       }
 
@@ -99,13 +100,11 @@ class CameraNotifier extends Notifier<CameraState> {
       final image = await state.controller!.takePicture();
 
       final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final imagePath =
+          '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(image.path).copy(imagePath);
 
-      state = state.copyWith(
-        capturedImagePath: imagePath,
-        isProcessing: false,
-      );
+      state = state.copyWith(capturedImagePath: imagePath, isProcessing: false);
 
       return imagePath;
     } catch (e) {
@@ -131,13 +130,11 @@ class CameraNotifier extends Notifier<CameraState> {
       }
 
       final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final imagePath =
+          '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(image.path).copy(imagePath);
 
-      state = state.copyWith(
-        capturedImagePath: imagePath,
-        isProcessing: false,
-      );
+      state = state.copyWith(capturedImagePath: imagePath, isProcessing: false);
 
       return imagePath;
     } catch (e) {
@@ -155,7 +152,6 @@ class CameraNotifier extends Notifier<CameraState> {
 
   void disposeCamera() {
     state.controller?.dispose();
-    state = CameraState();
   }
 }
 

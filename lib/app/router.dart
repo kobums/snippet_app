@@ -16,6 +16,7 @@ import 'package:snippet_app/features/records/presentation/screens/camera_screen.
 import 'package:snippet_app/features/records/presentation/screens/image_highlighter_screen.dart';
 import 'package:snippet_app/features/records/presentation/screens/ocr_result_screen.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
+import 'package:snippet_app/features/records/data/models/ocr_result.dart';
 import 'package:snippet_app/features/library/presentation/screens/library_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_search_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_detail_screen.dart';
@@ -185,8 +186,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.ocrResult,
         builder: (context, state) {
-          // String(단일) 또는 List<String>(다중) 모두 지원
-          return OcrResultScreen(imagePathOrPaths: state.extra);
+          return OcrResultScreen(request: state.extra as OcrRequest);
         },
       ),
     ],

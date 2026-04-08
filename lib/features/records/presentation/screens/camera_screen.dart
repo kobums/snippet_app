@@ -216,7 +216,6 @@ class _OcrEngineSelector extends ConsumerWidget {
 
   String _getEngineName(OcrEngine engine) {
     return switch (engine) {
-      OcrEngine.mlKit => 'ML Kit',
       OcrEngine.googleVision => 'Google',
       OcrEngine.naverClova => 'Naver',
     };
@@ -224,7 +223,6 @@ class _OcrEngineSelector extends ConsumerWidget {
 
   String _getEngineDescription(OcrEngine engine) {
     return switch (engine) {
-      OcrEngine.mlKit => '온디바이스 • 빠름',
       OcrEngine.googleVision => '최고 정확도',
       OcrEngine.naverClova => '한글 특화',
     };
