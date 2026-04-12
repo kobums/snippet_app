@@ -7,6 +7,8 @@ class ApiConstants {
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
   static const String authDeleteAccount = '/auth/account';
+  static const String authSendCode = '/auth/sendcode';
+  static const String authVerifyCode = '/auth/verifycode';
 
   // Snippets
   static const String snippetsCards = '/snippets/cards';

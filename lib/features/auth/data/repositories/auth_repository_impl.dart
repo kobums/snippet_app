@@ -33,7 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<User>> register(
+  Future<Result<String>> register(
     String email,
     String password,
     String name,
@@ -44,13 +44,35 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         name: name,
       );
-      final user = await _remoteDataSource.register(params);
+      final registeredEmail = await _remoteDataSource.register(params);
+      return Success(registeredEmail);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
 
+  @override
+  Future<Result<void>> sendVerificationCode(String email) async {
+    try {
+      await _remoteDataSource.sendVerificationCode(email);
+      return const Success(null);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
+  Future<Result<User>> verifyCode(String email, String code) async {
+    try {
+      final user = await _remoteDataSource.verifyCode(email, code);
       if (user.token != null) {
         await _localDataSource.saveToken(user.token!);
       }
       await _localDataSource.saveUser(user);
-
       return Success(user);
     } on AppError catch (e) {
       return Failure(e);
