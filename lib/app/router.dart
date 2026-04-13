@@ -21,6 +21,7 @@ import 'package:snippet_app/features/records/data/models/ocr_result.dart';
 import 'package:snippet_app/features/library/presentation/screens/library_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_search_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_detail_screen.dart';
+import 'package:snippet_app/features/library/presentation/screens/popular_books_screen.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
 import 'package:snippet_app/app/main_screen.dart';
@@ -50,6 +51,7 @@ class AppRoutes {
   static const camera = '/camera';
   static const imageHighlighter = '/imageHighlighter';
   static const ocrResult = '/ocrResult';
+  static const popularBooks = '/popularBooks';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -195,6 +197,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           return OcrResultScreen(request: state.extra as OcrRequest);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.popularBooks,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PopularBooksScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final scaleTween = Tween(
+              begin: 0.5,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.easeOutCubic));
+            final fadeTween = Tween(
+              begin: 0.0,
+              end: 1.0,
+            ).chain(CurveTween(curve: Curves.easeIn));
+
+            return FadeTransition(
+              opacity: animation.drive(fadeTween),
+              child: ScaleTransition(
+                scale: animation.drive(scaleTween),
+                alignment: Alignment.topRight,
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 250),
+        ),
       ),
     ],
   );

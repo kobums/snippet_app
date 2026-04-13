@@ -231,6 +231,13 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
         headerSliverBuilder: (context, _) => [
           AppAppBar.sliver(
             title: '서재',
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.trending_up_rounded),
+                tooltip: '인기 도서',
+                onPressed: () => context.push(AppRoutes.popularBooks),
+              ),
+            ],
             bottom: AppTabBar(
               controller: _tabController,
               tabs: const ['소장', '대출', '위시'],

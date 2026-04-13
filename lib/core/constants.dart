@@ -32,6 +32,7 @@ class ApiConstants {
 
   // Books
   static const String booksSearch = '/books/search';
+  static const String booksPopular = '/books/popular';
 }
 
 class AppConstants {

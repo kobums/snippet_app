@@ -1,15 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/features/library/data/datasources/book_remote_datasource.dart';
+import 'package:snippet_app/features/library/data/datasources/popular_book_remote_datasource.dart';
 import 'package:snippet_app/features/library/data/datasources/user_book_remote_datasource.dart';
 import 'package:snippet_app/features/library/data/repositories/book_repository_impl.dart';
+import 'package:snippet_app/features/library/data/repositories/popular_book_repository_impl.dart';
 import 'package:snippet_app/features/library/data/repositories/user_book_repository_impl.dart';
 import 'package:snippet_app/features/library/domain/repositories/book_repository.dart';
+import 'package:snippet_app/features/library/domain/repositories/popular_book_repository.dart';
 import 'package:snippet_app/features/library/domain/repositories/user_book_repository.dart';
 import 'package:snippet_app/features/library/domain/usecases/add_book_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/delete_book_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_all_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_monthly_books_usecase.dart';
+import 'package:snippet_app/features/library/domain/usecases/fetch_popular_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_progress_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/search_books_usecase.dart';
 import 'package:snippet_app/features/library/domain/usecases/update_book_usecase.dart';
@@ -66,4 +70,21 @@ final deleteBookUseCaseProvider = Provider<DeleteBookUseCase>((ref) {
 
 final searchBooksUseCaseProvider = Provider<SearchBooksUseCase>((ref) {
   return SearchBooksUseCase(ref.read(bookRepositoryProvider));
+});
+
+// Popular Books (도서관정보나루)
+final popularBookRemoteDataSourceProvider =
+    Provider<PopularBookRemoteDataSource>((ref) {
+  final dio = ref.read(dioProvider);
+  return PopularBookRemoteDataSourceImpl(dio);
+});
+
+final popularBookRepositoryProvider = Provider<PopularBookRepository>((ref) {
+  final remote = ref.read(popularBookRemoteDataSourceProvider);
+  return PopularBookRepositoryImpl(remote);
+});
+
+final fetchPopularBooksUseCaseProvider =
+    Provider<FetchPopularBooksUseCase>((ref) {
+  return FetchPopularBooksUseCase(ref.read(popularBookRepositoryProvider));
 });

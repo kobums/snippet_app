@@ -92,7 +92,7 @@ class BookNotifier extends Notifier<BookState> {
           return b.copyWith(
             status: status,
             startDate: shouldUpdateStartDate ? now : b.startDate,
-            endDate: (status == BookStatus.completed || status == BookStatus.dropped) ? now : b.endDate,
+            endDate: (status == BookStatus.reading || status == BookStatus.completed || status == BookStatus.dropped) ? now : b.endDate,
             readPage: status == BookStatus.completed ? b.totalPage : b.readPage,
           );
         }
