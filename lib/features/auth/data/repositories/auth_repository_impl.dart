@@ -33,47 +33,37 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<String>> register(
+  Future<Result<User>> register(
     String email,
     String password,
     String name,
+    String code,
   ) async {
     try {
       final params = RegisterParams(
         email: email,
         password: password,
         name: name,
+        code: code,
       );
-      final registeredEmail = await _remoteDataSource.register(params);
-      return Success(registeredEmail);
-    } on AppError catch (e) {
-      return Failure(e);
-    } catch (e) {
-      return Failure(ErrorHandler.handleException(e));
-    }
-  }
-
-  @override
-  Future<Result<void>> sendVerificationCode(String email) async {
-    try {
-      await _remoteDataSource.sendVerificationCode(email);
-      return const Success(null);
-    } on AppError catch (e) {
-      return Failure(e);
-    } catch (e) {
-      return Failure(ErrorHandler.handleException(e));
-    }
-  }
-
-  @override
-  Future<Result<User>> verifyCode(String email, String code) async {
-    try {
-      final user = await _remoteDataSource.verifyCode(email, code);
+      final user = await _remoteDataSource.register(params);
       if (user.token != null) {
         await _localDataSource.saveToken(user.token!);
       }
       await _localDataSource.saveUser(user);
       return Success(user);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
+  Future<Result<void>> sendEmailCode(String email) async {
+    try {
+      await _remoteDataSource.sendEmailCode(email);
+      return const Success(null);
     } on AppError catch (e) {
       return Failure(e);
     } catch (e) {

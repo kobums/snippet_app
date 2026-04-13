@@ -9,7 +9,6 @@ import 'package:snippet_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/register_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/send_verification_code_usecase.dart';
-import 'package:snippet_app/features/auth/domain/usecases/verify_email_code_usecase.dart';
 
 class AuthState {
   final User? user;
@@ -45,7 +44,6 @@ class AuthNotifier extends Notifier<AuthState> {
   late final LogoutUseCase _logoutUseCase;
   late final DeleteAccountUseCase _deleteAccountUseCase;
   late final SendVerificationCodeUseCase _sendVerificationCodeUseCase;
-  late final VerifyEmailCodeUseCase _verifyEmailCodeUseCase;
 
   @override
   AuthState build() {
@@ -55,7 +53,6 @@ class AuthNotifier extends Notifier<AuthState> {
     _logoutUseCase = ref.read(logoutUseCaseProvider);
     _deleteAccountUseCase = ref.read(deleteAccountUseCaseProvider);
     _sendVerificationCodeUseCase = ref.read(sendVerificationCodeUseCaseProvider);
-    _verifyEmailCodeUseCase = ref.read(verifyEmailCodeUseCaseProvider);
 
     _checkAuth();
     return AuthState();
@@ -88,48 +85,26 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  /// 회원가입 후 이메일 인증 화면으로 이동하기 위해 email을 반환합니다.
-  Future<String> register(String email, String password, String name) async {
+  Future<void> register(String email, String password, String name, String code) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    final result = await _registerUseCase(email, password, name);
-    return result.when(
-      success: (registeredEmail) {
-        state = state.copyWith(isLoading: false);
-        return registeredEmail;
-      },
-      failure: (error) {
-        state = state.copyWith(isLoading: false, error: error);
-        throw error;
-      },
-    );
-  }
-
-  Future<void> sendVerificationCode(String email) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    final result = await _sendVerificationCodeUseCase(email);
-    result.when(
-      success: (_) {
-        state = state.copyWith(isLoading: false);
-      },
-      failure: (error) {
-        state = state.copyWith(isLoading: false, error: error);
-        throw error;
-      },
-    );
-  }
-
-  Future<void> verifyCode(String email, String code) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    final result = await _verifyEmailCodeUseCase(email, code);
+    final result = await _registerUseCase(email, password, name, code);
     result.when(
       success: (user) {
         state = state.copyWith(user: user, isLoading: false);
       },
       failure: (error) {
         state = state.copyWith(isLoading: false, error: error);
+        throw error;
+      },
+    );
+  }
+
+  Future<void> sendEmailCode(String email) async {
+    final result = await _sendVerificationCodeUseCase(email);
+    result.when(
+      success: (_) {},
+      failure: (error) {
         throw error;
       },
     );

@@ -7,9 +7,8 @@ import 'package:snippet_app/features/auth/data/models/user.dart';
 
 abstract class AuthRemoteDataSource {
   Future<User> login(LoginParams params);
-  Future<String> register(RegisterParams params);
-  Future<void> sendVerificationCode(String email);
-  Future<User> verifyCode(String email, String code);
+  Future<User> register(RegisterParams params);
+  Future<void> sendEmailCode(String email);
   Future<void> deleteAccount();
 }
 
@@ -35,14 +34,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<String> register(RegisterParams params) async {
+  Future<User> register(RegisterParams params) async {
     try {
       final response = await _dio.post(
         ApiConstants.authRegister,
         data: params.toJson(),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data['email'] as String;
+        return User.fromJson(response.data);
       }
       throw const ServerError('회원가입에 실패했습니다');
     } on DioException catch (e) {
@@ -51,10 +50,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> sendVerificationCode(String email) async {
+  Future<void> sendEmailCode(String email) async {
     try {
       final response = await _dio.post(
-        ApiConstants.authSendCode,
+        ApiConstants.authEmailCode,
         data: {'email': email},
       );
       if (response.statusCode == 200) return;
@@ -65,28 +64,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<User> verifyCode(String email, String code) async {
-    try {
-      final response = await _dio.post(
-        ApiConstants.authVerifyCode,
-        data: {'email': email, 'code': code},
-      );
-      if (response.statusCode == 200) {
-        return User.fromJson(response.data);
-      }
-      throw const ServerError('인증에 실패했습니다');
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
-
-  @override
   Future<void> deleteAccount() async {
     try {
       final response = await _dio.delete(ApiConstants.authDeleteAccount);
-      if (response.statusCode == 200) {
-        return;
-      }
+      if (response.statusCode == 200) return;
       throw const ServerError('회원탈퇴에 실패했습니다');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);

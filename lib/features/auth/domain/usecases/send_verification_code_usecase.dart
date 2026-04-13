@@ -7,6 +7,6 @@ class SendVerificationCodeUseCase {
   SendVerificationCodeUseCase(this._repository);
 
   Future<Result<void>> call(String email) {
-    return _repository.sendVerificationCode(email);
+    return _repository.sendEmailCode(email);
   }
 }
