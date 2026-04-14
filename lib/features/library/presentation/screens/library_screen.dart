@@ -233,6 +233,11 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
             title: '서재',
             actions: [
               IconButton(
+                icon: const Icon(Icons.qr_code_scanner_rounded),
+                tooltip: '바코드 스캔',
+                onPressed: () => context.push(AppRoutes.barcodeScan),
+              ),
+              IconButton(
                 icon: const Icon(Icons.trending_up_rounded),
                 tooltip: '인기 도서',
                 onPressed: () => context.push(AppRoutes.popularBooks),

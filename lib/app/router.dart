@@ -22,6 +22,7 @@ import 'package:snippet_app/features/library/presentation/screens/library_screen
 import 'package:snippet_app/features/library/presentation/screens/book_search_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/book_detail_screen.dart';
 import 'package:snippet_app/features/library/presentation/screens/popular_books_screen.dart';
+import 'package:snippet_app/features/library/presentation/screens/barcode_scanner_screen.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
 import 'package:snippet_app/app/main_screen.dart';
@@ -52,6 +53,7 @@ class AppRoutes {
   static const imageHighlighter = '/imageHighlighter';
   static const ocrResult = '/ocrResult';
   static const popularBooks = '/popularBooks';
+  static const barcodeScan = '/barcodeScan';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -197,6 +199,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           return OcrResultScreen(request: state.extra as OcrRequest);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.barcodeScan,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const BarcodeScannerScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(animation),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 250),
+        ),
       ),
       GoRoute(
         path: AppRoutes.popularBooks,
