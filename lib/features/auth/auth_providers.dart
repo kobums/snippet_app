@@ -10,7 +10,6 @@ import 'package:snippet_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/register_usecase.dart';
 import 'package:snippet_app/features/auth/domain/usecases/send_verification_code_usecase.dart';
-import 'package:snippet_app/features/auth/domain/usecases/verify_email_code_usecase.dart';
 
 // DataSources
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -54,8 +53,4 @@ final deleteAccountUseCaseProvider = Provider<DeleteAccountUseCase>((ref) {
 
 final sendVerificationCodeUseCaseProvider = Provider<SendVerificationCodeUseCase>((ref) {
   return SendVerificationCodeUseCase(ref.read(authRepositoryProvider));
-});
-
-final verifyEmailCodeUseCaseProvider = Provider<VerifyEmailCodeUseCase>((ref) {
-  return VerifyEmailCodeUseCase(ref.read(authRepositoryProvider));
 });

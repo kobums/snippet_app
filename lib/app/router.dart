@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/screens/splash_screen.dart';
 import 'package:snippet_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:snippet_app/features/auth/presentation/screens/register_screen.dart';
-import 'package:snippet_app/features/auth/presentation/screens/verify_email_screen.dart';
 import 'package:snippet_app/features/snippet/presentation/screens/snippet_screen.dart';
 import 'package:snippet_app/features/snippet/presentation/screens/archive_screen.dart';
 import 'package:snippet_app/features/dashboard/presentation/screens/dashboard_screen.dart';
@@ -32,8 +31,6 @@ class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
-  static const verifyEmail = '/verifyEmail';
-
   // Shell routes (bottom nav tabs)
   static const snippet = '/snippet';
   static const dashboard = '/dashboard';
@@ -72,12 +69,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.verifyEmail,
-        builder: (context, state) =>
-            VerifyEmailScreen(email: state.extra as String),
-      ),
-
       // Main shell with bottom navigation
       ShellRoute(
         builder: (context, state, child) {
