@@ -52,6 +52,12 @@ ios/fastlane/.env
 ios/fastlane/report.xml
 ios/Gemfile.lock
 ios/vendor/bundle/
+android/Gemfile.lock
+android/vendor/bundle/
+android/fastlane/report.xml
+android/fastlane/google-play-key.json
+android/key.properties
+android/upload-keystore.jks
 
 # App Store Connect API Key
 ios/*.p8

@@ -1,0 +1,40 @@
+default_platform(:android)
+
+platform :android do
+
+  desc "빌드만 (AAB 생성)"
+  lane :build do
+    Dir.chdir("../../../") do
+      sh("flutter build appbundle --release")
+    end
+  end
+
+  desc "내부 테스트 트랙에 업로드"
+  lane :internal do
+    build
+    upload_to_play_store(
+      track: "internal",
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      release_status: "draft"
+    )
+  end
+
+  desc "알파 트랙에 업로드"
+  lane :alpha do
+    build
+    upload_to_play_store(
+      track: "alpha",
+      aab: "../build/app/outputs/bundle/release/app-release.aab"
+    )
+  end
+
+  desc "프로덕션 배포"
+  lane :deploy do
+    build
+    upload_to_play_store(
+      track: "production",
+      aab: "../build/app/outputs/bundle/release/app-release.aab"
+    )
+  end
+
+end
