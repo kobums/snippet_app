@@ -1,0 +1,97 @@
+default_platform(:ios)
+
+# App Store Connect API Key 인증 (비밀번호 입력 없이 자동화)
+# 키 파일은 app/ios/AuthKey_XXXXXXXX.p8 에 위치
+def api_key
+  app_store_connect_api_key(
+    key_id: ENV["ASC_KEY_ID"],           # App Store Connect API Key ID
+    issuer_id: ENV["ASC_ISSUER_ID"],     # Issuer ID
+    key_filepath: ENV["ASC_KEY_PATH"],   # .p8 파일 경로
+    duration: 1200,
+    in_house: false
+  )
+end
+
+platform :ios do
+
+  # ---------------------------------------------------------
+  # TestFlight 배포 (내부 테스트)
+  # 사용법: cd app/ios && fastlane beta
+  # ---------------------------------------------------------
+  desc "TestFlight에 빌드 업로드"
+  lane :beta do
+    # 1. Flutter 빌드
+    Dir.chdir("../..") do
+      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release")
+    end
+
+    # 2. TestFlight 업로드
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: File.expand_path("../../build/ios/ipa/Snippet.ipa", __dir__),
+      skip_waiting_for_build_processing: true
+    )
+
+    puts "✅ TestFlight 업로드 완료!"
+  end
+
+  # ---------------------------------------------------------
+  # App Store 심사 제출
+  # 사용법: cd app/ios && fastlane release
+  # ---------------------------------------------------------
+  desc "App Store에 심사 제출"
+  lane :release do
+    # 1. Flutter 빌드
+    Dir.chdir("../..") do
+      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release")
+    end
+
+    # 2. App Store 업로드 (심사 제출은 App Store Connect에서 수동으로)
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: File.expand_path("../../build/ios/ipa/Snippet.ipa", __dir__),
+      skip_screenshots: true,
+      skip_metadata: true,
+      submit_for_review: false  # true로 바꾸면 자동 심사 제출
+    )
+
+    puts "✅ App Store 업로드 완료! App Store Connect에서 심사 제출하세요."
+  end
+
+  # ---------------------------------------------------------
+  # 빌드 번호 자동 증가 후 TestFlight 배포
+  # 사용법: cd app/ios && fastlane ship
+  # ---------------------------------------------------------
+  desc "버전 bump 후 TestFlight 배포"
+  lane :ship do
+    # pubspec.yaml에서 현재 버전/빌드 번호 읽기
+    pubspec = File.read("../../pubspec.yaml")
+    version_line = pubspec.match(/^version:\s*(.+)$/)&.[](1)&.strip
+    version_name, build_number = version_line&.split("+")
+    new_build = (build_number.to_i + 1).to_s
+
+    # pubspec.yaml 빌드 번호 증가
+    new_pubspec = pubspec.gsub(
+      /^version:\s*.+$/,
+      "version: #{version_name}+#{new_build}"
+    )
+    File.write("../../pubspec.yaml", new_pubspec)
+
+    puts "📦 버전: #{version_name}+#{new_build}"
+
+    # Flutter 빌드
+    Dir.chdir("../..") do
+      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
+    end
+
+    # TestFlight 업로드
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: File.expand_path("../../build/ios/ipa/Snippet.ipa", __dir__),
+      skip_waiting_for_build_processing: true
+    )
+
+    puts "✅ v#{version_name}+#{new_build} TestFlight 업로드 완료!"
+  end
+
+end

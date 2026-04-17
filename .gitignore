@@ -46,6 +46,15 @@ app.*.map.json
 
 # Environment variables (API keys, secrets)
 .env
+ios/fastlane/.env
+
+# Fastlane
+ios/fastlane/report.xml
+ios/Gemfile.lock
+ios/vendor/bundle/
+
+# App Store Connect API Key
+ios/*.p8
 
 # Google Cloud Service Account credentials (NEVER commit!)
 snippet-*.json
