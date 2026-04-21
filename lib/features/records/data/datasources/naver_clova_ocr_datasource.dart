@@ -7,7 +7,7 @@ import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dar
 
 class NaverClovaOcrDataSource implements OcrDataSource {
   final Dio _dio;
-  static const String _baseUrl = ApiConstants.baseUrl;
+  final String _baseUrl = ApiConstants.baseUrl;
 
   NaverClovaOcrDataSource(this._dio);
 
@@ -17,7 +17,10 @@ class NaverClovaOcrDataSource implements OcrDataSource {
   }
 
   @override
-  Future<String> extractTextFromRegions(String imagePath, List<Rect> regions) async {
+  Future<String> extractTextFromRegions(
+    String imagePath,
+    List<Rect> regions,
+  ) async {
     return _callBackend(imagePath, regions: regions);
   }
 
@@ -36,9 +39,18 @@ class NaverClovaOcrDataSource implements OcrDataSource {
     };
 
     if (regions != null && regions.isNotEmpty) {
-      fields['regions'] = jsonEncode(regions
-          .map((r) => {'left': r.left, 'top': r.top, 'right': r.right, 'bottom': r.bottom})
-          .toList());
+      fields['regions'] = jsonEncode(
+        regions
+            .map(
+              (r) => {
+                'left': r.left,
+                'top': r.top,
+                'right': r.right,
+                'bottom': r.bottom,
+              },
+            )
+            .toList(),
+      );
     }
 
     final response = await _dio.post(
