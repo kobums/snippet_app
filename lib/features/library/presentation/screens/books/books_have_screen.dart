@@ -103,6 +103,9 @@ class _BooksHaveScreenState extends ConsumerState<BooksHaveScreen> {
                   books: filteredBooks,
                   loading: libraryState.isLoading,
                   onBookTap: _openBookDetail,
+                  onStatusChange: (book, status) => ref
+                      .read(libraryProvider.notifier)
+                      .updateBookStatus(book.id, status),
                 ),
         ),
       ),

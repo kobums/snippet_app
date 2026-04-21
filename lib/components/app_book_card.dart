@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -33,6 +34,7 @@ class AppBookCard extends StatelessWidget {
     this.showProgress = false,
     this.showTotalPage = false,
     this.padding,
+    this.onStatusChange,
   });
 
   final UserBookDto book;
@@ -41,6 +43,7 @@ class AppBookCard extends StatelessWidget {
   final bool showProgress;
   final bool showTotalPage;
   final EdgeInsetsGeometry? padding;
+  final Function(BookStatus)? onStatusChange;
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +113,46 @@ class AppBookCard extends StatelessWidget {
                         fontWeight: FontWeight.w300,
                         color: Colors.black.withValues(alpha: 0.4),
                       ),
+                    ),
+                  ],
+                  if (onStatusChange != null &&
+                      book.status == BookStatus.waiting) ...[
+                    const SizedBox(height: DesignTokens.space12),
+                    AppButton(
+                      text: '읽기 시작',
+                      variant: AppButtonVariant.primary,
+                      size: AppButtonSize.small,
+                      isFullWidth: true,
+                      onPressed: () => onStatusChange!(BookStatus.reading),
+                    ),
+                  ],
+                  if (onStatusChange != null &&
+                      book.status == BookStatus.reading) ...[
+                    const SizedBox(height: DesignTokens.space12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton(
+                            text: '완독',
+                            variant: AppButtonVariant.primary,
+                            size: AppButtonSize.small,
+                            isFullWidth: true,
+                            onPressed: () =>
+                                onStatusChange!(BookStatus.completed),
+                          ),
+                        ),
+                        const SizedBox(width: DesignTokens.space8),
+                        Expanded(
+                          child: AppButton(
+                            text: '중단',
+                            variant: AppButtonVariant.outlined,
+                            size: AppButtonSize.small,
+                            isFullWidth: true,
+                            onPressed: () =>
+                                onStatusChange!(BookStatus.dropped),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ],

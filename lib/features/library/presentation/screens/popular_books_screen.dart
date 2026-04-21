@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
@@ -48,6 +49,10 @@ class _PopularBooksScreenState extends ConsumerState<PopularBooksScreen> {
         headerSliverBuilder: (context, _) => [
           AppAppBar.sliver(
             title: '인기 도서',
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: () => context.pop(),
+            ),
           ),
         ],
         body: Column(

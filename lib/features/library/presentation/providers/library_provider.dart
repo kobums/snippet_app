@@ -3,6 +3,7 @@ import 'package:snippet_app/core/error/app_error.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_all_books_usecase.dart';
+import 'package:snippet_app/features/library/domain/usecases/update_book_usecase.dart';
 import 'package:snippet_app/features/library/library_providers.dart';
 
 class LibraryState {
@@ -47,11 +48,13 @@ class LibraryState {
 
 class LibraryNotifier extends Notifier<LibraryState> {
   late final FetchAllBooksUseCase _fetchAllBooksUseCase;
+  late final UpdateBookUseCase _updateBookUseCase;
   static const int _pageSize = 20;
 
   @override
   LibraryState build() {
     _fetchAllBooksUseCase = ref.read(fetchAllBooksUseCaseProvider);
+    _updateBookUseCase = ref.read(updateBookUseCaseProvider);
     Future.microtask(() => loadAllBooks());
     return LibraryState();
   }
@@ -187,6 +190,17 @@ class LibraryNotifier extends Notifier<LibraryState> {
         if (b.id == updatedBook.id) return updatedBook;
         return b;
       }).toList(),
+    );
+  }
+
+  Future<void> updateBookStatus(int id, BookStatus newStatus) async {
+    final original = state.allBooks.firstWhere((b) => b.id == id);
+    updateBookLocally(original.copyWith(status: newStatus));
+
+    final result = await _updateBookUseCase(id, {'status': newStatus.toJson()});
+    result.when(
+      success: (_) {},
+      failure: (_) => updateBookLocally(original),
     );
   }
 }

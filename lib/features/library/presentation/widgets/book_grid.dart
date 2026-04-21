@@ -8,12 +8,14 @@ class BookGrid extends StatelessWidget {
   final List<UserBookDto> books;
   final bool loading;
   final Function(UserBookDto) onBookTap;
+  final Function(UserBookDto, BookStatus)? onStatusChange;
 
   const BookGrid({
     super.key,
     required this.books,
     required this.loading,
     required this.onBookTap,
+    this.onStatusChange,
   });
 
   @override
@@ -25,11 +27,13 @@ class BookGrid extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final crossAxisCount = screenWidth < 600 ? 2 : 3;
 
+    final aspectRatio = onStatusChange != null ? 0.55 : 0.65;
+
     return GridView.builder(
       padding: const EdgeInsets.only(top: 64, left: 16, right: 16, bottom: 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        childAspectRatio: 0.65,
+        childAspectRatio: aspectRatio,
         crossAxisSpacing: 12,
         mainAxisSpacing: 16,
       ),
@@ -38,6 +42,9 @@ class BookGrid extends StatelessWidget {
         return BookGridCard(
           book: books[index],
           onTap: () => onBookTap(books[index]),
+          onStatusChange: onStatusChange != null
+              ? (status) => onStatusChange!(books[index], status)
+              : null,
         );
       },
     );

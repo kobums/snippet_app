@@ -9,8 +9,14 @@ import 'package:snippet_app/core/typography.dart';
 class BookGridCard extends StatelessWidget {
   final UserBookDto book;
   final VoidCallback onTap;
+  final Function(BookStatus)? onStatusChange;
 
-  const BookGridCard({super.key, required this.book, required this.onTap});
+  const BookGridCard({
+    super.key,
+    required this.book,
+    required this.onTap,
+    this.onStatusChange,
+  });
 
   Color _getStatusColor(BookStatus status) {
     switch (status) {
@@ -155,7 +161,75 @@ class BookGridCard extends StatelessWidget {
                 ),
               ),
             ],
+
+            if (onStatusChange != null && book.status == BookStatus.waiting) ...[
+              const SizedBox(height: DesignTokens.space8),
+              _ActionButton(
+                label: '읽기 시작',
+                color: DesignTokens.primaryMain,
+                onTap: () => onStatusChange!(BookStatus.reading),
+              ),
+            ],
+
+            if (onStatusChange != null && book.status == BookStatus.reading) ...[
+              const SizedBox(height: DesignTokens.space8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionButton(
+                      label: '완독',
+                      color: DesignTokens.success,
+                      onTap: () => onStatusChange!(BookStatus.completed),
+                    ),
+                  ),
+                  const SizedBox(width: DesignTokens.space4),
+                  Expanded(
+                    child: _ActionButton(
+                      label: '중단',
+                      color: DesignTokens.neutral400,
+                      onTap: () => onStatusChange!(BookStatus.dropped),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: DesignTokens.space4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: AppTypography.captionSmall.copyWith(
+              color: color,
+              fontWeight: DesignTokens.fontMedium,
+            ),
+          ),
         ),
       ),
     );

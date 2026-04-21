@@ -130,6 +130,8 @@ class _DashboardProgressSectionState
         onTap: () {
           context.push(AppRoutes.bookDetail, extra: book);
         },
+        onStatusChange: (status) =>
+            ref.read(bookProvider.notifier).updateStatus(book.id, status),
       ),
     );
   }

@@ -54,6 +54,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     List<Widget>? actions,
     PreferredSizeWidget? bottom,
     bool pinned = false,
+    Widget? leading,
+    bool automaticallyImplyLeading = false,
   }) {
     return SliverAppBar(
       backgroundColor: DesignTokens.bgPrimary,
@@ -63,7 +65,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       snap: false,
       pinned: pinned,
       centerTitle: true,
-      automaticallyImplyLeading: false,
+      leading: leading,
+      automaticallyImplyLeading: automaticallyImplyLeading,
       title: Text(
         title,
         style: AppTypography.h3.copyWith(
