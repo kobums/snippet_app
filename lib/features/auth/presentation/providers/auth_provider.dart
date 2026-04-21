@@ -13,23 +13,27 @@ import 'package:snippet_app/features/auth/domain/usecases/send_verification_code
 class AuthState {
   final User? user;
   final bool isLoading;
+  final bool isInitializing;
   final AppError? error;
 
   AuthState({
     this.user,
     this.isLoading = false,
+    this.isInitializing = false,
     this.error,
   });
 
   AuthState copyWith({
     User? user,
     bool? isLoading,
+    bool? isInitializing,
     AppError? error,
     bool clearUser = false,
   }) {
     return AuthState(
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
+      isInitializing: isInitializing ?? this.isInitializing,
       error: error,
     );
   }
@@ -55,17 +59,17 @@ class AuthNotifier extends Notifier<AuthState> {
     _sendVerificationCodeUseCase = ref.read(sendVerificationCodeUseCaseProvider);
 
     _checkAuth();
-    return AuthState();
+    return AuthState(isInitializing: true);
   }
 
   Future<void> _checkAuth() async {
     final result = await _checkAuthUseCase();
     result.when(
       success: (user) {
-        state = state.copyWith(user: user);
+        state = state.copyWith(user: user, isInitializing: false);
       },
       failure: (_) {
-        // Silent failure on check
+        state = state.copyWith(isInitializing: false);
       },
     );
   }

@@ -14,19 +14,22 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _minDelayPassed = false;
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();
-    _checkAuthAndNavigate();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
+      _minDelayPassed = true;
+      _tryNavigate(ref.read(authProvider));
+    });
   }
 
-  Future<void> _checkAuthAndNavigate() async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    final authState = ref.read(authProvider);
-
+  void _tryNavigate(AuthState authState) {
+    if (_navigated || !_minDelayPassed || authState.isInitializing) return;
+    _navigated = true;
     if (authState.isAuthenticated) {
       context.go(AppRoutes.snippet);
     } else {
@@ -36,6 +39,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authProvider, (_, next) {
+      _tryNavigate(next);
+    });
+
     return Scaffold(
       backgroundColor: DesignTokens.bgPrimary,
       body: SafeArea(
