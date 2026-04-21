@@ -9,6 +9,7 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_tab_provider.dart';
 import 'package:snippet_app/features/library/presentation/widgets/book_grid_card.dart';
+import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 
@@ -55,8 +56,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     _setupTabListeners();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(libraryProvider.notifier).loadAllBooks();
-      // 초기 탭 설정
       ref.read(libraryTabProvider.notifier).setCurrentTab(_tabController.index);
+      _listenForRecoverableSession();
     });
   }
 
@@ -97,6 +98,36 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
         );
       });
     }
+  }
+
+  void _listenForRecoverableSession() {
+    ref.listenManual(
+      readingSessionProvider.select((s) => s.isRecoverable),
+      (_, isRecoverable) {
+        if (!isRecoverable || !mounted) return;
+        final notifier = ref.read(readingSessionProvider.notifier);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('이전 독서 세션이 있습니다. 이어서 읽을까요?'),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: '이어 읽기',
+              onPressed: () {
+                notifier.recoverSession().then((_) {
+                  final book = ref.read(readingSessionProvider).book;
+                  if (mounted && book != null) {
+                    context.push(AppRoutes.activeSession, extra: book);
+                  }
+                });
+              },
+            ),
+            dismissDirection: DismissDirection.horizontal,
+          ),
+        );
+        notifier.dismissRecovery();
+      },
+      fireImmediately: true,
+    );
   }
 
   void _setupTabListeners() {

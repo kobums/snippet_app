@@ -610,6 +610,31 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 }
               },
             ),
+            if (_selectedStatus == BookStatus.reading) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final currentBook = widget.book.copyWith(readPage: _readPage);
+                    context.push(AppRoutes.activeSession, extra: currentBook);
+                  },
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('독서 시작'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: DesignTokens.primaryMain,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                    ),
+                    textStyle: AppTypography.bodyMedium.copyWith(
+                      fontWeight: DesignTokens.fontMedium,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

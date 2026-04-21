@@ -24,6 +24,8 @@ import 'package:snippet_app/features/library/presentation/screens/popular_books_
 import 'package:snippet_app/features/library/presentation/screens/barcode_scanner_screen.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
+import 'package:snippet_app/features/reading_session/presentation/screens/active_session_screen.dart';
+import 'package:snippet_app/features/reading_session/presentation/screens/session_complete_screen.dart';
 import 'package:snippet_app/app/main_screen.dart';
 
 /// Route paths
@@ -51,6 +53,8 @@ class AppRoutes {
   static const ocrResult = '/ocrResult';
   static const popularBooks = '/popularBooks';
   static const barcodeScan = '/barcodeScan';
+  static const activeSession = '/activeSession';
+  static const sessionComplete = '/sessionComplete';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -235,6 +239,28 @@ final routerProvider = Provider<GoRouter>((ref) {
           },
           transitionDuration: const Duration(milliseconds: 300),
           reverseTransitionDuration: const Duration(milliseconds: 250),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.activeSession,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: ActiveSessionScreen(book: state.extra as UserBookDto),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.sessionComplete,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SessionCompleteScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
         ),
       ),
     ],
