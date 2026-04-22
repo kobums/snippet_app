@@ -145,7 +145,7 @@ class AppBookCard extends StatelessWidget {
                         Expanded(
                           child: AppButton(
                             text: '중단',
-                            variant: AppButtonVariant.outlined,
+                            variant: AppButtonVariant.outlinedDanger,
                             size: AppButtonSize.small,
                             isFullWidth: true,
                             onPressed: () =>
