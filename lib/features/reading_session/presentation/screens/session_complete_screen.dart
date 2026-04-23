@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart' show Share, XFile;
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/share_card_widget.dart';
 
@@ -244,10 +247,10 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     try {
       final image = await _screenshotController.capture(pixelRatio: 3.0);
       if (image == null) return;
-      await Share.shareXFiles(
-        [XFile.fromData(image, mimeType: 'image/png', name: 'reading_session.png')],
-        text: '오늘의 독서 기록 📚',
-      );
+      final dir = await getTemporaryDirectory();
+      final filePath = '${dir.path}/reading_session_${DateTime.now().millisecondsSinceEpoch}.png';
+      await File(filePath).writeAsBytes(image);
+      await Share.shareXFiles([XFile(filePath)]);
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -255,6 +258,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
 
   void _exitSession(BuildContext context) {
     ref.read(readingSessionProvider.notifier).reset();
+    ref.read(libraryProvider.notifier).loadAllBooks();
     context.go('/library');
   }
 }
