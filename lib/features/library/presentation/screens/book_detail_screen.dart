@@ -715,15 +715,11 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            // 종료일 (완독 상태일 때만 수정 가능)
-            InkWell(
-              onTap: _selectedStatus == BookStatus.completed
-                  ? () => _pickDate(isStartDate: false)
-                  : null,
-              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-              child: Opacity(
-                opacity: _selectedStatus == BookStatus.completed ? 1.0 : 0.5,
+            if (_selectedStatus == BookStatus.completed) ...[
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _pickDate(isStartDate: false),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: DesignTokens.space8,
@@ -731,12 +727,10 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.flag,
                         size: 18,
-                        color: _selectedStatus == BookStatus.completed
-                            ? DesignTokens.success
-                            : DesignTokens.neutral300,
+                        color: DesignTokens.success,
                       ),
                       const SizedBox(width: 12),
                       Text(
@@ -756,18 +750,16 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                           ),
                         ),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.edit_calendar,
                         size: 18,
-                        color: _selectedStatus == BookStatus.completed
-                            ? DesignTokens.textTertiary
-                            : DesignTokens.neutral300,
+                        color: DesignTokens.textTertiary,
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
