@@ -35,8 +35,6 @@ class CalendarShareService {
       final file = File(filePath);
       await file.writeAsBytes(imageBytes);
 
-      final shareText = '$year년 $month월 독서 기록 📚 #Snippet #독서';
-
       if (context.mounted) {
         final box = context.findRenderObject() as RenderBox?;
         final sharePositionOrigin = box != null
@@ -45,25 +43,10 @@ class CalendarShareService {
 
         await Share.shareXFiles(
           [XFile(filePath)],
-          text: shareText,
           sharePositionOrigin: sharePositionOrigin,
         );
       }
-
-      await Future.delayed(const Duration(seconds: 2));
-      if (await file.exists()) {
-        await file.delete();
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('캘린더를 공유했습니다.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -105,7 +88,7 @@ class CalendarShareService {
           ),
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       String errorMessage = '갤러리 저장 중 오류가 발생했습니다';
       if (e.toString().contains('permission') ||
           e.toString().contains('Permission')) {
