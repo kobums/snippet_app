@@ -11,6 +11,7 @@ import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/share_card_widget.dart';
+import 'package:snippet_app/features/reading_session/reading_session_providers.dart';
 
 class SessionCompleteScreen extends ConsumerStatefulWidget {
   const SessionCompleteScreen({super.key});
@@ -257,9 +258,10 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   }
 
   void _exitSession(BuildContext context) {
+    ref.read(sessionJustCompletedProvider.notifier).signal();
     ref.read(readingSessionProvider.notifier).reset();
     ref.read(libraryProvider.notifier).loadAllBooks();
-    context.go('/library');
+    context.pop();
   }
 }
 

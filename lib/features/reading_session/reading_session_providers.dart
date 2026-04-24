@@ -42,3 +42,14 @@ final fetchAllSessionsUseCaseProvider =
     Provider<FetchAllSessionsUseCase>((ref) {
   return FetchAllSessionsUseCase(ref.read(readingSessionRepositoryProvider));
 });
+
+// Signals book_detail_screen to switch to the session tab after a session completes.
+class SessionCompletedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void signal() => state = true;
+  void reset()  => state = false;
+}
+
+final sessionJustCompletedProvider =
+    NotifierProvider<SessionCompletedNotifier, bool>(SessionCompletedNotifier.new);

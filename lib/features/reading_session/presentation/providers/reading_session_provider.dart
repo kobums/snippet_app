@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +11,14 @@ import 'package:snippet_app/features/reading_session/data/datasources/reading_se
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/features/reading_session/reading_session_providers.dart';
 
+const _liveActivityChannel = MethodChannel('com.gowoobro.snippet/liveActivity');
+
+// ─── Keys ─────────────────────────────────────────────────────────────────────
+
+const _kStartEpoch  = 'rs_start_epoch';  // epoch seconds when current run started
+const _kBaseElapsed = 'rs_base_elapsed'; // accumulated seconds before current run
+const _kPaused      = 'rs_paused';
+
 // ─── Background Task Handler ──────────────────────────────────────────────────
 
 @pragma('vm:entry-point')
@@ -17,31 +27,23 @@ void readingSessionTaskCallback() {
 }
 
 class _ReadingSessionTaskHandler extends TaskHandler {
-  int _elapsedSeconds = 0;
-  bool _isPaused = false;
-  int _tickCount = 0;
+  int _startEpoch  = 0;
+  int _baseElapsed = 0;
+  bool _isPaused   = false;
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     final prefs = await SharedPreferences.getInstance();
-    _elapsedSeconds = prefs.getInt('rs_elapsed') ?? 0;
-    _isPaused = prefs.getBool('rs_paused') ?? false;
+    _startEpoch  = prefs.getInt(_kStartEpoch)  ?? _nowEpoch();
+    _baseElapsed = prefs.getInt(_kBaseElapsed) ?? 0;
+    _isPaused    = prefs.getBool(_kPaused)     ?? false;
   }
 
   @override
   void onRepeatEvent(DateTime timestamp) {
-    if (!_isPaused) {
-      _elapsedSeconds++;
-      _tickCount++;
-      if (_tickCount % 5 == 0) {
-        SharedPreferences.getInstance()
-            .then((p) => p.setInt('rs_elapsed', _elapsedSeconds));
-      }
-    }
-    FlutterForegroundTask.sendDataToMain(_elapsedSeconds);
-    FlutterForegroundTask.updateService(
-      notificationText: _formatTime(_elapsedSeconds),
-    );
+    final elapsed = _computeElapsed();
+    FlutterForegroundTask.sendDataToMain(elapsed);
+    FlutterForegroundTask.updateService(notificationText: _formatTime(elapsed));
   }
 
   @override
@@ -49,21 +51,29 @@ class _ReadingSessionTaskHandler extends TaskHandler {
 
   @override
   void onReceiveData(Object data) {
-    if (data is Map<String, dynamic>) {
-      final command = data['command'] as String?;
-      if (command == 'pause') _isPaused = true;
-      if (command == 'resume') _isPaused = false;
-      if (command == 'sync') {
-        _elapsedSeconds = (data['elapsed'] as int?) ?? _elapsedSeconds;
-      }
+    if (data is! Map<String, dynamic>) return;
+    final cmd = data['command'] as String?;
+    if (cmd == 'pause') {
+      _baseElapsed = _computeElapsed();
+      _isPaused = true;
+    } else if (cmd == 'resume') {
+      _startEpoch = _nowEpoch();
+      _isPaused = false;
     }
   }
+
+  int _computeElapsed() {
+    if (_isPaused) return _baseElapsed;
+    return _baseElapsed + (_nowEpoch() - _startEpoch);
+  }
+
+  int _nowEpoch() => DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
   String _formatTime(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    return '${h.toString().padLeft(2,'0')}:${m.toString().padLeft(2,'0')}:${s.toString().padLeft(2,'0')}';
   }
 }
 
@@ -73,7 +83,7 @@ enum SessionStatus { idle, running, paused, saving, done }
 
 class ReadingSessionState {
   final SessionStatus status;
-  final UserBookDto? book;
+  final UserBookDto?  book;
   final int startPage;
   final int currentPage;
   final int elapsedSeconds;
@@ -103,13 +113,12 @@ class ReadingSessionState {
     final h = elapsedSeconds ~/ 3600;
     final m = (elapsedSeconds % 3600) ~/ 60;
     final s = elapsedSeconds % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    return '${h.toString().padLeft(2,'0')}:${m.toString().padLeft(2,'0')}:${s.toString().padLeft(2,'0')}';
   }
 
   String get paceLabel {
     if (pagesRead == 0) return '--';
-    final minPerPage = secondsPerPage / 60;
-    return '${minPerPage.toStringAsFixed(1)} min/p';
+    return '${(secondsPerPage / 60).toStringAsFixed(1)} min/p';
   }
 
   ReadingSessionState copyWith({
@@ -125,15 +134,15 @@ class ReadingSessionState {
     bool? isRecoverable,
   }) {
     return ReadingSessionState(
-      status: status ?? this.status,
-      book: book ?? this.book,
-      startPage: startPage ?? this.startPage,
-      currentPage: currentPage ?? this.currentPage,
+      status:         status         ?? this.status,
+      book:           book           ?? this.book,
+      startPage:      startPage      ?? this.startPage,
+      currentPage:    currentPage    ?? this.currentPage,
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
-      photoPath: clearPhoto ? null : (photoPath ?? this.photoPath),
-      isSaving: isSaving ?? this.isSaving,
-      errorMessage: errorMessage,
-      isRecoverable: isRecoverable ?? this.isRecoverable,
+      photoPath:      clearPhoto ? null : (photoPath ?? this.photoPath),
+      isSaving:       isSaving       ?? this.isSaving,
+      errorMessage:   errorMessage,
+      isRecoverable:  isRecoverable  ?? this.isRecoverable,
     );
   }
 }
@@ -143,70 +152,31 @@ class ReadingSessionState {
 class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
   Timer? _timer;
 
+  // Wall-clock tracking — the source of truth for elapsed time on iOS.
+  // _startEpoch : epoch-seconds when the current running period began.
+  // _baseElapsed: seconds accumulated from all previous running periods.
+  int? _startEpoch;
+  int  _baseElapsed = 0;
+
   @override
   ReadingSessionState build() {
     ref.onDispose(() {
       _timer?.cancel();
       FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     });
-    // 앱 시작 시 미완료 세션 감지
     Future.microtask(_checkRecoverableSession);
     return const ReadingSessionState();
   }
 
-  Future<void> _checkRecoverableSession() async {
-    final local = ref.read(readingSessionLocalDataSourceProvider);
-    final persisted = await local.loadSession();
-    if (persisted == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    final elapsed = prefs.getInt('rs_elapsed') ?? 0;
-    if (elapsed > 0) {
-      state = state.copyWith(isRecoverable: true);
-    }
-  }
-
-  Future<void> recoverSession() async {
-    final local = ref.read(readingSessionLocalDataSourceProvider);
-    final persisted = await local.loadSession();
-    if (persisted == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    final elapsed = prefs.getInt('rs_elapsed') ?? 0;
-
-    final book = UserBookDto(
-      id: persisted.userBookId,
-      bookId: persisted.bookId,
-      title: persisted.bookTitle,
-      author: persisted.bookAuthor,
-      coverUrl: persisted.bookCoverUrl,
-      type: BookType.have,
-      status: BookStatus.reading,
-      readPage: persisted.startPage,
-      totalPage: persisted.totalPage,
-      createDate: '',
-      startDate: '',
-      endDate: '',
-    );
-
-    _timer?.cancel();
-    state = ReadingSessionState(
-      status: SessionStatus.running,
-      book: book,
-      startPage: persisted.startPage,
-      currentPage: persisted.startPage,
-      elapsedSeconds: elapsed,
-      isRecoverable: false,
-    );
-    _startInAppTimer();
-    _initAndStartForegroundTask(book);
-  }
-
-  void dismissRecovery() {
-    state = state.copyWith(isRecoverable: false);
-    ref.read(readingSessionLocalDataSourceProvider).clearSession();
-  }
+  // ─── Public API ───────────────────────────────────────────────────────────
 
   void startSession(UserBookDto book, int startPage) {
     _timer?.cancel();
+    _startEpoch  = _nowEpoch();
+    _baseElapsed = 0;
+
+    _saveEpochToPrefs(_startEpoch!, 0, false);
+
     state = ReadingSessionState(
       status: SessionStatus.running,
       book: book,
@@ -214,65 +184,76 @@ class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
       currentPage: startPage,
       elapsedSeconds: 0,
     );
-    // 세션 데이터 로컬 저장 (크래시 복구용)
+
     ref.read(readingSessionLocalDataSourceProvider).saveSession(
-          PersistedSessionData(
-            userBookId: book.id,
-            bookId: book.bookId,
-            bookTitle: book.title,
-            bookCoverUrl: book.coverUrl,
-            bookAuthor: book.author,
-            totalPage: book.totalPage,
-            startPage: startPage,
-          ),
-        );
+      PersistedSessionData(
+        userBookId:   book.id,
+        bookId:       book.bookId,
+        bookTitle:    book.title,
+        bookCoverUrl: book.coverUrl,
+        bookAuthor:   book.author,
+        totalPage:    book.totalPage,
+        startPage:    startPage,
+      ),
+    );
+
     _startInAppTimer();
     _initAndStartForegroundTask(book);
+    _startLiveActivity(book);
   }
 
   void pauseSession() {
     if (state.status != SessionStatus.running) return;
     _timer?.cancel();
-    state = state.copyWith(status: SessionStatus.paused);
+    _baseElapsed = _calculateElapsed();
+    _startEpoch  = null;
+    state = state.copyWith(status: SessionStatus.paused, elapsedSeconds: _baseElapsed);
+    SharedPreferences.getInstance().then((p) {
+      p.setInt(_kBaseElapsed, _baseElapsed);
+      p.setBool(_kPaused, true);
+    });
     FlutterForegroundTask.sendDataToTask({'command': 'pause'});
-    SharedPreferences.getInstance().then((p) => p.setBool('rs_paused', true));
+    _updateLiveActivity(isPaused: true);
   }
 
   void resumeSession() {
     if (state.status != SessionStatus.paused) return;
+    _startEpoch = _nowEpoch();
     state = state.copyWith(status: SessionStatus.running);
+    SharedPreferences.getInstance().then((p) {
+      p.setInt(_kStartEpoch, _startEpoch!);
+      p.setBool(_kPaused, false);
+    });
     _startInAppTimer();
     FlutterForegroundTask.sendDataToTask({'command': 'resume'});
-    SharedPreferences.getInstance().then((p) => p.setBool('rs_paused', false));
+    _updateLiveActivity(isPaused: false);
   }
 
-  void updateCurrentPage(int page) {
-    state = state.copyWith(currentPage: page);
-  }
+  void updateCurrentPage(int page) => state = state.copyWith(currentPage: page);
 
-  void setPhoto(String path) {
-    state = state.copyWith(photoPath: path);
-  }
+  void setPhoto(String path) => state = state.copyWith(photoPath: path);
 
   Future<bool> finishSession() async {
     _timer?.cancel();
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     await FlutterForegroundTask.stopService();
     await _clearLocalCache();
+    _endLiveActivity();
 
     final book = state.book;
     if (book == null) return false;
 
     state = state.copyWith(status: SessionStatus.saving, isSaving: true);
 
-    final useCase = ref.read(saveReadingSessionUseCaseProvider);
-    final result = await useCase(ReadingSessionAddRequestDto(
-      userBookId: book.id,
-      durationSeconds: state.elapsedSeconds,
-      startPage: state.startPage,
-      endPage: state.currentPage,
-      sessionDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    ));
+    final result = await ref.read(saveReadingSessionUseCaseProvider)(
+      ReadingSessionAddRequestDto(
+        userBookId:      book.id,
+        durationSeconds: state.elapsedSeconds,
+        startPage:       state.startPage,
+        endPage:         state.currentPage,
+        sessionDate:     DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      ),
+    );
 
     return result.when(
       success: (_) {
@@ -295,49 +276,151 @@ class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     await FlutterForegroundTask.stopService();
     await _clearLocalCache();
+    _endLiveActivity();
+    _startEpoch  = null;
+    _baseElapsed = 0;
     state = const ReadingSessionState();
   }
 
-  void reset() {
-    state = const ReadingSessionState();
+  void reset() => state = const ReadingSessionState();
+
+  Future<void> recoverSession() async {
+    final local     = ref.read(readingSessionLocalDataSourceProvider);
+    final persisted = await local.loadSession();
+    if (persisted == null) return;
+
+    final prefs     = await SharedPreferences.getInstance();
+    final savedEpoch = prefs.getInt(_kStartEpoch)  ?? 0;
+    final savedBase  = prefs.getInt(_kBaseElapsed) ?? 0;
+    final wasPaused  = prefs.getBool(_kPaused)     ?? false;
+
+    final int elapsed;
+    if (wasPaused) {
+      elapsed      = savedBase;
+      _startEpoch  = null;
+      _baseElapsed = savedBase;
+    } else if (savedEpoch > 0) {
+      elapsed      = savedBase + (_nowEpoch() - savedEpoch);
+      _startEpoch  = savedEpoch;
+      _baseElapsed = savedBase;
+    } else {
+      elapsed      = 0;
+      _startEpoch  = _nowEpoch();
+      _baseElapsed = 0;
+    }
+
+    final book = UserBookDto(
+      id:         persisted.userBookId,
+      bookId:     persisted.bookId,
+      title:      persisted.bookTitle,
+      author:     persisted.bookAuthor,
+      coverUrl:   persisted.bookCoverUrl,
+      type:       BookType.have,
+      status:     BookStatus.reading,
+      readPage:   persisted.startPage,
+      totalPage:  persisted.totalPage,
+      createDate: '',
+      startDate:  '',
+      endDate:    '',
+    );
+
+    _timer?.cancel();
+    state = ReadingSessionState(
+      status:         wasPaused ? SessionStatus.paused : SessionStatus.running,
+      book:           book,
+      startPage:      persisted.startPage,
+      currentPage:    persisted.startPage,
+      elapsedSeconds: elapsed,
+      isRecoverable:  false,
+    );
+
+    if (!wasPaused) {
+      _startInAppTimer();
+      _initAndStartForegroundTask(book);
+      _startLiveActivity(book);
+    }
+  }
+
+  void dismissRecovery() {
+    state = state.copyWith(isRecoverable: false);
+    ref.read(readingSessionLocalDataSourceProvider).clearSession();
+  }
+
+  // ─── Live Activity (iOS 16.2+) ────────────────────────────────────────────
+
+  void _startLiveActivity(UserBookDto book) {
+    if (!Platform.isIOS) return;
+    // timerReferenceEpoch = startEpoch - baseElapsed
+    // SwiftUI: Text(Date(refEpoch), style: .timer) auto-counts from this date.
+    final refEpoch = (_startEpoch! - _baseElapsed).toDouble();
+    _liveActivityChannel.invokeMethod<void>('start', {
+      'title':               book.title,
+      'coverUrl':            book.coverUrl,
+      'timerReferenceEpoch': refEpoch,
+    }).catchError((_) {});
+  }
+
+  void _updateLiveActivity({required bool isPaused}) {
+    if (!Platform.isIOS) return;
+    final refEpoch = _startEpoch != null
+        ? (_startEpoch! - _baseElapsed).toDouble()
+        : (_nowEpoch()  - _baseElapsed).toDouble();
+    _liveActivityChannel.invokeMethod<void>('update', {
+      'timerReferenceEpoch':  refEpoch,
+      'isPaused':             isPaused,
+      'pausedElapsedSeconds': isPaused ? _baseElapsed : 0,
+    }).catchError((_) {});
+  }
+
+  void _endLiveActivity() {
+    if (!Platform.isIOS) return;
+    _liveActivityChannel.invokeMethod<void>('end').catchError((_) {});
   }
 
   // ─── Private helpers ──────────────────────────────────────────────────────
 
-  void _onTaskData(Object data) {
-    if (data is int && state.status == SessionStatus.running) {
-      // 백그라운드 복귀 시 elapsed 동기화 (2초 이상 차이날 때만)
-      if (data > state.elapsedSeconds + 2) {
-        state = state.copyWith(elapsedSeconds: data);
-      }
-    }
+  int _nowEpoch() => DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+  int _calculateElapsed() {
+    if (_startEpoch == null) return _baseElapsed;
+    return _baseElapsed + (_nowEpoch() - _startEpoch!);
   }
 
   void _startInAppTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.status == SessionStatus.running) {
-        state = state.copyWith(elapsedSeconds: state.elapsedSeconds + 1);
+        state = state.copyWith(elapsedSeconds: _calculateElapsed());
       }
     });
+  }
+
+  void _onTaskData(Object data) {
+    // Android foreground service cross-check only.
+    if (data is int &&
+        state.status == SessionStatus.running &&
+        data > state.elapsedSeconds + 5) {
+      state = state.copyWith(elapsedSeconds: data);
+    }
   }
 
   void _initAndStartForegroundTask(UserBookDto book) {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'reading_session',
-        channelName: '독서 세션',
+        channelId:          'reading_session',
+        channelName:        '독서 세션',
         channelDescription: '독서 중 타이머가 실행됩니다',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
+        channelImportance:  NotificationChannelImportance.LOW,
+        priority:           NotificationPriority.LOW,
       ),
       iosNotificationOptions: const IOSNotificationOptions(
         showNotification: true,
-        playSound: false,
+        playSound:        false,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(1000),
-        autoRunOnBoot: false,
-        allowWakeLock: true,
+        eventAction:    ForegroundTaskEventAction.repeat(1000),
+        autoRunOnBoot:  false,
+        allowWakeLock:  true,
       ),
     );
 
@@ -345,15 +428,41 @@ class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
     FlutterForegroundTask.addTaskDataCallback(_onTaskData);
 
     FlutterForegroundTask.startService(
-      serviceId: 300,
+      serviceId:        300,
       notificationTitle: '📚 ${book.title} 읽는 중',
-      notificationText: '00:00:00',
-      callback: readingSessionTaskCallback,
+      notificationText:  '00:00:00',
+      callback:          readingSessionTaskCallback,
     );
+  }
+
+  void _saveEpochToPrefs(int startEpoch, int baseElapsed, bool paused) {
+    SharedPreferences.getInstance().then((p) {
+      p.setInt(_kStartEpoch,  startEpoch);
+      p.setInt(_kBaseElapsed, baseElapsed);
+      p.setBool(_kPaused,     paused);
+    });
+  }
+
+  Future<void> _checkRecoverableSession() async {
+    final local     = ref.read(readingSessionLocalDataSourceProvider);
+    final persisted = await local.loadSession();
+    if (persisted == null) return;
+    final prefs      = await SharedPreferences.getInstance();
+    final savedBase  = prefs.getInt(_kBaseElapsed) ?? 0;
+    final savedEpoch = prefs.getInt(_kStartEpoch)  ?? 0;
+    final wasPaused  = prefs.getBool(_kPaused)     ?? false;
+    final hasElapsed = wasPaused
+        ? savedBase > 0
+        : (savedEpoch > 0 && (_nowEpoch() - savedEpoch) > 0);
+    if (hasElapsed) state = state.copyWith(isRecoverable: true);
   }
 
   Future<void> _clearLocalCache() async {
     await ref.read(readingSessionLocalDataSourceProvider).clearSession();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kStartEpoch);
+    await prefs.remove(_kBaseElapsed);
+    await prefs.remove(_kPaused);
   }
 }
 

@@ -334,6 +334,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
 
+    ref.listen(sessionJustCompletedProvider, (_, completed) {
+      if (!completed || !mounted) return;
+      ref.read(sessionJustCompletedProvider.notifier).reset();
+      setState(() => _selectedDetailTab = _DetailTab.session);
+      _loadSessions();
+    });
+
     return PopScope(
       canPop: !_isSaving, // 저장 중일 때는 뒤로가기 차단
       onPopInvokedWithResult: (didPop, result) {
