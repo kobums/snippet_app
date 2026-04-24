@@ -9,8 +9,8 @@ class RecordsTabState {
     this.currentTab = 0,
     Map<int, double>? scrollPositions,
     Map<int, bool>? showFixedHeaders,
-  })  : scrollPositions = scrollPositions ?? {0: 0.0, 1: 0.0, 2: 0.0},
-        showFixedHeaders = showFixedHeaders ?? {0: false, 1: false, 2: false};
+  })  : scrollPositions = scrollPositions ?? {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0},
+        showFixedHeaders = showFixedHeaders ?? {0: false, 1: false, 2: false, 3: false};
 
   RecordsTabState copyWith({
     int? currentTab,

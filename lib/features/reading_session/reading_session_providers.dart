@@ -6,6 +6,7 @@ import 'package:snippet_app/features/reading_session/data/repositories/reading_s
 import 'package:snippet_app/features/reading_session/domain/repositories/reading_session_repository.dart';
 import 'package:snippet_app/features/reading_session/domain/usecases/save_reading_session_usecase.dart';
 import 'package:snippet_app/features/reading_session/domain/usecases/fetch_sessions_by_book_usecase.dart';
+import 'package:snippet_app/features/reading_session/domain/usecases/fetch_all_sessions_usecase.dart';
 
 // DataSources
 final readingSessionRemoteDataSourceProvider =
@@ -35,4 +36,9 @@ final saveReadingSessionUseCaseProvider =
 final fetchSessionsByBookUseCaseProvider =
     Provider<FetchSessionsByBookUseCase>((ref) {
   return FetchSessionsByBookUseCase(ref.read(readingSessionRepositoryProvider));
+});
+
+final fetchAllSessionsUseCaseProvider =
+    Provider<FetchAllSessionsUseCase>((ref) {
+  return FetchAllSessionsUseCase(ref.read(readingSessionRepositoryProvider));
 });

@@ -26,6 +26,8 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
 import 'package:snippet_app/features/reading_session/presentation/screens/active_session_screen.dart';
 import 'package:snippet_app/features/reading_session/presentation/screens/session_complete_screen.dart';
+import 'package:snippet_app/features/reading_session/presentation/screens/session_detail_screen.dart';
+import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/app/main_screen.dart';
 
 /// Route paths
@@ -55,6 +57,7 @@ class AppRoutes {
   static const barcodeScan = '/barcodeScan';
   static const activeSession = '/activeSession';
   static const sessionComplete = '/sessionComplete';
+  static const sessionDetail = '/sessionDetail';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -262,6 +265,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           },
           transitionDuration: const Duration(milliseconds: 300),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.sessionDetail,
+        builder: (context, state) =>
+            SessionDetailScreen(session: state.extra as ReadingSessionDto),
       ),
     ],
   );

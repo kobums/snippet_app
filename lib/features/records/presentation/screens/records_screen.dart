@@ -11,6 +11,9 @@ import 'package:snippet_app/features/records/presentation/screens/add_record_scr
 import 'package:snippet_app/app/router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
+import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
+import 'package:snippet_app/features/reading_session/presentation/providers/session_history_provider.dart';
+import 'package:snippet_app/features/reading_session/presentation/widgets/reading_session_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -27,13 +30,13 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
   // ============================================================================
   // Constants
   // ============================================================================
-  static const int _tabCount = 3;
+  static const int _tabCount = 4;
   static const double _fixedHeaderHeight = 64.0;
   static const double _scrollContextSwitchThreshold = 50.0;
   static const double _tabAnimationThreshold = 0.1;
   static const double _swipeDetectionThreshold = 0.05;
 
-  static const _tabTypes = [
+  static const _recordTabTypes = [
     RecordType.snippet,
     RecordType.diary,
     RecordType.review,
@@ -199,7 +202,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
       AppRoutes.addRecord,
       extra: AddRecordScreenParams(
         books: bookState.books,
-        initialType: _tabTypes[_tabController.index],
+        initialType: _recordTabTypes[_tabController.index.clamp(0, _recordTabTypes.length - 1)],
       ),
     );
   }
@@ -232,7 +235,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
             title: '독서 기록',
             bottom: AppTabBar(
               controller: _tabController,
-              tabs: const ['스니펫', '독서일기', '리뷰'],
+              tabs: const ['스니펫', '독서일기', '리뷰', '독서세션'],
               margin: EdgeInsets.zero,
             ),
           ),
@@ -240,8 +243,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            for (final type in _tabTypes)
+            for (final type in _recordTabTypes)
               _buildTabContent(type, headerOpacity),
+            _buildSessionTabContent(),
           ],
         ),
       ),
@@ -416,6 +420,102 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
           (context, index) => widgets[index],
           childCount: widgets.length,
         ),
+      ),
+    );
+  }
+
+  // ============================================================================
+  // Session Tab
+  // ============================================================================
+  Widget _buildSessionTabContent() {
+    final sessionAsync = ref.watch(sessionHistoryProvider);
+
+    return AppRefreshIndicator(
+      onRefresh: () => ref.read(sessionHistoryProvider.notifier).refresh(),
+      child: sessionAsync.when(
+        loading: () => const CustomScrollView(
+          slivers: [SliverFillRemaining(child: Center(child: CircularProgressIndicator()))],
+        ),
+        error: (_, __) => const CustomScrollView(
+          slivers: [SliverFillRemaining(child: Center(child: Text('불러올 수 없습니다')))],
+        ),
+        data: (state) {
+          final sessions = state.sessions;
+          if (sessions.isEmpty) {
+            return CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.timer_outlined, size: 64,
+                            color: Colors.black.withValues(alpha: 0.2)),
+                        const SizedBox(height: 16),
+                        Text(
+                          '아직 독서 세션이 없습니다',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          final grouped = <String, List<ReadingSessionDto>>{};
+          for (final s in sessions) {
+            (grouped[s.bookTitle] ??= []).add(s);
+          }
+
+          final widgets = <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, bottom: 12, top: 8),
+              child: SectionHeader(
+                '독서 세션 (${sessions.length})',
+                size: SectionHeaderSize.small,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+            ...grouped.entries.expand(
+              (entry) => [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                  child: Text(
+                    entry.key,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                ...entry.value.map((s) => ReadingSessionCard(session: s)),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ];
+
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => widgets[index],
+                    childCount: widgets.length,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

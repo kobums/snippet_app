@@ -10,12 +10,17 @@ import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/records_providers.dart';
 import 'package:snippet_app/features/records/presentation/widgets/record_card.dart';
 import 'package:snippet_app/features/records/presentation/screens/add_record_screen.dart';
+import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
+import 'package:snippet_app/features/reading_session/presentation/widgets/reading_session_card.dart';
+import 'package:snippet_app/features/reading_session/reading_session_providers.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/components/app_select.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+
+enum _DetailTab { snippet, diary, review, session }
 
 class BookDetailScreen extends ConsumerStatefulWidget {
   final UserBookDto book;
@@ -36,12 +41,21 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   late String _startDate;
   late String _endDate;
 
-  RecordType _selectedRecordType = RecordType.snippet;
+  _DetailTab _selectedDetailTab = _DetailTab.snippet;
   List<RecordDto> _allRecords = [];
   bool _isLoadingRecords = true;
+  List<ReadingSessionDto> _sessions = [];
+  bool _isLoadingSessions = true;
 
-  List<RecordDto> get _records =>
-      _allRecords.where((r) => r.type == _selectedRecordType).toList();
+  List<RecordDto> get _records {
+    final type = switch (_selectedDetailTab) {
+      _DetailTab.snippet => RecordType.snippet,
+      _DetailTab.diary => RecordType.diary,
+      _DetailTab.review => RecordType.review,
+      _DetailTab.session => RecordType.snippet,
+    };
+    return _allRecords.where((r) => r.type == type).toList();
+  }
 
   @override
   void initState() {
@@ -53,6 +67,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     _endDate = widget.book.endDate;
     _pageController = TextEditingController(text: '$_readPage');
     _loadRecords();
+    _loadSessions();
   }
 
   @override
@@ -81,6 +96,30 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             _allRecords = [];
             _isLoadingRecords = false;
           });
+      },
+    );
+  }
+
+  Future<void> _loadSessions() async {
+    setState(() => _isLoadingSessions = true);
+    final useCase = ref.read(fetchSessionsByBookUseCaseProvider);
+    final result = await useCase(widget.book.id);
+    result.when(
+      success: (sessions) {
+        if (mounted) {
+          setState(() {
+            _sessions = sessions;
+            _isLoadingSessions = false;
+          });
+        }
+      },
+      failure: (_) {
+        if (mounted) {
+          setState(() {
+            _sessions = [];
+            _isLoadingSessions = false;
+          });
+        }
       },
     );
   }
@@ -206,6 +245,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
           .updateProgress(widget.book.id, page);
       await ref.read(libraryProvider.notifier).loadAllBooks();
       if (mounted) setState(() => _isUpdating = false);
+
+      if (mounted &&
+          widget.book.totalPage > 0 &&
+          page == widget.book.totalPage &&
+          _selectedStatus != BookStatus.completed) {
+        await _updateStatus(BookStatus.completed);
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -250,22 +296,23 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   }
 
   void _addRecord() async {
-    // 스니펫 탭일 때는 카메라로 이동
-    if (_selectedRecordType == RecordType.snippet) {
+    if (_selectedDetailTab == _DetailTab.snippet) {
       final imagePath = await context.push<String>(AppRoutes.camera);
-      if (imagePath != null) {
-        // 카메라에서 돌아온 경우 레코드 새로고침
-        _loadRecords();
-      }
+      if (imagePath != null) _loadRecords();
       return;
     }
 
-    // 일기/리뷰 탭일 때는 기존대로 직접 입력 화면으로
+    final recordType = switch (_selectedDetailTab) {
+      _DetailTab.diary => RecordType.diary,
+      _DetailTab.review => RecordType.review,
+      _ => RecordType.diary,
+    };
+
     final result = await context.push<bool>(
       AppRoutes.addRecord,
       extra: AddRecordScreenParams(
         books: [widget.book],
-        initialType: _selectedRecordType,
+        initialType: recordType,
       ),
     );
     if (result == true) _loadRecords();
@@ -384,7 +431,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             ),
 
             // Floating Action Button
-            if (_selectedType != BookType.wish)
+            if (_selectedType != BookType.wish &&
+                _selectedDetailTab != _DetailTab.session)
               Positioned(
                 bottom: 16,
                 right: 16,
@@ -392,7 +440,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   onPressed: _addRecord,
                   backgroundColor: DesignTokens.primaryMain,
                   child: Icon(
-                    _selectedRecordType == RecordType.snippet
+                    _selectedDetailTab == _DetailTab.snippet
                         ? Icons.camera_alt
                         : Icons.add,
                     color: Colors.white,
@@ -1038,6 +1086,12 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   }
 
   Widget _buildRecordTabs() {
+    const tabLabels = {
+      _DetailTab.snippet: '스니펫',
+      _DetailTab.diary: '독서일기',
+      _DetailTab.review: '리뷰',
+      _DetailTab.session: '독서세션',
+    };
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
       child: Column(
@@ -1045,45 +1099,46 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
         children: [
           Text('독서 기록', style: AppTypography.h3.copyWith(letterSpacing: 1)),
           const SizedBox(height: 12),
-          Row(
-            children: RecordType.values.map((type) {
-              final isSelected = type == _selectedRecordType;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedRecordType = type);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DesignTokens.space16,
-                      vertical: DesignTokens.space8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? DesignTokens.primaryMain
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(
-                        DesignTokens.radiusFull,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _DetailTab.values.map((tab) {
+                final isSelected = tab == _selectedDetailTab;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedDetailTab = tab),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DesignTokens.space16,
+                        vertical: DesignTokens.space8,
                       ),
-                      border: Border.all(
+                      decoration: BoxDecoration(
                         color: isSelected
                             ? DesignTokens.primaryMain
-                            : DesignTokens.neutral200,
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(
+                          DesignTokens.radiusFull,
+                        ),
+                        border: Border.all(
+                          color: isSelected
+                              ? DesignTokens.primaryMain
+                              : DesignTokens.neutral200,
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      type.label,
-                      style: AppTypography.labelMedium.copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : DesignTokens.textSecondary,
+                      child: Text(
+                        tabLabels[tab]!,
+                        style: AppTypography.labelMedium.copyWith(
+                          color: isSelected
+                              ? Colors.white
+                              : DesignTokens.textSecondary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),
@@ -1091,11 +1146,22 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   }
 
   Widget _buildRecordsList() {
+    if (_selectedDetailTab == _DetailTab.session) {
+      return _buildSessionsList();
+    }
+
     if (_isLoadingRecords) {
       return const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
     }
+
+    final tabLabel = switch (_selectedDetailTab) {
+      _DetailTab.snippet => '스니펫',
+      _DetailTab.diary => '독서일기',
+      _DetailTab.review => '리뷰',
+      _DetailTab.session => '',
+    };
 
     if (_records.isEmpty) {
       return SliverFillRemaining(
@@ -1111,7 +1177,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                '아직 ${_selectedRecordType.label}이(가) 없습니다',
+                '아직 $tabLabel이(가) 없습니다',
                 style: AppTypography.bodyMedium.copyWith(
                   color: DesignTokens.textTertiary,
                 ),
@@ -1128,6 +1194,49 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
         delegate: SliverChildBuilderDelegate(
           (context, index) => RecordCard(record: _records[index]),
           childCount: _records.length,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionsList() {
+    if (_isLoadingSessions) {
+      return const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_sessions.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.timer_off_outlined,
+                size: 40,
+                color: Colors.black.withValues(alpha: 0.15),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '아직 독서 세션이 없습니다',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: DesignTokens.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => ReadingSessionCard(session: _sessions[index]),
+          childCount: _sessions.length,
         ),
       ),
     );

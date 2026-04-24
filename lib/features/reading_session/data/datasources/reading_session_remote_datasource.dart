@@ -6,6 +6,7 @@ import 'package:snippet_app/features/reading_session/data/models/reading_session
 
 abstract class ReadingSessionRemoteDataSource {
   Future<int> createSession(ReadingSessionAddRequestDto data);
+  Future<List<ReadingSessionDto>> getAllSessions();
   Future<List<ReadingSessionDto>> getSessionsByBook(int userBookId);
   Future<ReadingSessionStatsDto> getStats(int userBookId);
 }
@@ -32,6 +33,20 @@ class ReadingSessionRemoteDataSourceImpl implements ReadingSessionRemoteDataSour
           type: DioExceptionType.badResponse,
         ),
       );
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<List<ReadingSessionDto>> getAllSessions() async {
+    try {
+      final response = await _dio.get(ApiConstants.readingSessions);
+      if (response.statusCode == 200) {
+        final List data = response.data;
+        return data.map((e) => ReadingSessionDto.fromJson(e)).toList();
+      }
+      return [];
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

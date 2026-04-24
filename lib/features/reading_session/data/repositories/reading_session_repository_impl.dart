@@ -24,6 +24,18 @@ class ReadingSessionRepositoryImpl implements ReadingSessionRepository {
   }
 
   @override
+  Future<Result<List<ReadingSessionDto>>> getAllSessions() async {
+    try {
+      final sessions = await _remote.getAllSessions();
+      return Success(sessions);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
   Future<Result<List<ReadingSessionDto>>> getSessionsByBook(int userBookId) async {
     try {
       final sessions = await _remote.getSessionsByBook(userBookId);
