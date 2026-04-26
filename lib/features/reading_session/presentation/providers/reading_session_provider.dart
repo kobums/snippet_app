@@ -79,7 +79,7 @@ class _ReadingSessionTaskHandler extends TaskHandler {
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-enum SessionStatus { idle, running, paused, saving, done }
+enum SessionStatus { idle, running, paused, completing, saving, done }
 
 class ReadingSessionState {
   final SessionStatus status;
@@ -229,28 +229,33 @@ class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
     _updateLiveActivity(isPaused: false);
   }
 
-  void updateCurrentPage(int page) => state = state.copyWith(currentPage: page);
-
   void setPhoto(String path) => state = state.copyWith(photoPath: path);
 
-  Future<bool> finishSession() async {
+  Future<void> prepareFinish() async {
     _timer?.cancel();
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     await FlutterForegroundTask.stopService();
     await _clearLocalCache();
     _endLiveActivity();
+    state = state.copyWith(status: SessionStatus.completing);
+  }
 
+  Future<bool> finishSession(int endPage) async {
     final book = state.book;
     if (book == null) return false;
 
-    state = state.copyWith(status: SessionStatus.saving, isSaving: true);
+    state = state.copyWith(
+      status: SessionStatus.saving,
+      currentPage: endPage,
+      isSaving: true,
+    );
 
     final result = await ref.read(saveReadingSessionUseCaseProvider)(
       ReadingSessionAddRequestDto(
         userBookId:      book.id,
         durationSeconds: state.elapsedSeconds,
         startPage:       state.startPage,
-        endPage:         state.currentPage,
+        endPage:         endPage,
         sessionDate:     DateFormat('yyyy-MM-dd').format(DateTime.now()),
       ),
     );
@@ -262,7 +267,7 @@ class ReadingSessionNotifier extends Notifier<ReadingSessionState> {
       },
       failure: (error) {
         state = state.copyWith(
-          status: SessionStatus.paused,
+          status: SessionStatus.completing,
           isSaving: false,
           errorMessage: error.message,
         );

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,13 +24,252 @@ class SessionCompleteScreen extends ConsumerStatefulWidget {
 
 class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   final ScreenshotController _screenshotController = ScreenshotController();
+  late final TextEditingController _endPageController;
   bool _showBookTitle = true;
   bool _isSharing = false;
+  String? _pageError;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = ref.read(readingSessionProvider);
+    // Pre-fill with start page so user sees context
+    _endPageController = TextEditingController(
+      text: state.startPage > 0 ? state.startPage.toString() : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _endPageController.dispose();
+    super.dispose();
+  }
+
+  int? get _parsedEndPage => int.tryParse(_endPageController.text);
+
+  int _previewPagesRead(ReadingSessionState state) {
+    final end = _parsedEndPage ?? state.startPage;
+    return (end - state.startPage).clamp(0, 99999);
+  }
+
+  String _previewPace(ReadingSessionState state) {
+    final pages = _previewPagesRead(state);
+    if (pages == 0) return '--';
+    final spp = state.elapsedSeconds / pages;
+    return '${(spp / 60).toStringAsFixed(1)} min/p';
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(readingSessionProvider);
 
+    if (state.status == SessionStatus.saving) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (state.status == SessionStatus.completing) {
+      return _buildEndPageInput(context, state);
+    }
+
+    return _buildResult(context, state);
+  }
+
+  // ─── Phase 1: 종료 페이지 입력 ──────────────────────────────────────────────
+
+  Widget _buildEndPageInput(BuildContext context, ReadingSessionState state) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmDiscard(context);
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: DesignTokens.textPrimary),
+            onPressed: () => _confirmDiscard(context),
+          ),
+          title: const Text(
+            '독서 완료',
+            style: TextStyle(
+              fontSize: DesignTokens.fontSize18,
+              fontWeight: DesignTokens.fontMedium,
+              color: DesignTokens.textPrimary,
+            ),
+          ),
+          centerTitle: true,
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            DesignTokens.space24,
+            DesignTokens.space24,
+            DesignTokens.space24,
+            DesignTokens.space24 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (state.book != null)
+                Text(
+                  state.book!.title,
+                  style: const TextStyle(
+                    fontSize: DesignTokens.fontSize20,
+                    fontWeight: DesignTokens.fontMedium,
+                    color: DesignTokens.textPrimary,
+                  ),
+                ),
+              const SizedBox(height: DesignTokens.space24),
+              // 독서 시간
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: DesignTokens.space32,
+                    vertical: DesignTokens.space20,
+                  ),
+                  decoration: BoxDecoration(
+                    color: DesignTokens.primaryMain.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        state.formattedTime,
+                        style: const TextStyle(
+                          fontSize: DesignTokens.fontSize40,
+                          fontWeight: FontWeight.w300,
+                          color: DesignTokens.primaryMain,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: DesignTokens.space4),
+                      const Text(
+                        '독서 시간',
+                        style: TextStyle(
+                          fontSize: DesignTokens.fontSize12,
+                          color: DesignTokens.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: DesignTokens.space32),
+              const Text(
+                '어디까지 읽으셨나요?',
+                style: TextStyle(
+                  fontSize: DesignTokens.fontSize18,
+                  fontWeight: DesignTokens.fontMedium,
+                  color: DesignTokens.textPrimary,
+                ),
+              ),
+              const SizedBox(height: DesignTokens.space8),
+              Text(
+                '시작 페이지: ${state.startPage}p',
+                style: const TextStyle(
+                  fontSize: DesignTokens.fontSize14,
+                  color: DesignTokens.textSecondary,
+                ),
+              ),
+              const SizedBox(height: DesignTokens.space16),
+              StatefulBuilder(
+                builder: (context, setLocal) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _endPageController,
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(
+                        fontSize: DesignTokens.fontSize32,
+                        fontWeight: FontWeight.w300,
+                        color: DesignTokens.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        errorText: _pageError,
+                        hintText: state.startPage.toString(),
+                        suffixText: '페이지',
+                        suffixStyle: const TextStyle(
+                          fontSize: DesignTokens.fontSize16,
+                          color: DesignTokens.textSecondary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(DesignTokens.radiusMd),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(DesignTokens.radiusMd),
+                          borderSide: const BorderSide(
+                            color: DesignTokens.primaryMain,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      onChanged: (_) => setLocal(() {}),
+                    ),
+                    const SizedBox(height: DesignTokens.space12),
+                    // 실시간 미리보기
+                    AnimatedOpacity(
+                      opacity: (_previewPagesRead(state) > 0) ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DesignTokens.space16,
+                          vertical: DesignTokens.space12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: DesignTokens.neutral100,
+                          borderRadius:
+                              BorderRadius.circular(DesignTokens.radiusMd),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _PreviewChip(
+                              label: '읽은 페이지',
+                              value: '${_previewPagesRead(state)}p',
+                            ),
+                            Container(
+                              width: 1,
+                              height: 28,
+                              color: DesignTokens.neutral300,
+                            ),
+                            _PreviewChip(
+                              label: '페이스',
+                              value: _previewPace(state),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: DesignTokens.space32),
+              AppButton(
+                text: '기록 저장',
+                onPressed: () => _saveSession(context, state),
+                variant: AppButtonVariant.primary,
+                isFullWidth: true,
+              ),
+              const SizedBox(height: DesignTokens.space16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Phase 2: 결과 화면 ─────────────────────────────────────────────────────
+
+  Widget _buildResult(BuildContext context, ReadingSessionState state) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -156,7 +396,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
         Screenshot(
           controller: _screenshotController,
           child: ShareCardWidget(
-            session: state,
+            session: ref.watch(readingSessionProvider),
             showBookTitle: _showBookTitle,
           ),
         ),
@@ -188,9 +428,9 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
           ),
         ),
         const SizedBox(height: DesignTokens.space4),
-        Text(
+        const Text(
           '공유 카드 배경으로 사용됩니다',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: DesignTokens.fontSize12,
             color: DesignTokens.textSecondary,
           ),
@@ -231,6 +471,60 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     );
   }
 
+  // ─── Actions ────────────────────────────────────────────────────────────────
+
+  Future<void> _saveSession(
+      BuildContext context, ReadingSessionState state) async {
+    final endPage = _parsedEndPage;
+    if (endPage == null || endPage < 0) {
+      setState(() => _pageError = '올바른 페이지 번호를 입력하세요');
+      return;
+    }
+    final totalPage = state.book?.totalPage ?? 0;
+    if (totalPage > 0 && endPage > totalPage) {
+      setState(() => _pageError = '총 페이지 수($totalPage)를 초과할 수 없습니다');
+      return;
+    }
+    setState(() => _pageError = null);
+
+    final success =
+        await ref.read(readingSessionProvider.notifier).finishSession(endPage);
+    if (!success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              ref.read(readingSessionProvider).errorMessage ?? '저장에 실패했습니다'),
+        ),
+      );
+    }
+  }
+
+  void _confirmDiscard(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('기록 취소'),
+        content: const Text('저장하지 않고 나가시겠어요? 이번 독서 기록이 사라집니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('계속'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _exitSession(context);
+            },
+            child: const Text(
+              '나가기',
+              style: TextStyle(color: DesignTokens.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _pickPhoto(ImageSource source) async {
     final picker = ImagePicker();
     final file = await picker.pickImage(
@@ -249,7 +543,8 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
       final image = await _screenshotController.capture(pixelRatio: 3.0);
       if (image == null) return;
       final dir = await getTemporaryDirectory();
-      final filePath = '${dir.path}/reading_session_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filePath =
+          '${dir.path}/reading_session_${DateTime.now().millisecondsSinceEpoch}.png';
       await File(filePath).writeAsBytes(image);
       await Share.shareXFiles([XFile(filePath)]);
     } finally {
@@ -262,6 +557,39 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     ref.read(readingSessionProvider.notifier).reset();
     ref.read(libraryProvider.notifier).loadAllBooks();
     context.pop();
+  }
+}
+
+// ─── Sub-widgets ──────────────────────────────────────────────────────────────
+
+class _PreviewChip extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _PreviewChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: DesignTokens.fontSize16,
+            fontWeight: DesignTokens.fontMedium,
+            color: DesignTokens.textPrimary,
+          ),
+        ),
+        const SizedBox(height: DesignTokens.space4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: DesignTokens.fontSize12,
+            color: DesignTokens.textSecondary,
+          ),
+        ),
+      ],
+    );
   }
 }
 

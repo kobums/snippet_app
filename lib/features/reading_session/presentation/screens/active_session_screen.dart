@@ -6,8 +6,6 @@ import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/session_timer_display.dart';
-import 'package:snippet_app/features/reading_session/presentation/widgets/session_stats_row.dart';
-import 'package:snippet_app/features/reading_session/presentation/widgets/pages_input_bottom_sheet.dart';
 
 class ActiveSessionScreen extends ConsumerStatefulWidget {
   final UserBookDto book;
@@ -71,18 +69,14 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: DesignTokens.space32),
-                  child: SessionStatsRow(
-                    pagesRead: state.pagesRead,
-                    paceLabel: state.paceLabel,
-                    currentPage: state.currentPage,
-                    totalPage: state.book?.totalPage ?? 0,
-                    onPagesTap: () => _showPagesInput(context, state, notifier),
+                Text(
+                  '${state.startPage}p 에서 시작',
+                  style: TextStyle(
+                    fontSize: DesignTokens.fontSize12,
+                    color: Colors.white.withValues(alpha: 0.45),
                   ),
                 ),
-                const SizedBox(height: DesignTokens.space40),
+                const SizedBox(height: DesignTokens.space32),
                 _buildControls(context, state, notifier),
                 const SizedBox(height: DesignTokens.space48),
               ],
@@ -141,11 +135,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   ) {
     final isRunning = state.status == SessionStatus.running;
     final isPaused = state.status == SessionStatus.paused;
-    final isSaving = state.status == SessionStatus.saving;
 
     return Column(
       children: [
-        // 일시정지 / 재개 버튼
         GestureDetector(
           onTap: isRunning
               ? notifier.pauseSession
@@ -171,82 +163,43 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
           ),
         ),
         const SizedBox(height: DesignTokens.space24),
-        // 독서 완료 버튼
-        isSaving
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : TextButton(
-                onPressed:
-                    (isRunning || isPaused) ? () => _confirmFinish(context, notifier) : null,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DesignTokens.space32,
-                    vertical: DesignTokens.space12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(DesignTokens.radiusFull),
-                    side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ),
-                child: const Text(
-                  '독서 완료',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: DesignTokens.fontSize16,
-                    fontWeight: DesignTokens.fontMedium,
-                  ),
-                ),
+        TextButton(
+          onPressed: (isRunning || isPaused)
+              ? () => _handleFinish(context, notifier)
+              : null,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DesignTokens.space32,
+              vertical: DesignTokens.space12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
+              side: BorderSide(
+                color: Colors.white.withValues(alpha: 0.4),
               ),
+            ),
+          ),
+          child: const Text(
+            '독서 완료',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: DesignTokens.fontSize16,
+              fontWeight: DesignTokens.fontMedium,
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  void _showPagesInput(
+  Future<void> _handleFinish(
     BuildContext context,
-    ReadingSessionState state,
     ReadingSessionNotifier notifier,
-  ) {
-    PagesInputBottomSheet.show(
-      context,
-      currentPage: state.currentPage,
-      totalPage: state.book?.totalPage ?? 0,
-      onConfirm: notifier.updateCurrentPage,
-    );
-  }
-
-  void _confirmFinish(BuildContext context, ReadingSessionNotifier notifier) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('독서 완료'),
-        content: const Text('세션을 종료하고 결과를 저장할까요?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              final success = await notifier.finishSession();
-              if (success && context.mounted) {
-                context.pushReplacement('/sessionComplete');
-              }
-            },
-            child: const Text('완료'),
-          ),
-        ],
-      ),
-    );
+  ) async {
+    await notifier.prepareFinish();
+    if (context.mounted) {
+      context.pushReplacement('/sessionComplete');
+    }
   }
 
   void _confirmAbandon(BuildContext context, ReadingSessionNotifier notifier) {
