@@ -10,7 +10,6 @@
 
     <!-- 독서 세션 백그라운드 타이머 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
 
     <application
         android:label="Snippet"
@@ -41,7 +40,7 @@
         <!-- 독서 세션 포그라운드 서비스 -->
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
-            android:foregroundServiceType="connectedDevice"
+            android:foregroundServiceType="dataSync"
             android:stopWithTask="false" />
 
         <!-- Widget Provider -->
