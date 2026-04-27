@@ -36,26 +36,57 @@ platform :ios do
   end
 
   # ---------------------------------------------------------
-  # App Store 심사 제출
+  # App Store 심사 제출 (patch 버전 자동 증가)
   # 사용법: cd app/ios && fastlane release
   # ---------------------------------------------------------
-  desc "App Store에 심사 제출"
+  desc "patch 버전 bump 후 App Store 업로드"
   lane :release do
-    # 1. Flutter 빌드
+    # pubspec.yaml에서 현재 버전/빌드 번호 읽기
+    pubspec = File.read("../../pubspec.yaml")
+    version_line = pubspec.match(/^version:\s*(.+)$/)&.[](1)&.strip
+    version_name, build_number = version_line&.split("+")
+    parts = version_name.split(".")
+    new_version = "#{parts[0]}.#{parts[1]}.#{parts[2].to_i + 1}"
+    new_build = (build_number.to_i + 1).to_s
+
+    # pubspec.yaml 버전 증가
+    new_pubspec = pubspec.gsub(
+      /^version:\s*.+$/,
+      "version: #{new_version}+#{new_build}"
+    )
+    File.write("../../pubspec.yaml", new_pubspec)
+
+    puts "📦 버전: #{new_version}+#{new_build}"
+
+    # Flutter 빌드
     Dir.chdir("../..") do
-      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release")
+      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
     end
 
-    # 2. App Store 업로드 (심사 제출은 App Store Connect에서 수동으로)
+    # changelogs/{version}.txt → metadata/ko/release_notes.txt 복사
+    changelog_path = File.expand_path("../../fastlane/changelogs/#{new_version}.txt", __dir__)
+    UI.user_error!("릴리즈 노트가 없습니다. app/fastlane/changelogs/#{new_version}.txt를 작성하세요.") unless File.exist?(changelog_path)
+    notes = File.read(changelog_path).strip
+    UI.user_error!("changelogs/#{new_version}.txt가 비어있습니다.") if notes.empty?
+
+    require 'fileutils'
+    meta_path = File.expand_path("metadata", __dir__)
+    FileUtils.mkdir_p("#{meta_path}/ko")
+    File.write("#{meta_path}/ko/release_notes.txt", notes)
+
+    # App Store 업로드 (심사 제출은 App Store Connect에서 수동으로)
     upload_to_app_store(
       api_key: api_key,
       ipa: File.expand_path("../../build/ios/ipa/Snippet.ipa", __dir__),
+      app_version: new_version,
+      metadata_path: meta_path,
       skip_screenshots: true,
-      skip_metadata: true,
+      skip_metadata: false,
+      run_precheck_before_submit: false,
       submit_for_review: false  # true로 바꾸면 자동 심사 제출
     )
 
-    puts "✅ App Store 업로드 완료! App Store Connect에서 심사 제출하세요."
+    puts "✅ v#{new_version}+#{new_build} App Store 업로드 완료! App Store Connect에서 심사 제출하세요."
   end
 
   # ---------------------------------------------------------
@@ -92,6 +123,30 @@ platform :ios do
     )
 
     puts "✅ v#{version_name}+#{new_build} TestFlight 업로드 완료!"
+  end
+
+  # ---------------------------------------------------------
+  # 프로모션 텍스트만 업데이트 (빌드/심사 없이 즉시 반영)
+  # 수정 파일: app/ios/fastlane/metadata/ko/promotional_text.txt
+  # 사용법: cd app/ios && fastlane promo
+  # ---------------------------------------------------------
+  desc "프로모션 텍스트 업데이트"
+  lane :promo do
+    promo_path = File.expand_path("metadata/ko/promotional_text.txt", __dir__)
+    UI.user_error!("promotional_text.txt가 없습니다.") unless File.exist?(promo_path)
+    UI.user_error!("promotional_text.txt가 비어있습니다.") if File.read(promo_path).strip.empty?
+
+    upload_to_app_store(
+      api_key: api_key,
+      metadata_path: File.expand_path("metadata", __dir__),
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      run_precheck_before_submit: false,
+      submit_for_review: false
+    )
+
+    puts "✅ 프로모션 텍스트 업데이트 완료!"
   end
 
 end

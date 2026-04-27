@@ -4,18 +4,39 @@ platform :android do
 
   desc "빌드만 (AAB 생성)"
   lane :build do
-    Dir.chdir("../../../") do
+    Dir.chdir("../") do
       sh("flutter build appbundle --release")
     end
   end
 
   desc "내부 테스트 트랙에 업로드"
   lane :internal do
-    build
+    pubspec_path = "../../pubspec.yaml"
+    pubspec = File.read(pubspec_path)
+    version_line = pubspec.match(/^version:\s*(.+)$/)[1].strip
+    version_name, build_number = version_line.split("+")
+    new_build = (build_number.to_i + 1).to_s
+
+    File.write(pubspec_path, pubspec.gsub(/^version:\s*.+$/, "version: #{version_name}+#{new_build}"))
+    puts "📦 버전: #{version_name}+#{new_build}"
+
+    Dir.chdir("../") do
+      sh("flutter build appbundle --release --build-number=#{new_build}")
+    end
+
+    changelog_path = File.expand_path("../../fastlane/changelogs/#{version_name}.txt", __dir__)
+    changelog = File.exist?(changelog_path) ? File.read(changelog_path).strip : "버그 수정 및 성능 개선"
+
+    require 'fileutils'
+    meta_dir = File.expand_path("metadata/ko-KR/changelogs", __dir__)
+    FileUtils.mkdir_p(meta_dir)
+    File.write("#{meta_dir}/#{new_build}.txt", changelog)
+
     upload_to_play_store(
       track: "internal",
       aab: "../build/app/outputs/bundle/release/app-release.aab",
-      release_status: "draft"
+      release_status: "draft",
+      metadata_path: File.expand_path("metadata", __dir__)
     )
   end
 

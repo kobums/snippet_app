@@ -13,31 +13,39 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
-## iOS
+## Android
 
-### ios beta
-
-```sh
-[bundle exec] fastlane ios beta
-```
-
-TestFlight에 빌드 업로드
-
-### ios release
+### android build
 
 ```sh
-[bundle exec] fastlane ios release
+[bundle exec] fastlane android build
 ```
 
-patch 버전 bump 후 App Store 업로드
+빌드만 (AAB 생성)
 
-### ios ship
+### android internal
 
 ```sh
-[bundle exec] fastlane ios ship
+[bundle exec] fastlane android internal
 ```
 
-버전 bump 후 TestFlight 배포
+내부 테스트 트랙에 업로드
+
+### android alpha
+
+```sh
+[bundle exec] fastlane android alpha
+```
+
+알파 트랙에 업로드
+
+### android deploy
+
+```sh
+[bundle exec] fastlane android deploy
+```
+
+프로덕션 배포
 
 ----
 
