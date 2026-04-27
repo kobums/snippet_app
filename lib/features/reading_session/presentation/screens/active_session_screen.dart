@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,14 +19,33 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
+  int _countdown = 3;
+  final List<Timer> _timers = [];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _timers.add(Timer(const Duration(seconds: 1), () {
+      if (mounted) setState(() => _countdown = 2);
+    }));
+    _timers.add(Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _countdown = 1);
+    }));
+    _timers.add(Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      setState(() => _countdown = 0);
       ref
           .read(readingSessionProvider.notifier)
           .startSession(widget.book, widget.book.readPage);
-    });
+    }));
+  }
+
+  @override
+  void dispose() {
+    for (final t in _timers) {
+      t.cancel();
+    }
+    super.dispose();
   }
 
   @override
@@ -42,8 +62,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
           backgroundColor: DesignTokens.primaryMain,
-          body: SafeArea(
-            child: Column(
+          body: Stack(
+            children: [
+              SafeArea(
+                child: Column(
               children: [
                 _buildAppBar(context, state, notifier),
                 Expanded(
@@ -80,6 +102,38 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 _buildControls(context, state, notifier),
                 const SizedBox(height: DesignTokens.space48),
               ],
+            ),
+          ),
+              if (_countdown > 0) _buildCountdown(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountdown() {
+    return Positioned.fill(
+      child: ColoredBox(
+        color: DesignTokens.primaryMain,
+        child: Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: Tween<double>(begin: 0.5, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              ),
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: Text(
+              '$_countdown',
+              key: ValueKey(_countdown),
+              style: const TextStyle(
+                fontSize: 120,
+                fontWeight: FontWeight.w200,
+                color: Colors.white,
+                letterSpacing: -4,
+              ),
             ),
           ),
         ),
