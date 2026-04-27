@@ -9,6 +9,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart' show Share, XFile;
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/share_card_widget.dart';
@@ -24,6 +25,7 @@ class SessionCompleteScreen extends ConsumerStatefulWidget {
 
 class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   final ScreenshotController _screenshotController = ScreenshotController();
+  final _shareButtonKey = GlobalKey();
   late final TextEditingController _endPageController;
   bool _showBookTitle = true;
   bool _isSharing = false;
@@ -85,182 +87,192 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _confirmDiscard(context);
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.close, color: DesignTokens.textPrimary),
-            onPressed: () => _confirmDiscard(context),
-          ),
-          title: const Text(
-            '독서 완료',
-            style: TextStyle(
-              fontSize: DesignTokens.fontSize18,
-              fontWeight: DesignTokens.fontMedium,
-              color: DesignTokens.textPrimary,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.close, color: DesignTokens.textPrimary),
+              onPressed: () => _confirmDiscard(context),
             ),
+            title: const Text(
+              '독서 완료',
+              style: TextStyle(
+                fontSize: DesignTokens.fontSize18,
+                fontWeight: DesignTokens.fontMedium,
+                color: DesignTokens.textPrimary,
+              ),
+            ),
+            centerTitle: true,
           ),
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            DesignTokens.space24,
-            DesignTokens.space24,
-            DesignTokens.space24,
-            DesignTokens.space24 + MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (state.book != null)
-                Text(
-                  state.book!.title,
-                  style: const TextStyle(
-                    fontSize: DesignTokens.fontSize20,
+          body: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              DesignTokens.space24,
+              DesignTokens.space24,
+              DesignTokens.space24,
+              DesignTokens.space24 + MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (state.book != null)
+                  Text(
+                    state.book!.title,
+                    style: const TextStyle(
+                      fontSize: DesignTokens.fontSize20,
+                      fontWeight: DesignTokens.fontMedium,
+                      color: DesignTokens.textPrimary,
+                    ),
+                  ),
+                const SizedBox(height: DesignTokens.space24),
+                // 독서 시간
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DesignTokens.space32,
+                      vertical: DesignTokens.space20,
+                    ),
+                    decoration: BoxDecoration(
+                      color: DesignTokens.primaryMain.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusMd,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          state.formattedTime,
+                          style: const TextStyle(
+                            fontSize: DesignTokens.fontSize40,
+                            fontWeight: FontWeight.w300,
+                            color: DesignTokens.primaryMain,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(height: DesignTokens.space4),
+                        const Text(
+                          '독서 시간',
+                          style: TextStyle(
+                            fontSize: DesignTokens.fontSize12,
+                            color: DesignTokens.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: DesignTokens.space32),
+                const Text(
+                  '어디까지 읽으셨나요?',
+                  style: TextStyle(
+                    fontSize: DesignTokens.fontSize18,
                     fontWeight: DesignTokens.fontMedium,
                     color: DesignTokens.textPrimary,
                   ),
                 ),
-              const SizedBox(height: DesignTokens.space24),
-              // 독서 시간
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DesignTokens.space32,
-                    vertical: DesignTokens.space20,
+                const SizedBox(height: DesignTokens.space8),
+                Text(
+                  '시작 페이지: ${state.startPage}p',
+                  style: const TextStyle(
+                    fontSize: DesignTokens.fontSize14,
+                    color: DesignTokens.textSecondary,
                   ),
-                  decoration: BoxDecoration(
-                    color: DesignTokens.primaryMain.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-                  ),
-                  child: Column(
+                ),
+                const SizedBox(height: DesignTokens.space16),
+                StatefulBuilder(
+                  builder: (context, setLocal) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        state.formattedTime,
+                      TextField(
+                        controller: _endPageController,
+                        autofocus: true,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         style: const TextStyle(
-                          fontSize: DesignTokens.fontSize40,
+                          fontSize: DesignTokens.fontSize32,
                           fontWeight: FontWeight.w300,
-                          color: DesignTokens.primaryMain,
-                          letterSpacing: 2,
+                          color: DesignTokens.textPrimary,
                         ),
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          errorText: _pageError,
+                          hintText: state.startPage.toString(),
+                          suffixText: '페이지',
+                          suffixStyle: const TextStyle(
+                            fontSize: DesignTokens.fontSize16,
+                            color: DesignTokens.textSecondary,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
+                            borderSide: const BorderSide(
+                              color: DesignTokens.primaryMain,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onChanged: (_) => setLocal(() {}),
                       ),
-                      const SizedBox(height: DesignTokens.space4),
-                      const Text(
-                        '독서 시간',
-                        style: TextStyle(
-                          fontSize: DesignTokens.fontSize12,
-                          color: DesignTokens.textSecondary,
+                      const SizedBox(height: DesignTokens.space12),
+                      // 실시간 미리보기
+                      AnimatedOpacity(
+                        opacity: (_previewPagesRead(state) > 0) ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: DesignTokens.space16,
+                            vertical: DesignTokens.space12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: DesignTokens.neutral100,
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _PreviewChip(
+                                label: '읽은 페이지',
+                                value: '${_previewPagesRead(state)}p',
+                              ),
+                              Container(
+                                width: 1,
+                                height: 28,
+                                color: DesignTokens.neutral300,
+                              ),
+                              _PreviewChip(
+                                label: '페이스',
+                                value: _previewPace(state),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: DesignTokens.space32),
-              const Text(
-                '어디까지 읽으셨나요?',
-                style: TextStyle(
-                  fontSize: DesignTokens.fontSize18,
-                  fontWeight: DesignTokens.fontMedium,
-                  color: DesignTokens.textPrimary,
+                const SizedBox(height: DesignTokens.space32),
+                AppButton(
+                  text: '기록 저장',
+                  onPressed: () => _saveSession(context, state),
+                  variant: AppButtonVariant.primary,
+                  isFullWidth: true,
                 ),
-              ),
-              const SizedBox(height: DesignTokens.space8),
-              Text(
-                '시작 페이지: ${state.startPage}p',
-                style: const TextStyle(
-                  fontSize: DesignTokens.fontSize14,
-                  color: DesignTokens.textSecondary,
-                ),
-              ),
-              const SizedBox(height: DesignTokens.space16),
-              StatefulBuilder(
-                builder: (context, setLocal) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: _endPageController,
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      style: const TextStyle(
-                        fontSize: DesignTokens.fontSize32,
-                        fontWeight: FontWeight.w300,
-                        color: DesignTokens.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        errorText: _pageError,
-                        hintText: state.startPage.toString(),
-                        suffixText: '페이지',
-                        suffixStyle: const TextStyle(
-                          fontSize: DesignTokens.fontSize16,
-                          color: DesignTokens.textSecondary,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(DesignTokens.radiusMd),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(DesignTokens.radiusMd),
-                          borderSide: const BorderSide(
-                            color: DesignTokens.primaryMain,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      onChanged: (_) => setLocal(() {}),
-                    ),
-                    const SizedBox(height: DesignTokens.space12),
-                    // 실시간 미리보기
-                    AnimatedOpacity(
-                      opacity: (_previewPagesRead(state) > 0) ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: DesignTokens.space16,
-                          vertical: DesignTokens.space12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: DesignTokens.neutral100,
-                          borderRadius:
-                              BorderRadius.circular(DesignTokens.radiusMd),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _PreviewChip(
-                              label: '읽은 페이지',
-                              value: '${_previewPagesRead(state)}p',
-                            ),
-                            Container(
-                              width: 1,
-                              height: 28,
-                              color: DesignTokens.neutral300,
-                            ),
-                            _PreviewChip(
-                              label: '페이스',
-                              value: _previewPace(state),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: DesignTokens.space32),
-              AppButton(
-                text: '기록 저장',
-                onPressed: () => _saveSession(context, state),
-                variant: AppButtonVariant.primary,
-                isFullWidth: true,
-              ),
-              const SizedBox(height: DesignTokens.space16),
-            ],
+                const SizedBox(height: DesignTokens.space16),
+              ],
+            ),
           ),
         ),
       ),
@@ -404,7 +416,8 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
         _isSharing
             ? const Center(child: CircularProgressIndicator())
             : AppButton(
-                text: '인스타그램에 공유',
+                key: _shareButtonKey,
+                text: '공유하기',
                 onPressed: () => _shareCard(),
                 variant: AppButtonVariant.outlined,
                 isFullWidth: true,
@@ -474,10 +487,18 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   // ─── Actions ────────────────────────────────────────────────────────────────
 
   Future<void> _saveSession(
-      BuildContext context, ReadingSessionState state) async {
+    BuildContext context,
+    ReadingSessionState state,
+  ) async {
     final endPage = _parsedEndPage;
     if (endPage == null || endPage < 0) {
       setState(() => _pageError = '올바른 페이지 번호를 입력하세요');
+      return;
+    }
+    if (endPage < state.startPage) {
+      setState(
+        () => _pageError = '종료 페이지는 시작 페이지(${state.startPage})보다 작을 수 없습니다',
+      );
       return;
     }
     final totalPage = state.book?.totalPage ?? 0;
@@ -487,13 +508,15 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     }
     setState(() => _pageError = null);
 
-    final success =
-        await ref.read(readingSessionProvider.notifier).finishSession(endPage);
+    final success = await ref
+        .read(readingSessionProvider.notifier)
+        .finishSession(endPage);
     if (!success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              ref.read(readingSessionProvider).errorMessage ?? '저장에 실패했습니다'),
+            ref.read(readingSessionProvider).errorMessage ?? '저장에 실패했습니다',
+          ),
         ),
       );
     }
@@ -538,6 +561,11 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   }
 
   Future<void> _shareCard() async {
+    final box =
+        _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : Rect.fromLTWH(0, MediaQuery.of(context).size.height / 2, 1, 1);
     setState(() => _isSharing = true);
     try {
       final image = await _screenshotController.capture(pixelRatio: 3.0);
@@ -546,7 +574,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
       final filePath =
           '${dir.path}/reading_session_${DateTime.now().millisecondsSinceEpoch}.png';
       await File(filePath).writeAsBytes(image);
-      await Share.shareXFiles([XFile(filePath)]);
+      await Share.shareXFiles([XFile(filePath)], sharePositionOrigin: origin);
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -556,6 +584,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     ref.read(sessionJustCompletedProvider.notifier).signal();
     ref.read(readingSessionProvider.notifier).reset();
     ref.read(libraryProvider.notifier).loadAllBooks();
+    ref.read(dashboardStatsProvider.notifier).refreshBooks();
     context.pop();
   }
 }
