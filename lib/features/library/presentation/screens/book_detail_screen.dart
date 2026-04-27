@@ -38,6 +38,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   TextEditingController? _pageController;
   bool _isUpdating = false;
   bool _isSaving = false; // 저장 중 뒤로가기 차단용
+  bool _waitingForLibraryRefresh = false;
   late String _startDate;
   late String _endDate;
 
@@ -337,8 +338,24 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     ref.listen(sessionJustCompletedProvider, (_, completed) {
       if (!completed || !mounted) return;
       ref.read(sessionJustCompletedProvider.notifier).reset();
-      setState(() => _selectedDetailTab = _DetailTab.session);
+      setState(() {
+        _selectedDetailTab = _DetailTab.session;
+        _waitingForLibraryRefresh = true;
+      });
       _loadSessions();
+    });
+
+    ref.listen(libraryProvider, (prev, next) {
+      if (!_waitingForLibraryRefresh) return;
+      if (next.isLoading) return;
+      _waitingForLibraryRefresh = false;
+      final updated = next.allBooks.where((b) => b.id == widget.book.id).firstOrNull;
+      if (updated != null && mounted) {
+        setState(() {
+          _readPage = updated.readPage;
+          _pageController?.text = '$_readPage';
+        });
+      }
     });
 
     return PopScope(
