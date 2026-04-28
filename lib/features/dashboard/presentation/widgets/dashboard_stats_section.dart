@@ -46,6 +46,10 @@ class DashboardStatsSection extends ConsumerWidget {
       (sum, b) => sum + b.totalPage,
     );
 
+    if (statsState.isLoading && statsState.books.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return AppRefreshIndicator(
       onRefresh: () => statsNotifier.refreshBooks(),
       child: CustomScrollView(

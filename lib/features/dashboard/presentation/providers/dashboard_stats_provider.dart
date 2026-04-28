@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/core/error/app_error.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/domain/usecases/fetch_monthly_books_usecase.dart';
@@ -7,12 +8,14 @@ import 'package:snippet_app/features/library/library_providers.dart';
 class DashboardStatsState {
   final List<UserBookDto> books;
   final bool isLoading;
+  final AppError? error;
   final int selectedYear;
   final int selectedMonth;
 
   DashboardStatsState({
     this.books = const [],
     this.isLoading = false,
+    this.error,
     int? selectedYear,
     int? selectedMonth,
   })  : selectedYear = selectedYear ?? DateTime.now().year,
@@ -21,12 +24,15 @@ class DashboardStatsState {
   DashboardStatsState copyWith({
     List<UserBookDto>? books,
     bool? isLoading,
+    AppError? error,
+    bool clearError = false,
     int? selectedYear,
     int? selectedMonth,
   }) {
     return DashboardStatsState(
       books: books ?? this.books,
       isLoading: isLoading ?? this.isLoading,
+      error: clearError ? null : (error ?? this.error),
       selectedYear: selectedYear ?? this.selectedYear,
       selectedMonth: selectedMonth ?? this.selectedMonth,
     );
@@ -47,7 +53,7 @@ class DashboardStatsNotifier extends Notifier<DashboardStatsState> {
     final y = year ?? DateTime.now().year;
     final m = month ?? DateTime.now().month;
 
-    state = state.copyWith(isLoading: true, selectedYear: y, selectedMonth: m);
+    state = state.copyWith(isLoading: true, clearError: true, selectedYear: y, selectedMonth: m);
 
     final result = await _fetchMonthlyBooksUseCase(y, m);
     result.when(
@@ -55,7 +61,7 @@ class DashboardStatsNotifier extends Notifier<DashboardStatsState> {
         state = state.copyWith(books: books, isLoading: false);
       },
       failure: (error) {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isLoading: false, error: error);
       },
     );
   }
