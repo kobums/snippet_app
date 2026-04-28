@@ -3,6 +3,7 @@ class ReadingSessionDto {
   final int userBookId;
   final int bookId;
   final String bookTitle;
+  final String bookAuthor;
   final String bookCoverUrl;
   final int durationSeconds;
   final int startPage;
@@ -17,6 +18,7 @@ class ReadingSessionDto {
     required this.userBookId,
     required this.bookId,
     required this.bookTitle,
+    required this.bookAuthor,
     required this.bookCoverUrl,
     required this.durationSeconds,
     required this.startPage,
@@ -33,6 +35,7 @@ class ReadingSessionDto {
       userBookId: json['userBookId'] as int,
       bookId: json['bookId'] as int,
       bookTitle: json['bookTitle'] as String,
+      bookAuthor: json['bookAuthor'] as String? ?? '',
       bookCoverUrl: json['bookCoverUrl'] as String? ?? '',
       durationSeconds: json['durationSeconds'] as int,
       startPage: json['startPage'] as int,
