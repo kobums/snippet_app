@@ -53,6 +53,10 @@ class CalendarNotifier extends Notifier<CalendarState> {
   CalendarState build() {
     _shareService = ref.read(calendarShareServiceProvider);
     _fetchMonthlyBooksUseCase = ref.read(fetchMonthlyBooksUseCaseProvider);
+    Future.microtask(() => loadBooks(
+      DateTime.now().year,
+      DateTime.now().month,
+    ));
     return CalendarState();
   }
 

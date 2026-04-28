@@ -61,6 +61,7 @@ class StatsNotifier extends Notifier<StatsState> {
     _fetchCategoryStatsUseCase =
         ref.read(fetchCategoryStatsUseCaseProvider);
     _fetchInsightsUseCase = ref.read(fetchInsightsUseCaseProvider);
+    Future.microtask(() => loadAllStats());
     return StatsState();
   }
 
