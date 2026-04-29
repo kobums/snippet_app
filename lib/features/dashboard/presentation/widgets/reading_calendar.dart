@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 
 class ReadingCalendar extends StatefulWidget {
   final List<UserBookDto> completedBooks;
@@ -33,14 +34,14 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     final today = DateTime.now();
     final isCurrentMonth =
         widget.year == today.year && widget.month == today.month;
 
-    // Calculate calendar grid
     final daysInMonth = DateTime(widget.year, widget.month + 1, 0).day;
     final firstDayOfMonth = DateTime(widget.year, widget.month, 1);
-    final firstWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
+    final firstWeekday = firstDayOfMonth.weekday % 7;
 
     final days = List.generate(daysInMonth, (index) => index + 1);
     final emptyCells = List.generate(firstWeekday, (_) => 0);
@@ -49,7 +50,6 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Week days header
         Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: DesignTokens.space4,
@@ -57,19 +57,18 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
           ),
           child: Row(
             children: [
-              _buildWeekdayHeader('일', isWeekend: true, isRed: true),
-              _buildWeekdayHeader('월'),
-              _buildWeekdayHeader('화'),
-              _buildWeekdayHeader('수'),
-              _buildWeekdayHeader('목'),
-              _buildWeekdayHeader('금'),
-              _buildWeekdayHeader('토', isWeekend: true, isBlue: true),
+              _buildWeekdayHeader('일', appColors: appColors, isRed: true),
+              _buildWeekdayHeader('월', appColors: appColors),
+              _buildWeekdayHeader('화', appColors: appColors),
+              _buildWeekdayHeader('수', appColors: appColors),
+              _buildWeekdayHeader('목', appColors: appColors),
+              _buildWeekdayHeader('금', appColors: appColors),
+              _buildWeekdayHeader('토', appColors: appColors, isBlue: true),
             ],
           ),
         ),
         const SizedBox(height: DesignTokens.space8),
 
-        // Calendar grid
         GridView.builder(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
@@ -96,6 +95,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               books: booksOnDay,
               hasBooks: hasBooks,
               isToday: isToday,
+              appColors: appColors,
             );
           },
         ),
@@ -105,7 +105,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
 
   Widget _buildWeekdayHeader(
     String label, {
-    bool isWeekend = false,
+    required AppColors appColors,
     bool isRed = false,
     bool isBlue = false,
   }) {
@@ -118,7 +118,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                 ? Colors.red.withValues(alpha: 0.7)
                 : isBlue
                 ? Colors.blue.withValues(alpha: 0.7)
-                : DesignTokens.textSecondary,
+                : appColors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -131,25 +131,26 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
     required List<UserBookDto> books,
     required bool hasBooks,
     required bool isToday,
+    required AppColors appColors,
   }) {
     return GestureDetector(
       onTap: hasBooks ? () => _showBooksDialog(context, day, books) : null,
       child: Container(
         decoration: BoxDecoration(
           color: isToday
-              ? DesignTokens.primaryMain.withValues(alpha: 0.05)
-              : Colors.grey.withValues(alpha: 0.02),
+              ? appColors.primary.withValues(alpha: 0.05)
+              : appColors.surfaceSecondary,
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
           border: Border.all(
             color: isToday
-                ? DesignTokens.primaryMain.withValues(alpha: 0.3)
-                : Colors.grey.withValues(alpha: 0.1),
+                ? appColors.primary.withValues(alpha: 0.3)
+                : appColors.border,
             width: isToday ? 1.5 : 1,
           ),
         ),
         child: hasBooks
             ? _buildBookCoverCell(day, books, isToday)
-            : _buildEmptyCell(day, isToday),
+            : _buildEmptyCell(day, isToday, appColors),
       ),
     );
   }
@@ -163,7 +164,6 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Book cover background
           if (coverUrl.isNotEmpty)
             Image.network(
               coverUrl,
@@ -171,18 +171,21 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               errorBuilder: (_, __, ___) => Container(
                 color: Colors.blue.withValues(alpha: 0.1),
                 child: const Center(
-                  child: Icon(Icons.book, color: Colors.blue, size: 20),
+                  child: Icon(
+                    Icons.book,
+                    color: Colors.blue,
+                    size: DesignTokens.iconSm,
+                  ),
                 ),
               ),
             )
           else
             Container(
               color: Colors.blue.withValues(alpha: 0.1),
-              child: const Center(
+              child: Center(
                 child: Text(
                   '완독',
-                  style: TextStyle(
-                    fontSize: 10,
+                  style: AppTypography.captionSmall.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Colors.blue,
                   ),
@@ -190,7 +193,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               ),
             ),
 
-          // Gradient overlay on hover (always visible on mobile)
+          // Dark gradient overlay on book cover — intentional for readability
           Positioned(
             bottom: 0,
             left: 0,
@@ -210,7 +213,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               ),
               child: Text(
                 '${books.length}권',
-                style: const TextStyle(
+                style: AppTypography.captionSmall.copyWith(
                   color: Colors.white,
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
@@ -219,7 +222,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
             ),
           ),
 
-          // Day number badge
+          // Day badge on book cover — intentional dark overlay
           Positioned(
             top: 4,
             left: 4,
@@ -233,7 +236,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               child: Center(
                 child: Text(
                   '$day',
-                  style: const TextStyle(
+                  style: AppTypography.captionSmall.copyWith(
                     color: Colors.white,
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
@@ -247,12 +250,12 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
     );
   }
 
-  Widget _buildEmptyCell(int day, bool isToday) {
+  Widget _buildEmptyCell(int day, bool isToday, AppColors appColors) {
     return Center(
       child: Text(
         '$day',
         style: AppTypography.caption.copyWith(
-          color: isToday ? DesignTokens.primaryMain : DesignTokens.textTertiary,
+          color: isToday ? appColors.primary : appColors.textTertiary,
           fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
@@ -264,6 +267,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
     int day,
     List<UserBookDto> books,
   ) {
+    final appColors = context.colors;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -272,7 +276,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
         ),
         title: Text(
           '${widget.month}월 $day일 완독',
-          style: AppTypography.h4.copyWith(color: DesignTokens.textPrimary),
+          style: AppTypography.h4.copyWith(color: appColors.textPrimary),
         ),
         content: SizedBox(
           width: double.maxFinite,
@@ -286,10 +290,10 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
               return Container(
                 padding: const EdgeInsets.all(DesignTokens.space12),
                 decoration: BoxDecoration(
-                  color: DesignTokens.primaryMain.withValues(alpha: 0.04),
+                  color: appColors.primary.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                   border: Border.all(
-                    color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                    color: appColors.primary.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Row(
@@ -308,17 +312,15 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                             width: 40,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: DesignTokens.primaryMain.withValues(
-                                alpha: 0.1,
-                              ),
+                              color: appColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(
                                 DesignTokens.radiusSm,
                               ),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.book_outlined,
                               size: 24,
-                              color: DesignTokens.primaryMain,
+                              color: appColors.primary,
                             ),
                           );
                         },
@@ -333,7 +335,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                             book.title,
                             style: AppTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: DesignTokens.textPrimary,
+                              color: appColors.textPrimary,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -342,7 +344,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                           Text(
                             book.author,
                             style: AppTypography.caption.copyWith(
-                              color: DesignTokens.textSecondary,
+                              color: appColors.textSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -359,13 +361,11 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: DesignTokens.primaryMain,
-            ),
+            style: TextButton.styleFrom(foregroundColor: appColors.primary),
             child: Text(
               '닫기',
               style: AppTypography.labelLarge.copyWith(
-                color: DesignTokens.primaryMain,
+                color: appColors.primary,
               ),
             ),
           ),

@@ -6,6 +6,7 @@ import 'package:snippet_app/features/profile/presentation/widgets/settings_secti
 import 'package:snippet_app/features/profile/presentation/widgets/logout_button.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/delete_account_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 
 class MyPageScreen extends ConsumerWidget {
@@ -21,7 +22,7 @@ class MyPageScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       body: CustomScrollView(
         slivers: [
           AppAppBar.sliver(title: '프로필'),

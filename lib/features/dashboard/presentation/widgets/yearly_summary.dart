@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/features/dashboard/data/models/stats.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 
@@ -14,14 +16,15 @@ class YearlySummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     if (stats.isEmpty) {
       return GlassContainer(
         child: Center(
           child: Text(
             '데이터가 없습니다',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black.withValues(alpha: 0.5),
+            style: AppTypography.bodyMedium.copyWith(
+              color: appColors.textSecondary,
             ),
           ),
         ),
@@ -33,7 +36,6 @@ class YearlySummary extends StatelessWidget {
 
     return Column(
       children: [
-        // Total summary
         GlassContainer(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,13 +45,13 @@ class YearlySummary extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem('총 완독', '$totalCompleted권'),
+                  _buildStatItem('총 완독', '$totalCompleted권', appColors),
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: appColors.border,
                   ),
-                  _buildStatItem('총 페이지', '$totalPages쪽'),
+                  _buildStatItem('총 페이지', '$totalPages쪽', appColors),
                 ],
               ),
             ],
@@ -57,37 +59,34 @@ class YearlySummary extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Yearly breakdown
-        ...stats.map((yearStat) => _buildYearCard(yearStat)),
+        ...stats.map((yearStat) => _buildYearCard(yearStat, appColors)),
       ],
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(String label, String value, AppColors appColors) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 24,
+          style: AppTypography.h2.copyWith(
             fontWeight: FontWeight.w300,
-            color: DesignTokens.primaryMain,
+            color: appColors.primary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
+          style: AppTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w400,
-            color: Colors.black.withValues(alpha: 0.5),
+            color: appColors.textSecondary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildYearCard(YearlyStatsDto yearStat) {
+  Widget _buildYearCard(YearlyStatsDto yearStat, AppColors appColors) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GlassContainer(
@@ -96,8 +95,7 @@ class YearlySummary extends StatelessWidget {
           children: [
             Text(
               '${yearStat.year}년',
-              style: const TextStyle(
-                fontSize: 16,
+              style: AppTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -105,19 +103,17 @@ class YearlySummary extends StatelessWidget {
               children: [
                 Text(
                   '${yearStat.completedCount}권',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w300,
-                    color: DesignTokens.primaryMain,
+                    color: appColors.primary,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Text(
                   '${yearStat.totalPages}쪽',
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w300,
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: appColors.textSecondary,
                   ),
                 ),
               ],

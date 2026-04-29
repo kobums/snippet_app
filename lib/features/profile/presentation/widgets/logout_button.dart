@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -20,11 +21,11 @@ class LogoutButton extends ConsumerWidget {
             builder: (context) => AlertDialog(
               title: Text(
                 '로그아웃',
-                style: AppTypography.h4,
+                style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
               ),
               content: Text(
                 '정말 로그아웃 하시겠습니까?',
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
               ),
               actions: [
                 TextButton(
@@ -36,9 +37,9 @@ class LogoutButton extends ConsumerWidget {
                   style: TextButton.styleFrom(
                     foregroundColor: DesignTokens.errorMain,
                   ),
-                  child: const Text(
+                  child: Text(
                     '로그아웃',
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                    style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w500, color: DesignTokens.errorMain),
                   ),
                 ),
               ],

@@ -13,6 +13,7 @@ class ShareableReadingCalendar extends StatelessWidget {
   final int month;
   final bool showTitle;
   final bool showStats;
+  final bool isDark;
 
   const ShareableReadingCalendar({
     super.key,
@@ -21,8 +22,28 @@ class ShareableReadingCalendar extends StatelessWidget {
     required this.month,
     this.showTitle = true,
     this.showStats = false,
+    this.isDark = false,
   });
 
+  // ─── 테마 색상 ─────────────────────────────────────────────────────────────
+  Color get _bgColor =>
+      isDark ? const Color(0xFF1C1C1E) : DesignTokens.bgPrimary;
+  Color get _cardBg =>
+      isDark ? const Color(0xFF2C2C2E) : Colors.white.withValues(alpha: 0.7);
+  Color get _textPrimary =>
+      isDark ? Colors.white : DesignTokens.textPrimary;
+  Color get _textSecondary =>
+      isDark ? const Color(0xFFAEAEB2) : DesignTokens.textSecondary;
+  Color get _textTertiary =>
+      isDark ? const Color(0xFF636366) : DesignTokens.textTertiary;
+  Color get _primary =>
+      isDark ? Colors.white : DesignTokens.primaryMain;
+  Color get _emptyCellBg =>
+      isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05);
+  Color get _emptyCellBorder =>
+      isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1);
+
+  // ─── helpers ───────────────────────────────────────────────────────────────
   List<UserBookDto> _getBooksCompletedOnDate(int day) {
     return completedBooks.where((book) {
       if (book.endDate.isEmpty) return false;
@@ -36,34 +57,22 @@ class ShareableReadingCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final isCurrentMonth = year == today.year && month == today.month;
-
-    // 캘린더 그리드 계산
     final daysInMonth = DateTime(year, month + 1, 0).day;
     final firstDayOfMonth = DateTime(year, month, 1);
-    final firstWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
+    final firstWeekday = firstDayOfMonth.weekday % 7;
 
     final days = List.generate(daysInMonth, (index) => index + 1);
     final emptyCells = List.generate(firstWeekday, (_) => 0);
     final allCells = [...emptyCells, ...days];
 
-    // 완독 권수 계산
     final completedCount = completedBooks.length;
 
     return RepaintBoundary(
       child: Container(
         width: 1080,
         height: 1350,
-        decoration: const BoxDecoration(
-          color: DesignTokens.bgPrimary,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [DesignTokens.bgPrimary, DesignTokens.bgPrimary],
-          ),
-        ),
-        padding: const EdgeInsets.all(12), // 세로 공간 활용
+        decoration: BoxDecoration(color: _bgColor),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -72,31 +81,28 @@ class ShareableReadingCalendar extends StatelessWidget {
               Center(
                 child: Text(
                   '$year년 $month월',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w400,
-                    color: DesignTokens.textPrimary,
+                    color: _textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
               ),
               const SizedBox(height: 60),
             ],
-            // 캘린더 그리드
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: _cardBg,
                   borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
-                  boxShadow: DesignTokens.shadowMd,
+                  boxShadow: isDark ? null : DesignTokens.shadowMd,
                 ),
-                padding: const EdgeInsets.all(10), // 패딩 최소화
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   children: [
-                    // 요일 헤더
                     _buildWeekdayHeaders(),
-                    const SizedBox(height: 8), // 간격 줄임
-                    // 캘린더 그리드 (6줄 고정)
+                    const SizedBox(height: 8),
                     Expanded(
                       child: Column(
                         children: List.generate(6, (weekIndex) {
@@ -105,10 +111,8 @@ class ShareableReadingCalendar extends StatelessWidget {
                           return Expanded(
                             child: Row(
                               children: List.generate(7, (dayIndex) {
-                                // showStats가 true이고 마지막 줄의 마지막 4칸이면 통계 표시
                                 if (showStats && isLastRow && dayIndex >= 3) {
                                   if (dayIndex == 3) {
-                                    // 완독한 책 (2칸 차지)
                                     return Expanded(
                                       flex: 2,
                                       child: Padding(
@@ -121,7 +125,6 @@ class ShareableReadingCalendar extends StatelessWidget {
                                       ),
                                     );
                                   } else if (dayIndex == 5) {
-                                    // 총 페이지 (2칸 차지)
                                     final totalPages = completedBooks.fold<int>(
                                       0,
                                       (sum, b) => sum + b.totalPage,
@@ -138,7 +141,6 @@ class ShareableReadingCalendar extends StatelessWidget {
                                       ),
                                     );
                                   } else {
-                                    // dayIndex 4와 6은 건너뜀 (위에서 flex: 2로 차지)
                                     return const SizedBox.shrink();
                                   }
                                 }
@@ -149,20 +151,16 @@ class ShareableReadingCalendar extends StatelessWidget {
                                     : 0;
 
                                 if (day == 0) {
-                                  // 빈 셀
                                   return const Expanded(child: SizedBox());
                                 }
 
-                                final booksOnDay = _getBooksCompletedOnDate(
-                                  day,
-                                );
+                                final booksOnDay =
+                                    _getBooksCompletedOnDate(day);
                                 final hasBooks = booksOnDay.isNotEmpty;
 
                                 return Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.all(
-                                      1.5,
-                                    ), // 3px 간격 / 2
+                                    padding: const EdgeInsets.all(1.5),
                                     child: _buildDayCell(
                                       day: day,
                                       books: booksOnDay,
@@ -180,49 +178,9 @@ class ShareableReadingCalendar extends StatelessWidget {
                 ),
               ),
             ),
-
-            // const SizedBox(height: 16), // 간격 줄임
-            // 통계 푸터
-            // _buildFooter(completedCount),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Snippet',
-          style: TextStyle(
-            fontSize: 30, // 크기 줄임
-            fontWeight: FontWeight.w300,
-            letterSpacing: 2.5,
-            color: DesignTokens.primaryMain,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 6,
-          ), // 패딩 줄임
-          decoration: BoxDecoration(
-            color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Text(
-            '독서 캘린더',
-            style: TextStyle(
-              fontSize: 12, // 크기 줄임
-              fontWeight: FontWeight.w500,
-              color: DesignTokens.primaryMain,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -239,11 +197,13 @@ class ShareableReadingCalendar extends StatelessWidget {
             child: Text(
               day,
               style: TextStyle(
-                fontSize: 13, // 크기 줄임
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isWeekend
-                    ? (index == 0 ? Colors.red : Colors.blue)
-                    : DesignTokens.textSecondary,
+                    ? (index == 0
+                        ? Colors.red.withValues(alpha: isDark ? 0.9 : 1.0)
+                        : Colors.blue.withValues(alpha: isDark ? 0.9 : 1.0))
+                    : _textSecondary,
               ),
             ),
           ),
@@ -252,16 +212,12 @@ class ShareableReadingCalendar extends StatelessWidget {
     );
   }
 
-  /// 여러 책 표지를 겹쳐서 표시하는 위젯
   Widget _buildStackedCovers({
     required List<UserBookDto> books,
     required double offsetXPerLayer,
     required double offsetYPerLayer,
   }) {
-    // 최대 4개의 커버만 표시
     final maxCoversToShow = math.min(books.length, 4);
-
-    // 최신 책부터 표시 (reversed)
     final booksToDisplay = books.reversed.take(maxCoversToShow).toList();
 
     return Stack(
@@ -275,11 +231,10 @@ class ShareableReadingCalendar extends StatelessWidget {
           offsetXPerLayer: offsetXPerLayer,
           offsetYPerLayer: offsetYPerLayer,
         ),
-      ).reversed.toList(), // 뒤에서부터 렌더링
+      ).reversed.toList(),
     );
   }
 
-  /// 개별 책 표지 레이어를 변환과 함께 빌드
   Widget _buildCoverLayer({
     required String coverUrl,
     required int index,
@@ -287,10 +242,7 @@ class ShareableReadingCalendar extends StatelessWidget {
     required double offsetXPerLayer,
     required double offsetYPerLayer,
   }) {
-    // Scale: 총 권수에 따라 결정 (1권=100%, 2권=90%, 3권=80%, 4권=70%)
     final scale = (1.0 - ((totalLayers - 1) * 0.1)).clamp(0.7, 1.0);
-
-    // Diagonal offset: 셀 크기에 비례한 오프셋 적용
     final offsetX = index * offsetXPerLayer;
     final offsetY = index * offsetYPerLayer;
 
@@ -306,7 +258,8 @@ class ShareableReadingCalendar extends StatelessWidget {
                 imageUrl: coverUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: Colors.blue.withValues(alpha: 0.2 * (1 - index * 0.1)),
+                  color: Colors.blue.withValues(
+                      alpha: 0.2 * (1 - index * 0.1)),
                   child: Center(
                     child: CircularProgressIndicator(strokeWidth: 2 * scale),
                   ),
@@ -334,45 +287,36 @@ class ShareableReadingCalendar extends StatelessWidget {
     if (!hasBooks) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(6), // 반경 줄임
-          border: Border.all(
-            color: Colors.grey.withValues(alpha: 0.1),
-            width: 0.5, // 테두리 얇게
-          ),
+          color: _emptyCellBg,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: _emptyCellBorder, width: 0.5),
         ),
         child: Center(
           child: Text(
             '$day',
-            style: const TextStyle(
-              fontSize: 13, // 크기 줄임
+            style: TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: DesignTokens.textTertiary,
+              color: _textTertiary,
             ),
           ),
         ),
       );
     }
 
-    // 책이 있는 날
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 셀 크기에 비례한 오프셋 계산
         final cellWidth = constraints.maxWidth;
         final cellHeight = constraints.maxHeight;
-
-        // 셀 너비의 15%, 셀 높이의 22% (기존 12px/18px 비율 유지하며 반응형으로)
         final offsetXPerLayer = cellWidth * 0.10;
         final offsetYPerLayer = cellHeight * 0.10;
 
         return ClipRRect(
-          borderRadius: BorderRadius.circular(6), // 반경 줄임
+          borderRadius: BorderRadius.circular(6),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // 책 표지 배경 - 단일 책 또는 여러 책 겹쳐서 표시
               if (books.length == 1)
-                // 단일 책: 기존 로직 유지
                 books.first.coverUrl.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: books.first.coverUrl,
@@ -385,11 +329,8 @@ class ShareableReadingCalendar extends StatelessWidget {
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: Colors.blue.withValues(alpha: 0.2),
-                          child: const Icon(
-                            Icons.book,
-                            color: Colors.blue,
-                            size: 24,
-                          ),
+                          child: const Icon(Icons.book,
+                              color: Colors.blue, size: 24),
                         ),
                       )
                     : Container(
@@ -399,37 +340,19 @@ class ShareableReadingCalendar extends StatelessWidget {
                         ),
                       )
               else
-                // 여러 책: 겹쳐서 표시 (셀 크기 기반 오프셋 적용)
                 _buildStackedCovers(
                   books: books,
                   offsetXPerLayer: offsetXPerLayer,
                   offsetYPerLayer: offsetYPerLayer,
                 ),
 
-              // 그라데이션 오버레이
-              // Container(
-              //   decoration: BoxDecoration(
-              //     gradient: LinearGradient(
-              //       begin: Alignment.topCenter,
-              //       end: Alignment.bottomCenter,
-              //       colors: [
-              //         Colors.transparent,
-              //         Colors.black.withValues(alpha: 0.3),
-              //         Colors.black.withValues(alpha: 0.7),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-
-              // 날짜 배지 (상단 왼쪽)
+              // 날짜 배지
               Positioned(
                 top: 3,
                 left: 3,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 2,
-                  ),
+                      horizontal: 5, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(3),
@@ -445,24 +368,22 @@ class ShareableReadingCalendar extends StatelessWidget {
                 ),
               ),
 
-              // 권수 표시 (하단)
+              // 권수 배지
               if (books.length > 1)
                 Positioned(
                   bottom: 3,
                   right: 3,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
-                    ),
+                        horizontal: 5, vertical: 2),
                     decoration: BoxDecoration(
-                      color: DesignTokens.primaryMain.withValues(alpha: 0.95),
+                      color: _primary.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: Text(
                       '${books.length}권',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -481,84 +402,31 @@ class ShareableReadingCalendar extends StatelessWidget {
     required String value,
     required IconData icon,
   }) {
-    return Container(
-      // decoration: BoxDecoration(
-      //   gradient: LinearGradient(
-      //     begin: Alignment.topLeft,
-      //     end: Alignment.bottomRight,
-      //     colors: [
-      //       DesignTokens.primaryMain.withValues(alpha: 0.15),
-      //       DesignTokens.primaryMain.withValues(alpha: 0.15),
-      //     ],
-      //   ),
-      //   borderRadius: BorderRadius.circular(6),
-      //   border: Border.all(
-      //     color: DesignTokens.primaryMain.withValues(alpha: 0.3),
-      //     width: 1,
-      //   ),
-      // ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: DesignTokens.primaryMain, size: 40),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: DesignTokens.primaryMain,
-              letterSpacing: -0.3,
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: _primary, size: 40),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: _primary,
+            letterSpacing: -0.3,
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: DesignTokens.primaryMain.withValues(alpha: 0.7),
-              letterSpacing: -0.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFooter(int completedCount) {
-    return Container(
-      padding: const EdgeInsets.all(14), // 패딩 줄임
-      decoration: BoxDecoration(
-        color: DesignTokens.primaryMain.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-        border: Border.all(
-          color: DesignTokens.primaryMain.withValues(alpha: 0.2),
-          width: 1,
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.auto_stories,
-            color: DesignTokens.primaryMain,
-            size: 22, // 크기 줄임
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: _primary.withValues(alpha: 0.7),
+            letterSpacing: -0.2,
           ),
-          const SizedBox(width: 10),
-          Text(
-            completedCount > 0
-                ? '이번 달 $completedCount권 완독 🎉'
-                : '이번 달 완독한 책이 없습니다',
-            style: const TextStyle(
-              fontSize: 16, // 크기 줄임
-              fontWeight: FontWeight.w600,
-              color: DesignTokens.primaryMain,
-              letterSpacing: -0.3,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

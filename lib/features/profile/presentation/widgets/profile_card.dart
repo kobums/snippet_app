@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/features/auth/data/models/user.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'profile_field.dart';
@@ -10,10 +11,7 @@ import 'profile_field.dart';
 class ProfileCard extends StatelessWidget {
   final User user;
 
-  const ProfileCard({
-    super.key,
-    required this.user,
-  });
+  const ProfileCard({super.key, required this.user});
 
   String _getInitial(String name) {
     if (name.isEmpty) return '?';
@@ -30,21 +28,18 @@ class ProfileCard extends StatelessWidget {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  DesignTokens.primaryLight,
-                  DesignTokens.primaryMain,
-                ],
+                colors: [DesignTokens.primaryLight, context.colors.primary],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: DesignTokens.primaryMain,
+                  color: context.colors.primary,
                   blurRadius: 20,
-                  offset: Offset(0, 8),
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -63,9 +58,7 @@ class ProfileCard extends StatelessWidget {
           // User name
           Text(
             user.name,
-            style: AppTypography.h2.copyWith(
-              color: DesignTokens.textPrimary,
-            ),
+            style: AppTypography.h2.copyWith(color: context.colors.textPrimary),
           ),
           const SizedBox(height: DesignTokens.space8),
 
@@ -73,28 +66,19 @@ class ProfileCard extends StatelessWidget {
           Text(
             user.email,
             style: AppTypography.bodyMedium.copyWith(
-              color: DesignTokens.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(height: DesignTokens.space24),
 
           // Divider
-          Container(
-            height: 1,
-            color: DesignTokens.neutral200,
-          ),
+          Container(height: 1, color: context.colors.divider),
           const SizedBox(height: DesignTokens.space20),
 
           // Profile fields
-          ProfileField(
-            label: '이름',
-            value: user.name,
-          ),
+          ProfileField(label: '이름', value: user.name),
           const SizedBox(height: DesignTokens.space12),
-          ProfileField(
-            label: '이메일',
-            value: user.email,
-          ),
+          ProfileField(label: '이메일', value: user.email),
         ],
       ),
     );

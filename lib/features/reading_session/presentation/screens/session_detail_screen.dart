@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
@@ -58,22 +59,24 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: appColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: appColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: DesignTokens.textPrimary),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: appColors.textPrimary,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('독서 세션', style: AppTypography.h4),
+        title: Text('독서 세션', style: AppTypography.h4.copyWith(color: appColors.textPrimary)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.ios_share_rounded,
-                color: DesignTokens.textPrimary),
+            icon: Icon(Icons.ios_share_rounded, color: appColors.textPrimary),
             onPressed: _openShareSheet,
           ),
         ],
@@ -83,15 +86,15 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildBookHeader(),
+            _buildBookHeader(appColors),
             const SizedBox(height: DesignTokens.space24),
-            _buildDateBadge(),
+            _buildDateBadge(appColors),
             const SizedBox(height: DesignTokens.space24),
-            _buildStatsGrid(),
+            _buildStatsGrid(appColors),
             const SizedBox(height: DesignTokens.space24),
-            _buildProgressSection(),
+            _buildProgressSection(appColors),
             const SizedBox(height: DesignTokens.space24),
-            _buildPaceSection(),
+            _buildPaceSection(appColors),
             const SizedBox(height: DesignTokens.space32),
           ],
         ),
@@ -99,7 +102,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     );
   }
 
-  Widget _buildBookHeader() {
+  Widget _buildBookHeader(AppColors appColors) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -111,11 +114,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               width: 72,
               height: 100,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _bookCoverPlaceholder(),
+              errorBuilder: (_, __, ___) => _bookCoverPlaceholder(appColors),
             ),
           )
         else
-          _bookCoverPlaceholder(),
+          _bookCoverPlaceholder(appColors),
         const SizedBox(width: DesignTokens.space16),
         Expanded(
           child: Column(
@@ -123,7 +126,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             children: [
               Text(
                 widget.session.bookTitle,
-                style: AppTypography.h4,
+                style: AppTypography.h4.copyWith(color: appColors.textPrimary),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -131,8 +134,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 const SizedBox(height: DesignTokens.space4),
                 Text(
                   widget.session.bookAuthor,
-                  style: AppTypography.labelSmall
-                      .copyWith(color: DesignTokens.textSecondary),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: appColors.textSecondary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -144,13 +148,13 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                   vertical: DesignTokens.space4,
                 ),
                 decoration: BoxDecoration(
-                  color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                  color: appColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
                 ),
                 child: Text(
                   '독서 완료',
                   style: AppTypography.labelSmall.copyWith(
-                    color: DesignTokens.primaryMain,
+                    color: appColors.primary,
                     fontWeight: DesignTokens.fontMedium,
                   ),
                 ),
@@ -162,20 +166,23 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     );
   }
 
-  Widget _bookCoverPlaceholder() {
+  Widget _bookCoverPlaceholder(AppColors appColors) {
     return Container(
       width: 72,
       height: 100,
       decoration: BoxDecoration(
-        color: DesignTokens.neutral100,
+        color: appColors.surfaceSecondary,
         borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
       ),
-      child: const Icon(Icons.menu_book_outlined,
-          color: DesignTokens.textTertiary, size: 28),
+      child: Icon(
+        Icons.menu_book_outlined,
+        color: appColors.textTertiary,
+        size: 28,
+      ),
     );
   }
 
-  Widget _buildDateBadge() {
+  Widget _buildDateBadge(AppColors appColors) {
     return GlassContainer(
       padding: const EdgeInsets.symmetric(
         horizontal: DesignTokens.space16,
@@ -183,26 +190,34 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.calendar_today_outlined,
-              size: 18, color: DesignTokens.primaryMain),
+          Icon(
+            Icons.calendar_today_outlined,
+            size: 18,
+            color: appColors.primary,
+          ),
           const SizedBox(width: DesignTokens.space12),
           Text(
             _formatDate(widget.session.sessionDate),
-            style: AppTypography.bodyMedium
-                .copyWith(fontWeight: DesignTokens.fontMedium),
+            style: AppTypography.bodyMedium.copyWith(
+              color: appColors.textPrimary,
+              fontWeight: DesignTokens.fontMedium,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(AppColors appColors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('세션 요약',
-            style: AppTypography.labelLarge
-                .copyWith(color: DesignTokens.textSecondary)),
+        Text(
+          '세션 요약',
+          style: AppTypography.labelLarge.copyWith(
+            color: appColors.textSecondary,
+          ),
+        ),
         const SizedBox(height: DesignTokens.space12),
         Row(
           children: [
@@ -211,7 +226,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 icon: Icons.timer_outlined,
                 label: '독서 시간',
                 value: _formatDuration(widget.session.durationSeconds),
-                color: DesignTokens.primaryMain,
+                color: appColors.primary,
+                appColors: appColors,
               ),
             ),
             const SizedBox(width: DesignTokens.space12),
@@ -221,6 +237,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 label: '읽은 페이지',
                 value: '${widget.session.pagesRead}페이지',
                 color: DesignTokens.success,
+                appColors: appColors,
               ),
             ),
           ],
@@ -234,35 +251,42 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     required String label,
     required String value,
     required Color color,
+    required AppColors appColors,
   }) {
     return GlassContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: color),
+          Icon(icon, size: DesignTokens.iconSm, color: color),
           const SizedBox(height: DesignTokens.space8),
           Text(value, style: AppTypography.h4.copyWith(color: color)),
           const SizedBox(height: DesignTokens.space4),
-          Text(label,
-              style: AppTypography.labelSmall
-                  .copyWith(color: DesignTokens.textSecondary)),
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: appColors.textSecondary,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildProgressSection() {
-    final totalRange =
-        widget.session.endPage - widget.session.startPage + 1;
-    final progress =
-        totalRange > 0 ? widget.session.pagesRead / totalRange : 0.0;
+  Widget _buildProgressSection(AppColors appColors) {
+    final totalRange = widget.session.endPage - widget.session.startPage + 1;
+    final progress = totalRange > 0
+        ? widget.session.pagesRead / totalRange
+        : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('페이지 진행',
-            style: AppTypography.labelLarge
-                .copyWith(color: DesignTokens.textSecondary)),
+        Text(
+          '페이지 진행',
+          style: AppTypography.labelLarge.copyWith(
+            color: appColors.textSecondary,
+          ),
+        ),
         const SizedBox(height: DesignTokens.space12),
         GlassContainer(
           child: Column(
@@ -270,21 +294,23 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _pageLabel('시작', widget.session.startPage),
-                  const Icon(Icons.arrow_forward_rounded,
-                      size: 16, color: DesignTokens.textTertiary),
-                  _pageLabel('종료', widget.session.endPage),
+                  _pageLabel('시작', widget.session.startPage, appColors),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: DesignTokens.iconXs,
+                    color: appColors.textTertiary,
+                  ),
+                  _pageLabel('종료', widget.session.endPage, appColors),
                 ],
               ),
               const SizedBox(height: DesignTokens.space16),
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(DesignTokens.radiusXs),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
                 child: LinearProgressIndicator(
                   value: progress.clamp(0.0, 1.0),
                   minHeight: 8,
-                  backgroundColor: DesignTokens.neutral100,
-                  color: DesignTokens.primaryMain,
+                  backgroundColor: appColors.surfaceSecondary,
+                  color: appColors.primary,
                 ),
               ),
               const SizedBox(height: DesignTokens.space8),
@@ -305,33 +331,46 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     );
   }
 
-  Widget _pageLabel(String label, int page) {
+  Widget _pageLabel(String label, int page, AppColors appColors) {
     return Column(
       children: [
-        Text(label,
-            style: AppTypography.labelSmall
-                .copyWith(color: DesignTokens.textTertiary)),
+        Text(
+          label,
+          style: AppTypography.labelSmall.copyWith(
+            color: appColors.textTertiary,
+          ),
+        ),
         const SizedBox(height: DesignTokens.space4),
-        Text('$page p',
-            style: AppTypography.bodyLarge
-                .copyWith(fontWeight: DesignTokens.fontSemiBold)),
+        Text(
+          '$page p',
+          style: AppTypography.bodyLarge.copyWith(
+            color: appColors.textPrimary,
+            fontWeight: DesignTokens.fontSemiBold,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildPaceSection() {
+  Widget _buildPaceSection(AppColors appColors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('읽기 속도',
-            style: AppTypography.labelLarge
-                .copyWith(color: DesignTokens.textSecondary)),
+        Text(
+          '읽기 속도',
+          style: AppTypography.labelLarge.copyWith(
+            color: appColors.textSecondary,
+          ),
+        ),
         const SizedBox(height: DesignTokens.space12),
         GlassContainer(
           child: Row(
             children: [
-              const Icon(Icons.speed_outlined,
-                  size: 20, color: DesignTokens.textSecondary),
+              Icon(
+                Icons.speed_outlined,
+                size: DesignTokens.iconSm,
+                color: appColors.textSecondary,
+              ),
               const SizedBox(width: DesignTokens.space12),
               Expanded(
                 child: Column(
@@ -339,14 +378,17 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                   children: [
                     Text(
                       _formatPace(widget.session.secondsPerPage),
-                      style: AppTypography.bodyLarge
-                          .copyWith(fontWeight: DesignTokens.fontMedium),
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: appColors.textPrimary,
+                        fontWeight: DesignTokens.fontMedium,
+                      ),
                     ),
                     const SizedBox(height: DesignTokens.space4),
                     Text(
                       _formatSpeed(widget.session.secondsPerPage),
-                      style: AppTypography.labelSmall
-                          .copyWith(color: DesignTokens.textSecondary),
+                      style: AppTypography.labelSmall.copyWith(
+                        color: appColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -368,10 +410,11 @@ class _ShareBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
+      decoration: BoxDecoration(
+        color: appColors.surface,
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(DesignTokens.radiusXl),
         ),
       ),
@@ -388,7 +431,7 @@ class _ShareBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: DesignTokens.neutral300,
+              color: appColors.border,
               borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
             ),
           ),

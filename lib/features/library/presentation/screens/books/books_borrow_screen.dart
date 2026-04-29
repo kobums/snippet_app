@@ -9,7 +9,8 @@ import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_fab.dart';
 import 'package:snippet_app/components/search_field.dart';
-import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/app_colors.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class BooksBorrowScreen extends ConsumerStatefulWidget {
   const BooksBorrowScreen({super.key});
@@ -60,7 +61,7 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
     final filteredBooks = _getFilteredBooks();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       appBar: AppAppBar(
         title: '빌린 책',
         letterSpacing: 1.5,
@@ -70,10 +71,9 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
             child: Center(
               child: Text(
                 '${filteredBooks.length}권',
-                style: const TextStyle(
-                  fontSize: 16,
+                style: AppTypography.bodyLarge.copyWith(
                   fontWeight: FontWeight.w300,
-                  color: DesignTokens.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
@@ -123,24 +123,22 @@ class _BooksBorrowScreenState extends ConsumerState<BooksBorrowScreen> {
               Icon(
                 Icons.auto_stories_outlined,
                 size: 64,
-                color: Colors.black.withValues(alpha: 0.2),
+                color: context.colors.textDisabled,
               ),
               const SizedBox(height: 16),
               Text(
                 _searchQuery.isEmpty ? '빌린 책이 없습니다' : '검색 결과가 없습니다',
-                style: TextStyle(
-                  fontSize: 16,
+                style: AppTypography.bodyLarge.copyWith(
                   fontWeight: FontWeight.w300,
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 _searchQuery.isEmpty ? '빌린 책을 추가해보세요!' : '다른 검색어를 시도해보세요',
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w300,
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],

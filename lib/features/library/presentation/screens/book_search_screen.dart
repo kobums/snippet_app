@@ -5,6 +5,8 @@ import 'package:snippet_app/features/library/data/models/book_search.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_search_provider.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/library/presentation/widgets/add_book_bottom_sheet.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
@@ -75,7 +77,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       appBar: const AppAppBar(title: '책 검색', letterSpacing: 2),
       body: SearchableScrollLayout(
         controller: _searchController,
@@ -106,18 +108,13 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search,
-              size: 64,
-              color: Colors.black.withValues(alpha: 0.2),
-            ),
+            Icon(Icons.search, size: 64, color: context.colors.textDisabled),
             const SizedBox(height: 16),
             Text(
               '책을 검색해보세요',
-              style: TextStyle(
-                fontSize: 16,
+              style: AppTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w300,
-                color: Colors.black.withValues(alpha: 0.5),
+                color: context.colors.textSecondary,
               ),
             ),
           ],
@@ -133,15 +130,14 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: Colors.black.withValues(alpha: 0.2),
+              color: context.colors.textDisabled,
             ),
             const SizedBox(height: 16),
             Text(
               '검색 결과가 없습니다',
-              style: TextStyle(
-                fontSize: 16,
+              style: AppTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w300,
-                color: Colors.black.withValues(alpha: 0.5),
+                color: context.colors.textSecondary,
               ),
             ),
           ],
@@ -188,7 +184,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   placeholder: (context, url) => Container(
                     width: 60,
                     height: 90,
-                    color: Colors.grey.withValues(alpha: 0.2),
+                    color: context.colors.surfaceSecondary,
                     child: const Center(
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
@@ -196,10 +192,10 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   errorWidget: (context, url, error) => Container(
                     width: 60,
                     height: 90,
-                    color: Colors.grey.withValues(alpha: 0.3),
+                    color: context.colors.border,
                     child: Icon(
                       Icons.book,
-                      color: Colors.grey.withValues(alpha: 0.5),
+                      color: context.colors.iconSecondary,
                     ),
                   ),
                 ),
@@ -211,9 +207,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: AppTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w400,
+                        color: context.colors.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -221,10 +217,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                     const SizedBox(height: 4),
                     Text(
                       book.author,
-                      style: TextStyle(
-                        fontSize: 14,
+                      style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.5),
+                        color: context.colors.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -232,10 +227,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${book.publisher} · ${book.pubDate}',
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: AppTypography.bodySmall.copyWith(
                         fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: context.colors.textTertiary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -256,7 +250,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
               ),
               Icon(
                 Icons.add_circle_outline,
-                color: DesignTokens.primaryMain.withValues(alpha: 0.7),
+                color: context.colors.primary.withValues(alpha: 0.7),
                 size: 28,
               ),
             ],

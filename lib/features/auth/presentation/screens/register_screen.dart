@@ -7,6 +7,7 @@ import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -171,7 +172,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
@@ -187,10 +188,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       width: 140,
                       height: 140,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: context.colors.glassDark,
                         borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.6),
+                          color: context.colors.glassBorder,
                         ),
                       ),
                       child: ClipRRect(
@@ -204,13 +205,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                     ),
-                    Text('Snippet', style: AppTypography.brand),
+                    Text('Snippet', style: AppTypography.brand.copyWith(color: context.colors.primary)),
                     const SizedBox(height: DesignTokens.space40),
                     GlassContainer(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('Create Account', style: AppTypography.h3),
+                          Text('Create Account', style: AppTypography.h3.copyWith(color: context.colors.textPrimary)),
                           const SizedBox(height: DesignTokens.space24),
 
                           // 이름
@@ -224,7 +225,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
+                              fillColor: context.colors.inputFill,
                             ),
                             validator: (v) =>
                                 (v == null || v.isEmpty) ? '이름을 입력해 주세요' : null,
@@ -248,7 +249,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                                     ),
                                     filled: true,
-                                    fillColor: Colors.white.withValues(alpha: 0.5),
+                                    fillColor: context.colors.inputFill,
                                   ),
                                   validator: (v) {
                                     if (v == null || v.isEmpty) return '이메일을 입력해 주세요';
@@ -281,7 +282,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                                 ? '재발송'
                                                 : '인증코드\n발송',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(fontSize: 11),
+                                    style: AppTypography.captionSmall.copyWith(fontSize: 11, color: context.colors.textPrimary),
                                   ),
                                 ),
                               ),
@@ -295,7 +296,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               '이메일로 발송된 6자리 코드를 입력하세요',
                               style: AppTypography.withColor(
                                 AppTypography.caption,
-                                Colors.black54,
+                                context.colors.textSecondary,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -318,11 +319,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       inputFormatters: [
                                         FilteringTextInputFormatter.digitsOnly,
                                       ],
-                                      style: AppTypography.h3,
+                                      style: AppTypography.h3.copyWith(color: context.colors.textPrimary),
                                       decoration: InputDecoration(
                                         counterText: '',
                                         filled: true,
-                                        fillColor: Colors.white.withValues(alpha: 0.5),
+                                        fillColor: context.colors.inputFill,
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                                         ),
@@ -356,7 +357,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
+                              fillColor: context.colors.inputFill,
                             ),
                             validator: (v) =>
                                 (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요' : null,
@@ -384,7 +385,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
+                              fillColor: context.colors.inputFill,
                             ),
                             validator: (v) {
                               if (v == null || v.isEmpty) return '비밀번호를 다시 입력해 주세요';
@@ -408,15 +409,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             children: [
                               Text(
                                 'Already have an account? ',
-                                style: TextStyle(color: Colors.black.withValues(alpha: 0.6)),
+                                style: AppTypography.bodyMedium.copyWith(color: context.colors.textSecondary),
                               ),
                               GestureDetector(
                                 onTap: () => Navigator.of(context).pop(),
-                                child: const Text(
+                                child: Text(
                                   'Login',
-                                  style: TextStyle(
-                                    color: DesignTokens.primaryMain,
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTypography.labelMedium.copyWith(
+                                    color: context.colors.primary,
                                   ),
                                 ),
                               ),

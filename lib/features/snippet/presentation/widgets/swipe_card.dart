@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/snippet/data/models/snippet.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -26,17 +27,17 @@ class SwipeCard extends StatelessWidget {
                   vertical: DesignTokens.space4,
                 ),
                 decoration: BoxDecoration(
-                  color: DesignTokens.primaryMain.withValues(alpha: 0.08),
+                  color: context.colors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
                   border: Border.all(
-                    color: DesignTokens.primaryMain.withValues(alpha: 0.2),
+                    color: context.colors.primary.withValues(alpha: 0.2),
                     width: 0.5,
                   ),
                 ),
                 child: Text(
                   snippet.tag!,
                   style: AppTypography.caption.copyWith(
-                    color: DesignTokens.primaryMain,
+                    color: context.colors.primary,
                     fontWeight: DesignTokens.fontMedium,
                   ),
                 ),
@@ -55,7 +56,7 @@ class SwipeCard extends StatelessWidget {
                     Text(
                       '"${snippet.text}"',
                       style: AppTypography.quote.copyWith(
-                        color: DesignTokens.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -64,7 +65,7 @@ class SwipeCard extends StatelessWidget {
                       Text(
                         snippet.bookTitle!,
                         style: AppTypography.bodyMedium.copyWith(
-                          color: DesignTokens.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -79,7 +80,7 @@ class SwipeCard extends StatelessWidget {
             width: 48,
             height: 2,
             decoration: BoxDecoration(
-              color: DesignTokens.neutral300,
+              color: context.colors.border,
               borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
             ),
           ),

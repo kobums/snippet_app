@@ -18,6 +18,7 @@ import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/components/app_select.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 
 enum _DetailTab { snippet, diary, review, session }
@@ -349,7 +350,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       if (!_waitingForLibraryRefresh) return;
       if (next.isLoading) return;
       _waitingForLibraryRefresh = false;
-      final updated = next.allBooks.where((b) => b.id == widget.book.id).firstOrNull;
+      final updated = next.allBooks
+          .where((b) => b.id == widget.book.id)
+          .firstOrNull;
       if (updated != null && mounted) {
         setState(() {
           _readPage = updated.readPage;
@@ -373,108 +376,110 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
         }
       },
       child: Material(
-        color: Colors.white,
+        color: context.colors.surface,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Stack(
-          children: [
-            // Main scroll content
-            CustomScrollView(
-              slivers: [
-                // Top padding for header
-                SliverPadding(padding: EdgeInsets.only(top: topPadding + 56)),
+            children: [
+              // Main scroll content
+              CustomScrollView(
+                slivers: [
+                  // Top padding for header
+                  SliverPadding(padding: EdgeInsets.only(top: topPadding + 56)),
 
-                // Book info section
-                SliverToBoxAdapter(child: _buildBookInfo()),
+                  // Book info section
+                  SliverToBoxAdapter(child: _buildBookInfo()),
 
-                // Type & Status selectors
-                SliverToBoxAdapter(child: _buildSelectors()),
+                  // Type & Status selectors
+                  SliverToBoxAdapter(child: _buildSelectors()),
 
-                // Progress & Records (not for wish)
-                if (_selectedType != BookType.wish) ...[
-                  SliverToBoxAdapter(child: _buildProgress()),
-                  SliverToBoxAdapter(child: _buildReadingPeriod()),
-                  SliverToBoxAdapter(child: _buildRecordTabs()),
-                  _buildRecordsList(),
+                  // Progress & Records (not for wish)
+                  if (_selectedType != BookType.wish) ...[
+                    SliverToBoxAdapter(child: _buildProgress()),
+                    SliverToBoxAdapter(child: _buildReadingPeriod()),
+                    SliverToBoxAdapter(child: _buildRecordTabs()),
+                    _buildRecordsList(),
+                  ],
+
+                  // Bottom padding for FAB
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
                 ],
-
-                // Bottom padding for FAB
-                const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
-              ],
-            ),
-
-            // Floating glass header
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      top: topPadding,
-                      left: 4,
-                      right: 4,
-                      bottom: 8,
-                    ),
-                    decoration: const BoxDecoration(
-                      // color: Colors.white.withValues(alpha: 0.9),
-                      // border: Border(
-                      //   bottom: BorderSide(
-                      //     color: Colors.black.withValues(alpha: 0.05),
-                      //     width: 1,
-                      //   ),
-                      // ),
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () => context.pop(),
-                          color: DesignTokens.textPrimary,
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.book.title,
-                            style: AppTypography.h3,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: _deleteBook,
-                          color: DesignTokens.error,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
-            ),
 
-            // Floating Action Button
-            if (_selectedType != BookType.wish &&
-                _selectedDetailTab != _DetailTab.session)
+              // Floating glass header
               Positioned(
-                bottom: 16,
-                right: 16,
-                child: FloatingActionButton(
-                  onPressed: _addRecord,
-                  backgroundColor: DesignTokens.primaryMain,
-                  child: Icon(
-                    _selectedDetailTab == _DetailTab.snippet
-                        ? Icons.camera_alt
-                        : Icons.add,
-                    color: Colors.white,
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        top: topPadding,
+                        left: 4,
+                        right: 4,
+                        bottom: 8,
+                      ),
+                      decoration: const BoxDecoration(
+                        // color: Colors.white.withValues(alpha: 0.9),
+                        // border: Border(
+                        //   bottom: BorderSide(
+                        //     color: Colors.black.withValues(alpha: 0.05),
+                        //     width: 1,
+                        //   ),
+                        // ),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => context.pop(),
+                            color: context.colors.textPrimary,
+                          ),
+                          Expanded(
+                            child: Text(
+                              widget.book.title,
+                              style: AppTypography.h3.copyWith(
+                                color: context.colors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: _deleteBook,
+                            color: DesignTokens.error,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-          ],
+
+              // Floating Action Button
+              if (_selectedType != BookType.wish &&
+                  _selectedDetailTab != _DetailTab.session)
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: _addRecord,
+                    backgroundColor: context.colors.primary,
+                    child: Icon(
+                      _selectedDetailTab == _DetailTab.snippet
+                          ? Icons.camera_alt
+                          : Icons.add,
+                      color: context.colors.surface,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
-    ), // Material의 끝
+      ), // Material의 끝
     ); // PopScope의 끝
   }
 
@@ -494,11 +499,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               errorBuilder: (context, error, stackTrace) => Container(
                 width: 80,
                 height: 120,
-                color: Colors.grey.withValues(alpha: 0.3),
-                child: Icon(
-                  Icons.book,
-                  color: Colors.grey.withValues(alpha: 0.5),
-                ),
+                color: context.colors.border,
+                child: Icon(Icons.book, color: context.colors.iconSecondary),
               ),
             ),
           ),
@@ -509,7 +511,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               children: [
                 Text(
                   widget.book.title,
-                  style: AppTypography.h3,
+                  style: AppTypography.h3.copyWith(
+                    color: context.colors.textPrimary,
+                  ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -517,7 +521,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 Text(
                   widget.book.author,
                   style: AppTypography.bodyMedium.copyWith(
-                    color: DesignTokens.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -606,13 +610,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 Text(
                   '진행률',
                   style: AppTypography.labelMedium.copyWith(
-                    color: DesignTokens.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 Text(
                   '$_readPage / ${widget.book.totalPage} 페이지',
                   style: AppTypography.bodySmall.copyWith(
-                    color: DesignTokens.textTertiary,
+                    color: context.colors.textTertiary,
                   ),
                 ),
               ],
@@ -625,9 +629,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                     ? _readPage / widget.book.totalPage
                     : 0,
                 minHeight: 8,
-                backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  DesignTokens.primaryMain,
+                backgroundColor: context.colors.border,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.primary,
                 ),
               ),
             ),
@@ -646,23 +650,23 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                       child: Text(
                         '/ ${widget.book.totalPage}',
                         style: AppTypography.bodySmall.copyWith(
-                          color: DesignTokens.textTertiary,
+                          color: context.colors.textTertiary,
                         ),
                       ),
                     ),
                     IconButton(
                       icon: _isUpdating
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: DesignTokens.primaryMain,
+                                color: context.colors.primary,
                               ),
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.check_circle,
-                              color: DesignTokens.primaryMain,
+                              color: context.colors.primary,
                             ),
                       onPressed: _isUpdating ? null : _submitProgress,
                     ),
@@ -672,7 +676,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                 ),
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.5),
+                fillColor: context.colors.inputFill,
               ),
               onSubmitted: (value) {
                 final page = int.tryParse(value) ?? 0;
@@ -688,17 +692,21 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    final currentBook = widget.book.copyWith(readPage: _readPage);
+                    final currentBook = widget.book.copyWith(
+                      readPage: _readPage,
+                    );
                     context.push(AppRoutes.activeSession, extra: currentBook);
                   },
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('독서 시작'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DesignTokens.primaryMain,
+                    backgroundColor: context.colors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusMd,
+                      ),
                     ),
                     textStyle: AppTypography.bodyMedium.copyWith(
                       fontWeight: DesignTokens.fontMedium,
@@ -740,7 +748,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             Text(
               '독서 기간',
               style: AppTypography.labelMedium.copyWith(
-                color: DesignTokens.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -755,16 +763,16 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today,
                       size: 18,
-                      color: DesignTokens.primaryMain,
+                      color: context.colors.primary,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       '시작',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: DesignTokens.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -773,15 +781,15 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                         _formatDate(_startDate),
                         style: AppTypography.bodyMedium.copyWith(
                           color: _startDate.isEmpty
-                              ? DesignTokens.textTertiary
-                              : DesignTokens.textPrimary,
+                              ? context.colors.textTertiary
+                              : context.colors.textPrimary,
                         ),
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.edit_calendar,
                       size: 18,
-                      color: DesignTokens.textTertiary,
+                      color: context.colors.textTertiary,
                     ),
                   ],
                 ),
@@ -808,7 +816,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                       Text(
                         '완료',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: DesignTokens.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -817,15 +825,15 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                           _formatDate(_endDate),
                           style: AppTypography.bodyMedium.copyWith(
                             color: _endDate.isEmpty
-                                ? DesignTokens.textTertiary
-                                : DesignTokens.textPrimary,
+                                ? context.colors.textTertiary
+                                : context.colors.textPrimary,
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.edit_calendar,
                         size: 18,
-                        color: DesignTokens.textTertiary,
+                        color: context.colors.textTertiary,
                       ),
                     ],
                   ),
@@ -873,9 +881,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           height: MediaQuery.of(context).size.height * 0.65,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: const BorderRadius.vertical(
               top: Radius.circular(DesignTokens.radiusXl),
             ),
           ),
@@ -887,8 +895,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: DesignTokens.neutral300,
-                  borderRadius: BorderRadius.circular(2),
+                  color: context.colors.border,
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusXxs),
                 ),
               ),
               // Header
@@ -897,11 +905,16 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: AppTypography.h3),
+                    Text(
+                      title,
+                      style: AppTypography.h3.copyWith(
+                        color: context.colors.textPrimary,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
-                      color: DesignTokens.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ],
                 ),
@@ -910,11 +923,11 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               Expanded(
                 child: Theme(
                   data: Theme.of(context).copyWith(
-                    colorScheme: const ColorScheme.light(
-                      primary: DesignTokens.primaryMain,
+                    colorScheme: ColorScheme.light(
+                      primary: context.colors.primary,
                       onPrimary: Colors.white,
-                      surface: Colors.white,
-                      onSurface: DesignTokens.textPrimary,
+                      surface: context.colors.surface,
+                      onSurface: context.colors.textPrimary,
                     ),
                     textTheme: const TextTheme(
                       headlineMedium: AppTypography.h3,
@@ -937,7 +950,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(DesignTokens.space24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.surface,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -958,14 +971,12 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                               DesignTokens.radiusMd,
                             ),
                           ),
-                          side: const BorderSide(
-                            color: DesignTokens.neutral300,
-                          ),
+                          side: BorderSide(color: context.colors.border),
                         ),
                         child: Text(
                           '취소',
                           style: AppTypography.labelLarge.copyWith(
-                            color: DesignTokens.textSecondary,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ),
@@ -976,7 +987,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                         onPressed: () => Navigator.pop(context, selectedDate),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: DesignTokens.primaryMain,
+                          backgroundColor: context.colors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -1121,7 +1132,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('독서 기록', style: AppTypography.h3.copyWith(letterSpacing: 1)),
+          Text(
+            '독서 기록',
+            style: AppTypography.h3.copyWith(
+              color: context.colors.textPrimary,
+              letterSpacing: 1,
+            ),
+          ),
           const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -1139,23 +1156,23 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? DesignTokens.primaryMain
+                            ? context.colors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(
                           DesignTokens.radiusFull,
                         ),
                         border: Border.all(
                           color: isSelected
-                              ? DesignTokens.primaryMain
-                              : DesignTokens.neutral200,
+                              ? context.colors.primary
+                              : context.colors.border,
                         ),
                       ),
                       child: Text(
                         tabLabels[tab]!,
                         style: AppTypography.labelMedium.copyWith(
                           color: isSelected
-                              ? Colors.white
-                              : DesignTokens.textSecondary,
+                              ? context.colors.surface
+                              : context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -1197,13 +1214,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               Icon(
                 Icons.edit_note,
                 size: 40,
-                color: Colors.black.withValues(alpha: 0.15),
+                color: context.colors.textDisabled,
               ),
               const SizedBox(height: 6),
               Text(
                 '아직 $tabLabel이(가) 없습니다',
                 style: AppTypography.bodyMedium.copyWith(
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],
@@ -1240,13 +1257,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
               Icon(
                 Icons.timer_off_outlined,
                 size: 40,
-                color: Colors.black.withValues(alpha: 0.15),
+                color: context.colors.textDisabled,
               ),
               const SizedBox(height: 6),
               Text(
                 '아직 독서 세션이 없습니다',
                 style: AppTypography.bodyMedium.copyWith(
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],

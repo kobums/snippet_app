@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
@@ -152,7 +153,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.colors.surface,
         appBar: AppAppBar(
           title: '기록 수정',
           letterSpacing: 2,
@@ -166,17 +167,17 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
             ),
             IconButton(
               icon: _isSaving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: DesignTokens.primaryMain,
+                        color: context.colors.primary,
                       ),
                     )
-                  : const Icon(
+                  : Icon(
                       Icons.check,
-                      color: DesignTokens.primaryMain,
+                      color: context.colors.primary,
                     ),
               onPressed: _isSaving ? null : _updateRecord,
             ),
@@ -199,13 +200,13 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                           Text(
                             '책',
                             style: AppTypography.caption.copyWith(
-                              color: DesignTokens.textSecondary,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             widget.record.bookTitle,
-                            style: AppTypography.bodyMedium,
+                            style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -219,13 +220,13 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                        color: context.colors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                       ),
                       child: Text(
                         widget.record.type.label,
                         style: AppTypography.caption.copyWith(
-                          color: DesignTokens.primaryMain,
+                          color: context.colors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -239,7 +240,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
               Text(
                 '내용',
                 style: AppTypography.labelMedium.copyWith(
-                  color: DesignTokens.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -267,7 +268,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                         Text(
                           '태그',
                           style: AppTypography.labelMedium.copyWith(
-                            color: DesignTokens.textSecondary,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -279,7 +280,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                               borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                             ),
                             filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.5),
+                            fillColor: context.colors.inputFill,
                           ),
                         ),
                       ],
@@ -293,7 +294,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                         Text(
                           '페이지',
                           style: AppTypography.labelMedium.copyWith(
-                            color: DesignTokens.textSecondary,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -306,7 +307,7 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
                               borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                             ),
                             filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.5),
+                            fillColor: context.colors.inputFill,
                           ),
                         ),
                       ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
 import 'package:snippet_app/features/library/data/models/popular_book.dart';
 import 'package:snippet_app/features/library/presentation/widgets/add_book_bottom_sheet.dart';
@@ -16,7 +17,9 @@ class PopularBookCard extends StatelessWidget {
     return GlassContainer(
       level: GlassLevel.subtle,
       margin: const EdgeInsets.symmetric(
-          horizontal: DesignTokens.space16, vertical: 6),
+        horizontal: DesignTokens.space16,
+        vertical: 6,
+      ),
       padding: const EdgeInsets.all(DesignTokens.space12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -31,35 +34,43 @@ class PopularBookCard extends StatelessWidget {
               children: [
                 Text(
                   book.title,
-                  style: AppTypography.labelMedium,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: context.colors.textPrimary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   book.author,
-                  style: AppTypography.captionSmall
-                      .copyWith(color: DesignTokens.textSecondary),
+                  style: AppTypography.captionSmall.copyWith(
+                    color: context.colors.textSecondary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   book.publisher,
-                  style: AppTypography.captionSmall
-                      .copyWith(color: DesignTokens.textTertiary),
+                  style: AppTypography.captionSmall.copyWith(
+                    color: context.colors.textTertiary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.auto_stories_outlined,
-                        size: 12, color: DesignTokens.neutral500),
+                    Icon(
+                      Icons.auto_stories_outlined,
+                      size: 12,
+                      color: context.colors.iconSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '대출 ${_formatCount(book.loanCount)}회',
                       style: AppTypography.captionSmall.copyWith(
-                          color: DesignTokens.neutral500),
+                        color: context.colors.iconSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -91,9 +102,9 @@ class _RankBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (rank) {
-      1 => const Color(0xFFFFD700), // 금
-      2 => const Color(0xFFC0C0C0), // 은
-      3 => const Color(0xFFCD7F32), // 동
+      1 => const Color(0xFFFFD700),
+      2 => const Color(0xFFC0C0C0),
+      3 => const Color(0xFFCD7F32),
       _ => DesignTokens.neutral400,
     };
 
@@ -103,13 +114,16 @@ class _RankBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (rank <= 3)
-            Icon(Icons.emoji_events_rounded, color: color, size: 16),
+            Icon(
+              Icons.emoji_events_rounded,
+              color: color,
+              size: DesignTokens.iconXs,
+            ),
           Text(
             '$rank위',
             style: AppTypography.captionSmall.copyWith(
-              color: rank <= 3 ? color : DesignTokens.textTertiary,
-              fontWeight:
-                  rank <= 3 ? FontWeight.w700 : FontWeight.w400,
+              color: rank <= 3 ? color : context.colors.textTertiary,
+              fontWeight: rank <= 3 ? FontWeight.w700 : FontWeight.w400,
             ),
             textAlign: TextAlign.center,
           ),
@@ -136,22 +150,27 @@ class _BookCover extends StatelessWidget {
               width: 56,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _placeholder(),
+              errorBuilder: (_, __, ___) => Container(
+                width: 56,
+                height: 80,
+                color: context.colors.surfaceSecondary,
+                child: Icon(
+                  Icons.book_outlined,
+                  color: context.colors.iconSecondary,
+                  size: 24,
+                ),
+              ),
             )
-          : _placeholder(),
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      width: 56,
-      height: 80,
-      color: DesignTokens.neutral100,
-      child: const Icon(
-        Icons.book_outlined,
-        color: DesignTokens.neutral400,
-        size: 24,
-      ),
+          : Container(
+              width: 56,
+              height: 80,
+              color: context.colors.surfaceSecondary,
+              child: Icon(
+                Icons.book_outlined,
+                color: context.colors.iconSecondary,
+                size: 24,
+              ),
+            ),
     );
   }
 }
@@ -170,10 +189,10 @@ class _AddButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: DesignTokens.primaryMain,
+          color: context.colors.primary,
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.add, color: Colors.white, size: 18),
+        child: Icon(Icons.add, color: context.colors.surface, size: 18),
       ),
     );
   }

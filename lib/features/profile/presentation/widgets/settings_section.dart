@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/settings_tile.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/core/config/ocr_config.dart';
@@ -17,11 +19,11 @@ class SettingsSection extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text(
           '준비 중입니다',
-          style: AppTypography.h4,
+          style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
         ),
         content: Text(
           '이 기능은 곧 추가될 예정입니다.',
-          style: AppTypography.bodyMedium,
+          style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
         ),
         actions: [
           TextButton(
@@ -44,10 +46,10 @@ class SettingsSection extends ConsumerWidget {
         height: 64,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [DesignTokens.primaryMain, DesignTokens.accentPurple],
+            colors: [context.colors.primary, DesignTokens.accentPurple],
           ),
         ),
         child: Center(
@@ -69,7 +71,7 @@ class SettingsSection extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('OCR 엔진 선택', style: AppTypography.h4),
+        title: Text('OCR 엔진 선택', style: AppTypography.h4.copyWith(color: context.colors.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +93,7 @@ class SettingsSection extends ConsumerWidget {
                 OcrConfig.isNaverClovaConfigured
                     ? 'API 키 설정됨'
                     : '.env 파일에 API 키를 설정하세요',
-                style: TextStyle(
+                style: AppTypography.bodySmall.copyWith(
                   color: OcrConfig.isNaverClovaConfigured
                       ? Colors.green[700]
                       : Colors.orange[700],
@@ -127,7 +129,7 @@ class SettingsSection extends ConsumerWidget {
                 OcrConfig.isGoogleVisionConfigured
                     ? 'API 키 설정됨'
                     : '.env 파일에 API 키를 설정하세요',
-                style: TextStyle(
+                style: AppTypography.bodySmall.copyWith(
                   color: OcrConfig.isGoogleVisionConfigured
                       ? Colors.green[700]
                       : Colors.orange[700],
@@ -162,11 +164,11 @@ class SettingsSection extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('API 키 필요', style: AppTypography.h4),
+        title: Text('API 키 필요', style: AppTypography.h4.copyWith(color: context.colors.textPrimary)),
         content: Text(
           '$engineName OCR을 사용하려면 .env 파일에 API 키를 설정해야 합니다.\n\n'
           '자세한 내용은 README.md를 참고하세요.',
-          style: AppTypography.bodyMedium,
+          style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
         ),
         actions: [
           TextButton(
@@ -183,6 +185,56 @@ class SettingsSection extends ConsumerWidget {
       OcrEngine.naverClova => 'Naver Clova (한글 특화)',
       OcrEngine.googleVision => 'Google Vision (최고 정확도)',
     };
+  }
+
+  String _getThemeModeName(ThemeMode mode) {
+    return switch (mode) {
+      ThemeMode.system => '시스템 설정 따르기',
+      ThemeMode.light => '라이트 모드',
+      ThemeMode.dark => '다크 모드',
+    };
+  }
+
+  void _showThemeModeDialog(BuildContext context, WidgetRef ref) {
+    final current = ref.read(themeModeProvider);
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          var selected = current;
+          return AlertDialog(
+            title: Text('테마 설정', style: AppTypography.h4.copyWith(color: context.colors.textPrimary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ThemeMode.values.map((mode) {
+                return ListTile(
+                  leading: Radio<ThemeMode>(
+                    value: mode,
+                    groupValue: selected,
+                    onChanged: (value) => setState(() => selected = value!),
+                  ),
+                  title: Text(_getThemeModeName(mode)),
+                  onTap: () => setState(() => selected = mode),
+                );
+              }).toList(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () {
+                  ref.read(themeModeProvider.notifier).setMode(selected);
+                  Navigator.pop(context);
+                },
+                child: const Text('적용'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -216,8 +268,8 @@ class SettingsSection extends ConsumerWidget {
           SettingsTile(
             icon: Icons.palette_outlined,
             title: '테마 설정',
-            subtitle: '다크모드 (준비중)',
-            onTap: () => _showComingSoonDialog(context),
+            subtitle: _getThemeModeName(ref.watch(themeModeProvider)),
+            onTap: () => _showThemeModeDialog(context, ref),
           ),
           const Divider(height: 1),
           SettingsTile(

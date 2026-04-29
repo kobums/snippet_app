@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/presentation/providers/popular_book_provider.dart';
 import 'package:snippet_app/features/library/presentation/widgets/popular_book_card.dart';
 import 'package:snippet_app/features/library/presentation/widgets/popular_book_filter_bar.dart';
@@ -44,7 +45,7 @@ class _PopularBooksScreenState extends ConsumerState<PopularBooksScreen> {
     final state = ref.watch(popularBooksProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           AppAppBar.sliver(
@@ -105,12 +106,12 @@ class _PopularBooksScreenState extends ConsumerState<PopularBooksScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.trending_up_rounded,
-              size: 64, color: DesignTokens.neutral300),
+              size: 64, color: context.colors.textDisabled),
           const SizedBox(height: 16),
           Text(
             '인기 도서 정보를 불러올 수 없습니다',
             style: AppTypography.bodyMedium
-                .copyWith(color: DesignTokens.textTertiary),
+                .copyWith(color: context.colors.textTertiary),
           ),
         ],
       ),
@@ -123,18 +124,18 @@ class _PopularBooksScreenState extends ConsumerState<PopularBooksScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.error_outline_rounded,
-              size: 48, color: DesignTokens.neutral400),
+              size: 48, color: context.colors.textDisabled),
           const SizedBox(height: 12),
           Text(
             '오류가 발생했습니다',
             style: AppTypography.bodyMedium
-                .copyWith(color: DesignTokens.textSecondary),
+                .copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             message,
             style: AppTypography.captionSmall
-                .copyWith(color: DesignTokens.textTertiary),
+                .copyWith(color: context.colors.textTertiary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),

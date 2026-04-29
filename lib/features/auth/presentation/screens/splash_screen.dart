@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -44,7 +45,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
 
     return Scaffold(
-      backgroundColor: DesignTokens.bgPrimary,
+      backgroundColor: context.colors.surface,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -54,10 +55,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 width: 140,
                 height: 140,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: context.colors.glassDark,
                   borderRadius: BorderRadius.circular(DesignTokens.radius3xl),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: context.colors.glassBorder,
                     width: 1,
                   ),
                 ),
@@ -77,7 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 'Snippet',
                 style: AppTypography.displaySmall.copyWith(
                   letterSpacing: DesignTokens.letterSpacingExtraWide,
-                  color: DesignTokens.primaryMain,
+                  color: context.colors.primary,
                 ),
               ),
               const SizedBox(height: DesignTokens.space8),
@@ -85,7 +86,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 'Blind Book Curation',
                 style: AppTypography.caption.copyWith(
                   letterSpacing: DesignTokens.letterSpacingWidest,
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
               ),
               const SizedBox(height: DesignTokens.space40),
@@ -95,7 +96,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    DesignTokens.primaryMain.withValues(alpha: 0.5),
+                    context.colors.primary.withValues(alpha: 0.5),
                   ),
                 ),
               ),

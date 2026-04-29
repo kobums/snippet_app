@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/data/models/book_search.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
@@ -155,9 +156,9 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
-        decoration: const BoxDecoration(
-          color: DesignTokens.bgPrimary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -169,7 +170,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                 height: 4,
                 margin: const EdgeInsets.only(top: 12, bottom: 12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: context.colors.border,
                   borderRadius: BorderRadius.circular(DesignTokens.radiusXxs),
                 ),
               ),
@@ -191,7 +192,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                     // Title
                     Text(
                       '책 추가',
-                      style: AppTypography.h3,
+                      style: AppTypography.h3.copyWith(color: context.colors.textPrimary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: DesignTokens.space24),
@@ -216,7 +217,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                             children: [
                               Text(
                                 widget.book.title,
-                                style: AppTypography.bodyLarge,
+                                style: AppTypography.bodyLarge.copyWith(color: context.colors.textPrimary),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -224,7 +225,7 @@ class _AddBookBottomSheetState extends ConsumerState<AddBookBottomSheet> {
                               Text(
                                 widget.book.author,
                                 style: AppTypography.bodyMedium.copyWith(
-                                  color: Colors.black.withValues(alpha: 0.5),
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                             ],

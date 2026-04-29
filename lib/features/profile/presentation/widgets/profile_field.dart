@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -24,14 +25,14 @@ class ProfileField extends StatelessWidget {
           Text(
             label,
             style: AppTypography.labelMedium.copyWith(
-              color: DesignTokens.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: AppTypography.bodyMedium.copyWith(
-                color: DesignTokens.textPrimary,
+                color: context.colors.textPrimary,
               ),
               textAlign: TextAlign.right,
               overflow: TextOverflow.ellipsis,

@@ -3,6 +3,7 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 
 /// Fintech Style Book Grid Card
 /// 세련된 북 카드 with 디자인 토큰
@@ -18,12 +19,12 @@ class BookGridCard extends StatelessWidget {
     this.onStatusChange,
   });
 
-  Color _getStatusColor(BookStatus status) {
+  Color _getStatusColor(BookStatus status, dynamic context) {
     switch (status) {
       case BookStatus.waiting:
         return DesignTokens.neutral500;
       case BookStatus.reading:
-        return DesignTokens.primaryMain;
+        return context.colors.primary;
       case BookStatus.completed:
         return DesignTokens.success;
       case BookStatus.dropped:
@@ -73,15 +74,15 @@ class BookGridCard extends StatelessWidget {
                           width: double.infinity,
                           height: double.infinity,
                           decoration: BoxDecoration(
-                            color: DesignTokens.neutral200,
+                            color: context.colors.surfaceSecondary,
                             borderRadius: BorderRadius.circular(
                               DesignTokens.radiusSm,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.book_outlined,
                             size: DesignTokens.icon2xl,
-                            color: DesignTokens.neutral400,
+                            color: context.colors.iconSecondary,
                           ),
                         );
                       },
@@ -89,30 +90,30 @@ class BookGridCard extends StatelessWidget {
                   ),
                   // Status badge
                   if (book.status != BookStatus.none)
-                  Positioned(
-                    top: DesignTokens.space8,
-                    right: DesignTokens.space8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: DesignTokens.space8,
-                        vertical: DesignTokens.space4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(book.status),
-                        borderRadius: BorderRadius.circular(
-                          DesignTokens.radiusSm,
+                    Positioned(
+                      top: DesignTokens.space8,
+                      right: DesignTokens.space8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DesignTokens.space8,
+                          vertical: DesignTokens.space4,
                         ),
-                        boxShadow: DesignTokens.shadowSm,
-                      ),
-                      child: Text(
-                        _getStatusText(book.status),
-                        style: AppTypography.captionSmall.copyWith(
-                          color: Colors.white,
-                          fontWeight: DesignTokens.fontMedium,
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(book.status, context),
+                          borderRadius: BorderRadius.circular(
+                            DesignTokens.radiusSm,
+                          ),
+                          boxShadow: DesignTokens.shadowSm,
+                        ),
+                        child: Text(
+                          _getStatusText(book.status),
+                          style: AppTypography.captionSmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: DesignTokens.fontMedium,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -122,24 +123,22 @@ class BookGridCard extends StatelessWidget {
             Text(
               book.title,
               style: AppTypography.labelMedium.copyWith(
-                color: DesignTokens.textPrimary,
+                color: context.colors.textPrimary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: DesignTokens.space4),
 
-            // Author
             Text(
               book.author,
               style: AppTypography.caption.copyWith(
-                color: DesignTokens.textSecondary,
+                color: context.colors.textSecondary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
 
-            // Progress bar (if reading)
             if (book.status == BookStatus.reading) ...[
               const SizedBox(height: DesignTokens.space8),
               ClipRRect(
@@ -147,9 +146,9 @@ class BookGridCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: book.progress,
                   minHeight: 4,
-                  backgroundColor: DesignTokens.neutral200,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    DesignTokens.primaryMain,
+                  backgroundColor: context.colors.border,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    context.colors.primary,
                   ),
                 ),
               ),
@@ -157,21 +156,23 @@ class BookGridCard extends StatelessWidget {
               Text(
                 '${(book.progress * 100).toInt()}%',
                 style: AppTypography.captionSmall.copyWith(
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],
 
-            if (onStatusChange != null && book.status == BookStatus.waiting) ...[
+            if (onStatusChange != null &&
+                book.status == BookStatus.waiting) ...[
               const SizedBox(height: DesignTokens.space8),
               _ActionButton(
                 label: '읽기 시작',
-                color: DesignTokens.primaryMain,
+                color: context.colors.primary,
                 onTap: () => onStatusChange!(BookStatus.reading),
               ),
             ],
 
-            if (onStatusChange != null && book.status == BookStatus.reading) ...[
+            if (onStatusChange != null &&
+                book.status == BookStatus.reading) ...[
               const SizedBox(height: DesignTokens.space8),
               Row(
                 children: [

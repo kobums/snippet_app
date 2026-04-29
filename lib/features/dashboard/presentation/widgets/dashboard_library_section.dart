@@ -8,7 +8,9 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class DashboardLibrarySection extends ConsumerStatefulWidget {
   final double headerOpacity;
@@ -106,24 +108,22 @@ class _DashboardLibrarySectionState
                         Icon(
                           Icons.library_books_outlined,
                           size: 64,
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: context.colors.textDisabled,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           '아직 책이 없습니다',
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: AppTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: Colors.black.withValues(alpha: 0.5),
+                            color: context.colors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '첫 책을 추가해보세요!',
-                          style: TextStyle(
-                            fontSize: 14,
+                          style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: Colors.black.withValues(alpha: 0.3),
+                            color: context.colors.textTertiary,
                           ),
                         ),
                       ],

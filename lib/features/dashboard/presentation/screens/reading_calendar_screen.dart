@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/shareable_reading_calendar.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/dashboard/presentation/providers/calendar_provider.dart';
-import 'package:snippet_app/features/dashboard/presentation/widgets/shareable_reading_calendar.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/month_navigator.dart';
@@ -48,7 +50,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
         calendarState.selectedMonth == now.month;
 
     return Scaffold(
-      backgroundColor: DesignTokens.bgPrimary,
+      backgroundColor: context.colors.surface,
       appBar: const AppAppBar(title: '독서 캘린더'),
       body: AppRefreshIndicator(
         onRefresh: () async {
@@ -91,6 +93,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                           month: calendarState.selectedMonth,
                           showTitle: false,
                           showStats: _showStats,
+                          isDark: context.isDark,
                         ),
                       ),
                     ),
@@ -103,27 +106,25 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                       vertical: DesignTokens.space12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colors.surface,
                       borderRadius: BorderRadius.circular(
                         DesignTokens.radiusMd,
                       ),
-                      border: Border.all(color: DesignTokens.neutral200),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.bar_chart,
-                          color: DesignTokens.primaryMain,
+                          color: context.colors.primary,
                           size: 20,
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             '캘린더에 통계 표시',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: DesignTokens.textPrimary,
+                            style: AppTypography.labelMedium.copyWith(
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -134,7 +135,8 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                               _showStats = value;
                             });
                           },
-                          activeTrackColor: DesignTokens.primaryMain,
+                          activeTrackColor: context.colors.primary,
+                          activeThumbColor: context.colors.surface,
                         ),
                       ],
                     ),
@@ -143,19 +145,19 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                   // Container(
                   //   padding: const EdgeInsets.all(DesignTokens.space16),
                   //   decoration: BoxDecoration(
-                  //     color: DesignTokens.primaryMain.withValues(alpha: 0.05),
+                  //     color: context.colors.primary.withValues(alpha: 0.05),
                   //     borderRadius: BorderRadius.circular(
                   //       DesignTokens.radiusMd,
                   //     ),
                   //     border: Border.all(
-                  //       color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                  //       color: context.colors.primary.withValues(alpha: 0.1),
                   //     ),
                   //   ),
                   //   child: const Row(
                   //     children: [
                   //       Icon(
                   //         Icons.info_outline,
-                  //         color: DesignTokens.primaryMain,
+                  //         color: context.colors.primary,
                   //         size: 20,
                   //       ),
                   //       SizedBox(width: 12),
@@ -190,6 +192,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                                       context,
                                       completedBooks,
                                       showStats: _showStats,
+                                      isDark: context.isDark,
                                     ),
                         ),
                       ),
@@ -210,6 +213,7 @@ class _ReadingCalendarScreenState extends ConsumerState<ReadingCalendarScreen> {
                                       context,
                                       completedBooks,
                                       showStats: _showStats,
+                                      isDark: context.isDark,
                                     ),
                         ),
                       ),

@@ -16,7 +16,9 @@ import 'package:snippet_app/features/reading_session/presentation/providers/sess
 import 'package:snippet_app/features/reading_session/presentation/widgets/reading_session_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -281,6 +283,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
         recordState.selectedMonth == now.month;
 
     return Container(
+      color: context.colors.surface,
       padding: EdgeInsets.only(top: topPadding),
       height: _fixedHeaderHeight + topPadding,
       child: Center(
@@ -347,24 +350,22 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
               Icon(
                 Icons.edit_note_rounded,
                 size: 64,
-                color: Colors.black.withValues(alpha: 0.2),
+                color: context.colors.textDisabled,
               ),
               const SizedBox(height: 16),
               Text(
                 '아직 기록이 없습니다',
-                style: TextStyle(
-                  fontSize: 16,
+                style: AppTypography.bodyLarge.copyWith(
                   fontWeight: FontWeight.w300,
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '첫 기록을 추가해보세요!',
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w300,
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],
@@ -400,8 +401,8 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
             ),
             child: Text(
               entry.key,
-              style: const TextStyle(
-                fontSize: 16,
+              style: AppTypography.bodyLarge.copyWith(
+                color: context.colors.textPrimary,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.5,
               ),
@@ -451,14 +452,13 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.timer_outlined, size: 64,
-                            color: Colors.black.withValues(alpha: 0.2)),
+                            color: context.colors.textDisabled),
                         const SizedBox(height: 16),
                         Text(
                           '아직 독서 세션이 없습니다',
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: AppTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: Colors.black.withValues(alpha: 0.5),
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ],
@@ -489,8 +489,8 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
                   child: Text(
                     entry.key,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.5,
                     ),

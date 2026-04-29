@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 
@@ -151,12 +152,12 @@ class ShareCardWidget extends StatelessWidget {
                   // 타이머
                   Text(
                     data.formattedTime,
-                    style: const TextStyle(
+                    style: AppTypography.displayLarge.copyWith(
                       fontSize: 52,
                       fontWeight: DesignTokens.fontLight,
                       color: Colors.white,
                       letterSpacing: 2,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                      fontFeatures: [const FontFeature.tabularFigures()],
                     ),
                   ),
                   const SizedBox(height: DesignTokens.space8),
@@ -182,8 +183,7 @@ class ShareCardWidget extends StatelessWidget {
                   if (showBookTitle && data.bookTitle.isNotEmpty) ...[
                     Text(
                       data.bookTitle,
-                      style: TextStyle(
-                        fontSize: DesignTokens.fontSize14,
+                      style: AppTypography.bodyMedium.copyWith(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontWeight: DesignTokens.fontMedium,
                       ),
@@ -193,8 +193,7 @@ class ShareCardWidget extends StatelessWidget {
                     if (data.bookAuthor.isNotEmpty)
                       Text(
                         data.bookAuthor,
-                        style: TextStyle(
-                          fontSize: DesignTokens.fontSize12,
+                        style: AppTypography.bodySmall.copyWith(
                           color: Colors.white.withValues(alpha: 0.55),
                         ),
                         maxLines: 1,
@@ -273,9 +272,8 @@ class _StatBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: const TextStyle(
+            style: AppTypography.bodySmall.copyWith(
               color: Colors.white,
-              fontSize: DesignTokens.fontSize12,
               fontWeight: DesignTokens.fontMedium,
             ),
           ),

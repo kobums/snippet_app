@@ -8,6 +8,8 @@ import 'package:snippet_app/features/dashboard/presentation/widgets/monthly_char
 import 'package:snippet_app/features/dashboard/presentation/widgets/yearly_summary.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/category_breakdown.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/insights_card.dart';
+import 'package:snippet_app/core/app_colors.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/year_navigator.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -41,7 +43,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     final statsNotifier = ref.read(statsProvider.notifier);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       appBar: AppAppBar(
         title: '통계',
         letterSpacing: 2,
@@ -53,7 +55,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
               gradient: LinearGradient(
                 colors: [
                   Colors.transparent,
-                  Colors.black.withValues(alpha: 0.05),
+                  context.colors.divider,
                   Colors.transparent,
                 ],
               ),
@@ -149,14 +151,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
               Icon(
                 Icons.error_outline,
                 size: 64,
-                color: Colors.black.withValues(alpha: 0.2),
+                color: context.colors.textDisabled,
               ),
               const SizedBox(height: 16),
               Text(
                 error,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black.withValues(alpha: 0.5),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: context.colors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),

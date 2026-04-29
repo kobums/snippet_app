@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
 class SessionTimerDisplay extends StatelessWidget {
   final String formattedTime;
@@ -18,12 +19,12 @@ class SessionTimerDisplay extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       child: Text(
         formattedTime,
-        style: const TextStyle(
+        style: AppTypography.displayLarge.copyWith(
           fontSize: 72,
           fontWeight: DesignTokens.fontLight,
           color: Colors.white,
           letterSpacing: 4,
-          fontFeatures: [FontFeature.tabularFigures()],
+          fontFeatures: [const FontFeature.tabularFigures()],
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:snippet_app/features/records/presentation/providers/camera_provi
 import 'package:snippet_app/features/records/records_providers.dart';
 import 'package:snippet_app/core/config/ocr_config.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 
@@ -238,11 +239,10 @@ class _OcrEngineSelector extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'OCR 엔진',
-            style: TextStyle(
+            style: AppTypography.bodySmall.copyWith(
               color: Colors.white,
-              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -301,7 +301,7 @@ class _EngineButton extends StatelessWidget {
           color: isSelected
               ? Colors.white.withValues(alpha: 0.25)
               : Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
           border: Border.all(
             color: isSelected
                 ? Colors.white.withValues(alpha: 0.5)
@@ -314,18 +314,17 @@ class _EngineButton extends StatelessWidget {
           children: [
             Text(
               name,
-              style: TextStyle(
-                color: Colors.white,
+              style: AppTypography.bodySmall.copyWith(
                 fontSize: 13,
+                color: Colors.white,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               description,
-              style: TextStyle(
+              style: AppTypography.captionSmall.copyWith(
                 color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 10,
                 fontWeight: FontWeight.w400,
               ),
               textAlign: TextAlign.center,

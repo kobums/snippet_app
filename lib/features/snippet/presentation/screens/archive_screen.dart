@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/features/snippet/presentation/providers/snippet_provider.dart';
 import 'package:snippet_app/features/snippet/data/models/snippet_archive.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +19,7 @@ class ArchiveScreen extends ConsumerWidget {
       child: archiveState.when(
         data: (snippets) {
           if (snippets.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(context);
           }
           return ListView.separated(
             padding: const EdgeInsets.only(
@@ -28,8 +29,7 @@ class ArchiveScreen extends ConsumerWidget {
               bottom: DesignTokens.space16,
             ),
             itemCount: snippets.length,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               return ArchiveCard(snippet: snippets[index]);
             },
@@ -41,24 +41,23 @@ class ArchiveScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final appColors = context.colors;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('📖', style: TextStyle(fontSize: AppTypography.displayLarge.fontSize)),
+        const Text('📖', style: AppTypography.displayLarge),
         const SizedBox(height: DesignTokens.space16),
         Text(
           '아직 모은 문장이 없어요',
-          style: AppTypography.h4.copyWith(
-            color: Colors.black.withValues(alpha: 0.55),
-          ),
+          style: AppTypography.h4.copyWith(color: appColors.textSecondary),
         ),
         const SizedBox(height: DesignTokens.space8),
         Text(
           '마음에 드는 문장을 오른쪽으로 스와이프하면\n여기에 모을 수 있어요',
           textAlign: TextAlign.center,
           style: AppTypography.bodyMedium.copyWith(
-            color: Colors.black.withValues(alpha: 0.35),
+            color: appColors.textTertiary,
           ),
         ),
       ],
@@ -79,17 +78,19 @@ class _ArchiveCardState extends State<ArchiveCard> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = !_isExpanded),
       child: Container(
         padding: const EdgeInsets.all(DesignTokens.space24),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.92),
+          color: appColors.cardBackground,
           borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.0),
+          border: Border.all(color: appColors.border, width: 1.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: appColors.overlay,
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -100,39 +101,52 @@ class _ArchiveCardState extends State<ArchiveCard> {
           children: [
             if (widget.snippet.tag != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: DesignTokens.space12,
+                  vertical: DesignTokens.space4,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(100),
+                  color: appColors.surfaceSecondary,
+                  borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
                 ),
                 child: Text(
                   widget.snippet.tag!,
                   style: AppTypography.labelSmall.copyWith(
-                    color: Colors.black.withValues(alpha: 0.55),
+                    color: appColors.textSecondary,
                   ),
                 ),
               ),
-            if (widget.snippet.tag != null) const SizedBox(height: DesignTokens.space12),
+            if (widget.snippet.tag != null)
+              const SizedBox(height: DesignTokens.space12),
             Text(
               '"${widget.snippet.text}"',
               style: AppTypography.bodyLarge.copyWith(
                 height: 1.6,
                 fontWeight: FontWeight.w300,
-                color: Colors.black.withValues(alpha: 0.85),
+                color: appColors.textPrimary,
               ),
             ),
             const SizedBox(height: DesignTokens.space12),
-            Text(
-              _isExpanded ? '탭하여 닫기' : '탭하여 책 정보 보기',
-              style: AppTypography.labelSmall.copyWith(
-                color: Colors.black.withValues(alpha: 0.35),
-              ),
+            // Text(
+            //   _isExpanded ? '탭하여 닫기' : '탭하여 책 정보 보기',
+            //   style: AppTypography.labelSmall.copyWith(color: appColors.textTertiary),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  ' ${widget.snippet.bookTitle} - ${widget.snippet.bookAuthor} ',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: appColors.textTertiary,
+                  ),
+                ),
+              ],
             ),
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOutCubic,
               child: _isExpanded
-                  ? _buildBookDetails()
+                  ? _buildBookDetails(context, appColors)
                   : const SizedBox.shrink(),
             ),
           ],
@@ -141,15 +155,15 @@ class _ArchiveCardState extends State<ArchiveCard> {
     );
   }
 
-  Widget _buildBookDetails() {
+  Widget _buildBookDetails(BuildContext context, AppColors appColors) {
     final s = widget.snippet;
     return Container(
       margin: const EdgeInsets.only(top: DesignTokens.space16),
       padding: const EdgeInsets.all(DesignTokens.space16),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.03),
+        color: appColors.surfaceSecondary,
         borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+        border: Border.all(color: appColors.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,11 +176,11 @@ class _ArchiveCardState extends State<ArchiveCard> {
                 width: 60,
                 height: 90,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                errorBuilder: (_, __, ___) => _buildPlaceholder(appColors),
               ),
             )
           else
-            _buildPlaceholder(),
+            _buildPlaceholder(appColors),
           const SizedBox(width: DesignTokens.space16),
           Expanded(
             child: Column(
@@ -176,14 +190,14 @@ class _ArchiveCardState extends State<ArchiveCard> {
                   s.bookTitle,
                   style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Colors.black.withValues(alpha: 0.85),
+                    color: appColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: DesignTokens.space4),
                 Text(
                   s.bookAuthor,
                   style: AppTypography.labelSmall.copyWith(
-                    color: Colors.black.withValues(alpha: 0.55),
+                    color: appColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: DesignTokens.space16),
@@ -203,12 +217,14 @@ class _ArchiveCardState extends State<ArchiveCard> {
                     ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusFull,
+                      ),
                     ),
                     child: Text(
                       '이 책 구매하기',
                       style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -221,15 +237,15 @@ class _ArchiveCardState extends State<ArchiveCard> {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(AppColors appColors) {
     return Container(
       width: 60,
       height: 90,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.1),
+        color: appColors.surfaceSecondary,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
       ),
-      child: const Icon(Icons.book, color: Colors.white),
+      child: Icon(Icons.book, color: appColors.textTertiary),
     );
   }
 }

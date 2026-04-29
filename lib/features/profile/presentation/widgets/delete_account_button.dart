@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -26,7 +27,7 @@ class DeleteAccountButton extends ConsumerWidget {
               ),
               content: Text(
                 '정말 회원탈퇴 하시겠습니까?\n\n모든 데이터가 삭제되며 복구할 수 없습니다.',
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
               ),
               actions: [
                 TextButton(
@@ -38,9 +39,9 @@ class DeleteAccountButton extends ConsumerWidget {
                   style: TextButton.styleFrom(
                     foregroundColor: DesignTokens.errorMain,
                   ),
-                  child: const Text(
+                  child: Text(
                     '탈퇴',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600, color: DesignTokens.errorMain),
                   ),
                 ),
               ],

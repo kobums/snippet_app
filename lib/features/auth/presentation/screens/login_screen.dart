@@ -5,6 +5,7 @@ import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -63,7 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
@@ -79,10 +80,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 140,
                       height: 140,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: context.colors.glassDark,
                         borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.6),
+                          color: context.colors.glassBorder,
                           width: 1,
                         ),
                       ),
@@ -99,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     Text(
                       'Snippet',
-                      style: AppTypography.brand,
+                      style: AppTypography.brand.copyWith(color: context.colors.primary),
                     ),
                     const SizedBox(height: DesignTokens.space40),
                     GlassContainer(
@@ -118,7 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
+                              fillColor: context.colors.inputFill,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -155,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                               ),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.5),
+                              fillColor: context.colors.inputFill,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -179,19 +180,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             children: [
                               Text(
                                 "Don't have an account? ",
-                                style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.6),
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                               GestureDetector(
                                 onTap: () {
                                   context.push(AppRoutes.register);
                                 },
-                                child: const Text(
+                                child: Text(
                                   'Register',
-                                  style: TextStyle(
-                                    color: DesignTokens.primaryMain,
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTypography.labelMedium.copyWith(
+                                    color: context.colors.primary,
                                   ),
                                 ),
                               ),

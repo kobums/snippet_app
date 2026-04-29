@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart' show Share, XFile;
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/share_card_widget.dart';
@@ -142,19 +143,19 @@ class _ShareCardSectionState extends State<ShareCardSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('공유 카드', style: AppTypography.h4),
+            Text('공유 카드', style: AppTypography.h4.copyWith(color: context.colors.textPrimary)),
             Row(
               children: [
                 Text(
                   '책 제목',
                   style: AppTypography.labelSmall
-                      .copyWith(color: DesignTokens.textSecondary),
+                      .copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(width: DesignTokens.space8),
                 Switch(
                   value: _showBookTitle,
                   onChanged: (v) => setState(() => _showBookTitle = v),
-                  activeThumbColor: DesignTokens.primaryMain,
+                  activeThumbColor: context.colors.primary,
                 ),
               ],
             ),
@@ -201,7 +202,7 @@ class _ShareCardSectionState extends State<ShareCardSection> {
                   icon: const Icon(Icons.ios_share_rounded),
                   label: const Text('공유하기'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: DesignTokens.primaryMain,
+                    backgroundColor: context.colors.primary,
                     padding: const EdgeInsets.symmetric(
                         vertical: DesignTokens.space16),
                     shape: RoundedRectangleBorder(
@@ -240,12 +241,12 @@ class _BgButton extends StatelessWidget {
               const EdgeInsets.symmetric(vertical: DesignTokens.space12),
           decoration: BoxDecoration(
             color: selected
-                ? DesignTokens.primaryMain.withValues(alpha: 0.1)
-                : DesignTokens.neutral100,
+                ? context.colors.primary.withValues(alpha: 0.1)
+                : context.colors.surfaceSecondary,
             borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             border: Border.all(
               color: selected
-                  ? DesignTokens.primaryMain
+                  ? context.colors.primary
                   : Colors.transparent,
               width: 1.5,
             ),
@@ -256,17 +257,16 @@ class _BgButton extends StatelessWidget {
                 icon,
                 size: 20,
                 color: selected
-                    ? DesignTokens.primaryMain
-                    : DesignTokens.textSecondary,
+                    ? context.colors.primary
+                    : context.colors.textSecondary,
               ),
               const SizedBox(height: DesignTokens.space4),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: DesignTokens.fontSize10,
+                style: AppTypography.captionSmall.copyWith(
                   color: selected
-                      ? DesignTokens.primaryMain
-                      : DesignTokens.textSecondary,
+                      ? context.colors.primary
+                      : context.colors.textSecondary,
                   fontWeight: selected
                       ? DesignTokens.fontMedium
                       : FontWeight.normal,

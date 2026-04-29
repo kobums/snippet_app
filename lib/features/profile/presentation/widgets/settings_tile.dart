@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -25,8 +26,8 @@ class SettingsTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-        splashColor: DesignTokens.primaryMain.withValues(alpha: 0.1),
-        highlightColor: DesignTokens.primaryMain.withValues(alpha: 0.05),
+        splashColor: context.colors.primary.withValues(alpha: 0.1),
+        highlightColor: context.colors.primary.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: DesignTokens.space12,
@@ -39,12 +40,12 @@ class SettingsTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: DesignTokens.primaryMain.withValues(alpha: 0.08),
+                  color: context.colors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                 ),
                 child: Icon(
                   icon,
-                  color: DesignTokens.primaryMain,
+                  color: context.colors.primary,
                   size: DesignTokens.iconMd,
                 ),
               ),
@@ -58,7 +59,7 @@ class SettingsTile extends StatelessWidget {
                     Text(
                       title,
                       style: AppTypography.bodyLarge.copyWith(
-                        color: DesignTokens.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -66,7 +67,7 @@ class SettingsTile extends StatelessWidget {
                       Text(
                         subtitle!,
                         style: AppTypography.caption.copyWith(
-                          color: DesignTokens.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],
@@ -77,7 +78,7 @@ class SettingsTile extends StatelessWidget {
               // Chevron icon
               Icon(
                 Icons.chevron_right,
-                color: DesignTokens.textTertiary,
+                color: context.colors.textTertiary,
                 size: DesignTokens.iconMd,
               ),
             ],

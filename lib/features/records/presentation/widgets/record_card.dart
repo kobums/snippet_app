@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:go_router/go_router.dart';
@@ -33,15 +34,15 @@ class RecordCard extends ConsumerWidget {
           return await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('기록 삭제', style: AppTypography.h3),
-              content: const Text(
+              title: Text('기록 삭제', style: AppTypography.h3.copyWith(color: context.colors.textPrimary)),
+              content: Text(
                 '이 기록을 삭제하시겠습니까?',
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('취소', style: AppTypography.labelMedium),
+                  child: Text('취소', style: AppTypography.labelMedium.copyWith(color: context.colors.textPrimary)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
@@ -133,7 +134,7 @@ class RecordCard extends ConsumerWidget {
                           vertical: DesignTokens.space4,
                         ),
                         decoration: BoxDecoration(
-                          color: DesignTokens.primaryMain.withValues(
+                          color: context.colors.primary.withValues(
                             alpha: 0.1,
                           ),
                           borderRadius: BorderRadius.circular(
@@ -143,7 +144,7 @@ class RecordCard extends ConsumerWidget {
                         child: Text(
                           '#${record.tag}',
                           style: AppTypography.caption.copyWith(
-                            color: DesignTokens.primaryMain,
+                            color: context.colors.primary,
                             fontWeight: DesignTokens.fontMedium,
                           ),
                         ),
@@ -156,7 +157,7 @@ class RecordCard extends ConsumerWidget {
                           Text(
                             'p.${record.relatedPage}',
                             style: AppTypography.caption.copyWith(
-                              color: DesignTokens.textTertiary,
+                              color: context.colors.textTertiary,
                             ),
                           ),
                           const SizedBox(width: DesignTokens.space8),
@@ -164,7 +165,7 @@ class RecordCard extends ConsumerWidget {
                         Text(
                           _formatDate(record.createDate),
                           style: AppTypography.caption.copyWith(
-                            color: DesignTokens.textTertiary,
+                            color: context.colors.textTertiary,
                           ),
                         ),
                       ],
@@ -176,7 +177,7 @@ class RecordCard extends ConsumerWidget {
                   record.text,
                   style: AppTypography.bodyMedium.copyWith(
                     height: DesignTokens.lineHeightRelaxed,
-                    color: DesignTokens.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/presentation/providers/ocr_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/book_provider.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
@@ -103,7 +104,7 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.colors.surface,
         appBar: const AppAppBar(title: 'OCR 결과', letterSpacing: 2),
         body: state.isProcessing
             ? _buildLoading()
@@ -119,11 +120,11 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: DesignTokens.primaryMain),
+          CircularProgressIndicator(color: context.colors.primary),
           const SizedBox(height: 24),
           Text(
             '텍스트를 인식하는 중...',
-            style: AppTypography.bodyMedium.copyWith(color: DesignTokens.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: context.colors.textSecondary),
           ),
         ],
       ),
@@ -141,7 +142,7 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
             const SizedBox(height: 24),
             Text(
               state.error!.message,
-              style: AppTypography.bodyLarge,
+              style: AppTypography.bodyLarge.copyWith(color: context.colors.textPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -167,7 +168,7 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
               children: [
                 Text(
                   '추출된 텍스트',
-                  style: AppTypography.labelMedium.copyWith(color: DesignTokens.textSecondary),
+                  style: AppTypography.labelMedium.copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -180,24 +181,24 @@ class _OcrResultScreenState extends ConsumerState<OcrResultScreen> {
                       borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.5),
+                    fillColor: context.colors.inputFill,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+                    color: context.colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline, size: 20, color: DesignTokens.primaryMain),
+                      Icon(Icons.info_outline, size: 20, color: context.colors.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'OCR 결과를 확인하고 필요시 수정해주세요',
-                          style: AppTypography.caption.copyWith(color: DesignTokens.primaryMain),
+                          style: AppTypography.caption.copyWith(color: context.colors.primary),
                         ),
                       ),
                     ],

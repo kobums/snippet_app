@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/reading_session/presentation/providers/reading_session_provider.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/session_timer_display.dart';
@@ -84,17 +85,15 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                         horizontal: DesignTokens.space24),
                     child: Text(
                       state.errorMessage!,
-                      style: const TextStyle(
+                      style: AppTypography.bodySmall.copyWith(
                         color: DesignTokens.error,
-                        fontSize: DesignTokens.fontSize12,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 Text(
                   '${state.startPage}p 에서 시작',
-                  style: TextStyle(
-                    fontSize: DesignTokens.fontSize12,
+                  style: AppTypography.bodySmall.copyWith(
                     color: Colors.white.withValues(alpha: 0.45),
                   ),
                 ),
@@ -128,7 +127,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             child: Text(
               '$_countdown',
               key: ValueKey(_countdown),
-              style: const TextStyle(
+              style: AppTypography.displayLarge.copyWith(
                 fontSize: 120,
                 fontWeight: FontWeight.w200,
                 color: Colors.white,
@@ -158,9 +157,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
           Expanded(
             child: Text(
               state.book?.title ?? '',
-              style: TextStyle(
-                fontSize: DesignTokens.fontSize16,
-                fontWeight: DesignTokens.fontMedium,
+              style: AppTypography.labelLarge.copyWith(
                 color: Colors.white.withValues(alpha: 0.8),
               ),
               maxLines: 1,
@@ -171,8 +168,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             onPressed: () => _confirmAbandon(context, notifier),
             child: Text(
               '포기',
-              style: TextStyle(
-                fontSize: DesignTokens.fontSize14,
+              style: AppTypography.bodyMedium.copyWith(
                 color: Colors.white.withValues(alpha: 0.5),
               ),
             ),
@@ -233,12 +229,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
               ),
             ),
           ),
-          child: const Text(
+          child: Text(
             '독서 완료',
-            style: TextStyle(
+            style: AppTypography.labelLarge.copyWith(
               color: Colors.white,
-              fontSize: DesignTokens.fontSize16,
-              fontWeight: DesignTokens.fontMedium,
             ),
           ),
         ),
@@ -273,9 +267,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
               await notifier.abandonSession();
               if (context.mounted) context.pop();
             },
-            child: const Text(
+            child: Text(
               '포기',
-              style: TextStyle(color: DesignTokens.error),
+              style: AppTypography.bodyMedium.copyWith(color: DesignTokens.error),
             ),
           ),
         ],

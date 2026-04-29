@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
@@ -55,24 +57,29 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(readingSessionProvider);
+    final appColors = context.colors;
 
     if (state.status == SessionStatus.saving) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: appColors.surface,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (state.status == SessionStatus.completing) {
-      return _buildEndPageInput(context, state);
+      return _buildEndPageInput(context, state, appColors);
     }
 
-    return _buildResult(context, state);
+    return _buildResult(context, state, appColors);
   }
 
   // ─── Phase 1: 종료 페이지 입력 ──────────────────────────────────────────────
 
-  Widget _buildEndPageInput(BuildContext context, ReadingSessionState state) {
+  Widget _buildEndPageInput(
+    BuildContext context,
+    ReadingSessionState state,
+    AppColors appColors,
+  ) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -81,21 +88,17 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: appColors.surface,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: appColors.surface,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.close, color: DesignTokens.textPrimary),
+              icon: Icon(Icons.close, color: appColors.textPrimary),
               onPressed: () => _confirmDiscard(context),
             ),
-            title: const Text(
+            title: Text(
               '독서 완료',
-              style: TextStyle(
-                fontSize: DesignTokens.fontSize18,
-                fontWeight: DesignTokens.fontMedium,
-                color: DesignTokens.textPrimary,
-              ),
+              style: AppTypography.h4.copyWith(color: appColors.textPrimary),
             ),
             centerTitle: true,
           ),
@@ -112,10 +115,8 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                 if (state.book != null)
                   Text(
                     state.book!.title,
-                    style: const TextStyle(
-                      fontSize: DesignTokens.fontSize20,
-                      fontWeight: DesignTokens.fontMedium,
-                      color: DesignTokens.textPrimary,
+                    style: AppTypography.h3.copyWith(
+                      color: appColors.textPrimary,
                     ),
                   ),
                 const SizedBox(height: DesignTokens.space24),
@@ -126,26 +127,26 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                       vertical: DesignTokens.space20,
                     ),
                     decoration: BoxDecoration(
-                      color: DesignTokens.primaryMain.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                      color: appColors.primary.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusMd,
+                      ),
                     ),
                     child: Column(
                       children: [
                         Text(
                           state.formattedTime,
-                          style: const TextStyle(
-                            fontSize: DesignTokens.fontSize40,
+                          style: AppTypography.displayMedium.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: DesignTokens.primaryMain,
+                            color: appColors.primary,
                             letterSpacing: 2,
                           ),
                         ),
                         const SizedBox(height: DesignTokens.space4),
-                        const Text(
+                        Text(
                           '독서 시간',
-                          style: TextStyle(
-                            fontSize: DesignTokens.fontSize12,
-                            color: DesignTokens.textSecondary,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: appColors.textSecondary,
                           ),
                         ),
                       ],
@@ -153,20 +154,17 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                   ),
                 ),
                 const SizedBox(height: DesignTokens.space32),
-                const Text(
+                Text(
                   '어디까지 읽으셨나요?',
-                  style: TextStyle(
-                    fontSize: DesignTokens.fontSize18,
-                    fontWeight: DesignTokens.fontMedium,
-                    color: DesignTokens.textPrimary,
+                  style: AppTypography.h4.copyWith(
+                    color: appColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: DesignTokens.space8),
                 Text(
                   '시작 페이지: ${state.startPage}p',
-                  style: const TextStyle(
-                    fontSize: DesignTokens.fontSize14,
-                    color: DesignTokens.textSecondary,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: appColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: DesignTokens.space16),
@@ -181,29 +179,29 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        style: const TextStyle(
-                          fontSize: DesignTokens.fontSize32,
+                        style: AppTypography.displaySmall.copyWith(
                           fontWeight: FontWeight.w300,
-                          color: DesignTokens.textPrimary,
+                          color: appColors.textPrimary,
                         ),
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           errorText: _pageError,
                           hintText: state.startPage.toString(),
                           suffixText: '페이지',
-                          suffixStyle: const TextStyle(
-                            fontSize: DesignTokens.fontSize16,
-                            color: DesignTokens.textSecondary,
+                          suffixStyle: AppTypography.bodyLarge.copyWith(
+                            color: appColors.textSecondary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(DesignTokens.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(DesignTokens.radiusMd),
-                            borderSide: const BorderSide(
-                              color: DesignTokens.primaryMain,
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
+                            borderSide: BorderSide(
+                              color: appColors.primary,
                               width: 2,
                             ),
                           ),
@@ -220,9 +218,10 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                             vertical: DesignTokens.space12,
                           ),
                           decoration: BoxDecoration(
-                            color: DesignTokens.neutral100,
-                            borderRadius:
-                                BorderRadius.circular(DesignTokens.radiusMd),
+                            color: appColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(
+                              DesignTokens.radiusMd,
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -234,7 +233,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
                               Container(
                                 width: 1,
                                 height: 28,
-                                color: DesignTokens.neutral300,
+                                color: appColors.border,
                               ),
                               _PreviewChip(
                                 label: '페이스',
@@ -265,23 +264,23 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
 
   // ─── Phase 2: 결과 화면 ─────────────────────────────────────────────────────
 
-  Widget _buildResult(BuildContext context, ReadingSessionState state) {
+  Widget _buildResult(
+    BuildContext context,
+    ReadingSessionState state,
+    AppColors appColors,
+  ) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: appColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: appColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: DesignTokens.textPrimary),
+          icon: Icon(Icons.close, color: appColors.textPrimary),
           onPressed: () => _exitSession(context),
         ),
-        title: const Text(
+        title: Text(
           '독서 완료',
-          style: TextStyle(
-            fontSize: DesignTokens.fontSize18,
-            fontWeight: DesignTokens.fontMedium,
-            color: DesignTokens.textPrimary,
-          ),
+          style: AppTypography.h4.copyWith(color: appColors.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -290,7 +289,7 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStatsGrid(state),
+            _buildStatsGrid(state, appColors),
             const SizedBox(height: DesignTokens.space32),
             ShareCardSection(
               initialData: ShareCardData.fromSessionState(state),
@@ -310,18 +309,14 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
     );
   }
 
-  Widget _buildStatsGrid(ReadingSessionState state) {
+  Widget _buildStatsGrid(ReadingSessionState state, AppColors appColors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (state.book != null)
           Text(
             state.book!.title,
-            style: const TextStyle(
-              fontSize: DesignTokens.fontSize20,
-              fontWeight: DesignTokens.fontMedium,
-              color: DesignTokens.textPrimary,
-            ),
+            style: AppTypography.h3.copyWith(color: appColors.textPrimary),
           ),
         const SizedBox(height: DesignTokens.space20),
         Row(
@@ -409,9 +404,11 @@ class _SessionCompleteScreenState extends ConsumerState<SessionCompleteScreen> {
               Navigator.of(ctx).pop();
               _exitSession(context);
             },
-            child: const Text(
+            child: Text(
               '나가기',
-              style: TextStyle(color: DesignTokens.error),
+              style: AppTypography.bodyMedium.copyWith(
+                color: DesignTokens.error,
+              ),
             ),
           ),
         ],
@@ -438,22 +435,20 @@ class _PreviewChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
-            fontSize: DesignTokens.fontSize16,
-            fontWeight: DesignTokens.fontMedium,
-            color: DesignTokens.textPrimary,
+          style: AppTypography.labelLarge.copyWith(
+            color: appColors.textPrimary,
           ),
         ),
         const SizedBox(height: DesignTokens.space4),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: DesignTokens.fontSize12,
-            color: DesignTokens.textSecondary,
+          style: AppTypography.bodySmall.copyWith(
+            color: appColors.textSecondary,
           ),
         ),
       ],
@@ -474,31 +469,29 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Container(
       padding: const EdgeInsets.all(DesignTokens.space16),
       decoration: BoxDecoration(
-        color: DesignTokens.neutral100,
+        color: appColors.surfaceSecondary,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: DesignTokens.textSecondary),
+          Icon(icon, size: DesignTokens.iconSm, color: appColors.textSecondary),
           const SizedBox(height: DesignTokens.space8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: DesignTokens.fontSize16,
-              fontWeight: DesignTokens.fontMedium,
-              color: DesignTokens.textPrimary,
+            style: AppTypography.labelLarge.copyWith(
+              color: appColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: DesignTokens.space4),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: DesignTokens.fontSize10,
-              color: DesignTokens.textSecondary,
+            style: AppTypography.captionSmall.copyWith(
+              color: appColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),

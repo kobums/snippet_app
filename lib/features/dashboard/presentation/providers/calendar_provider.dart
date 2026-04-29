@@ -96,6 +96,7 @@ class CalendarNotifier extends Notifier<CalendarState> {
     BuildContext context,
     List<UserBookDto> completedBooks, {
     bool showStats = false,
+    bool isDark = false,
   }) async {
     state = state.copyWith(isSharing: true);
     try {
@@ -104,6 +105,7 @@ class CalendarNotifier extends Notifier<CalendarState> {
         year: state.selectedYear,
         month: state.selectedMonth,
         showStats: showStats,
+        isDark: isDark,
       );
       await _shareService.captureAndShare(
         context,
@@ -120,6 +122,7 @@ class CalendarNotifier extends Notifier<CalendarState> {
     BuildContext context,
     List<UserBookDto> completedBooks, {
     bool showStats = false,
+    bool isDark = false,
   }) async {
     state = state.copyWith(isSaving: true);
     try {
@@ -128,6 +131,7 @@ class CalendarNotifier extends Notifier<CalendarState> {
         year: state.selectedYear,
         month: state.selectedMonth,
         showStats: showStats,
+        isDark: isDark,
       );
       await _shareService.captureAndSaveToGallery(
         context,

@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:snippet_app/features/dashboard/data/models/stats.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 
 class MonthlyChart extends StatelessWidget {
   final List<MonthlyStatsDto> stats;
 
-  const MonthlyChart({
-    super.key,
-    required this.stats,
-  });
+  const MonthlyChart({super.key, required this.stats});
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     if (stats.isEmpty) {
       return Center(
         child: Text(
           '데이터가 없습니다',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black.withValues(alpha: 0.5),
+          style: AppTypography.bodyMedium.copyWith(
+            color: appColors.textSecondary,
           ),
         ),
       );
@@ -36,22 +36,21 @@ class MonthlyChart extends StatelessWidget {
             barTouchData: BarTouchData(
               enabled: true,
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (group) => DesignTokens.primaryMain.withValues(alpha: 0.8),
+                getTooltipColor: (group) =>
+                    appColors.primary.withValues(alpha: 0.8),
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   final month = stats[groupIndex].month;
                   return BarTooltipItem(
                     '$month월\n',
-                    const TextStyle(
+                    AppTypography.bodySmall.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w400,
-                      fontSize: 12,
                     ),
                     children: <TextSpan>[
                       TextSpan(
                         text: '${rod.toY.toInt()}권',
-                        style: const TextStyle(
+                        style: AppTypography.bodyMedium.copyWith(
                           color: Colors.white,
-                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -71,9 +70,8 @@ class MonthlyChart extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           '${stats[value.toInt()].month}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black.withValues(alpha: 0.6),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: appColors.textSecondary,
                           ),
                         ),
                       );
@@ -89,9 +87,8 @@ class MonthlyChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black.withValues(alpha: 0.6),
+                      style: AppTypography.bodySmall.copyWith(
+                        color: appColors.textSecondary,
                       ),
                     );
                   },
@@ -110,13 +107,10 @@ class MonthlyChart extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: _getGridInterval(),
               getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  strokeWidth: 1,
-                );
+                return FlLine(color: appColors.border, strokeWidth: 1);
               },
             ),
-            barGroups: _buildBarGroups(),
+            barGroups: _buildBarGroups(appColors),
           ),
         ),
       ),
@@ -125,7 +119,9 @@ class MonthlyChart extends StatelessWidget {
 
   double _getMaxY() {
     if (stats.isEmpty) return 10;
-    final maxCount = stats.map((s) => s.completedCount).reduce((a, b) => a > b ? a : b);
+    final maxCount = stats
+        .map((s) => s.completedCount)
+        .reduce((a, b) => a > b ? a : b);
     return (maxCount * 1.2).ceilToDouble();
   }
 
@@ -137,14 +133,14 @@ class MonthlyChart extends StatelessWidget {
     return 10;
   }
 
-  List<BarChartGroupData> _buildBarGroups() {
+  List<BarChartGroupData> _buildBarGroups(AppColors appColors) {
     return stats.asMap().entries.map((entry) {
       return BarChartGroupData(
         x: entry.key,
         barRods: [
           BarChartRodData(
             toY: entry.value.completedCount.toDouble(),
-            color: DesignTokens.primaryMain,
+            color: appColors.primary,
             width: 16,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),

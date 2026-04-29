@@ -6,6 +6,7 @@ import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/reading_calendar.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/app_book_card.dart';
@@ -24,23 +25,22 @@ class DashboardStatsSection extends ConsumerWidget {
     final statsNotifier = ref.read(dashboardStatsProvider.notifier);
 
     final now = DateTime.now();
-    final isCurrentMonth = statsState.selectedYear == now.year &&
+    final isCurrentMonth =
+        statsState.selectedYear == now.year &&
         statsState.selectedMonth == now.month;
 
-    final completedBooks = statsState.books
-        .where((b) {
-          if (b.status != BookStatus.completed) return false;
-          if (b.endDate.isEmpty) return false;
+    final completedBooks = statsState.books.where((b) {
+      if (b.status != BookStatus.completed) return false;
+      if (b.endDate.isEmpty) return false;
 
-          try {
-            final endDate = DateTime.parse(b.endDate);
-            return endDate.year == statsState.selectedYear &&
-                   endDate.month == statsState.selectedMonth;
-          } catch (e) {
-            return false;
-          }
-        })
-        .toList();
+      try {
+        final endDate = DateTime.parse(b.endDate);
+        return endDate.year == statsState.selectedYear &&
+            endDate.month == statsState.selectedMonth;
+      } catch (e) {
+        return false;
+      }
+    }).toList();
     final totalPages = completedBooks.fold<int>(
       0,
       (sum, b) => sum + b.totalPage,
@@ -71,9 +71,7 @@ class DashboardStatsSection extends ConsumerWidget {
             )
           else
             // 빈 공간으로 높이 유지 (부드러운 스크롤)
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 64),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 64)),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
@@ -82,7 +80,11 @@ class DashboardStatsSection extends ConsumerWidget {
                   onTap: () {
                     context.push(AppRoutes.stats);
                   },
-                  child: _buildStatsCard(completedBooks.length, totalPages),
+                  child: _buildStatsCard(
+                    completedBooks.length,
+                    totalPages,
+                    context.colors,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 GestureDetector(
@@ -120,7 +122,8 @@ class DashboardStatsSection extends ConsumerWidget {
                         book: book,
                         size: BookCardSize.medium,
                         showTotalPage: true,
-                        onTap: () => context.push(AppRoutes.bookDetail, extra: book),
+                        onTap: () =>
+                            context.push(AppRoutes.bookDetail, extra: book),
                       ),
                     ),
                   ),
@@ -133,7 +136,11 @@ class DashboardStatsSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsCard(int completedCount, int totalPages) {
+  Widget _buildStatsCard(
+    int completedCount,
+    int totalPages,
+    AppColors appColors,
+  ) {
     return GlassContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,15 +150,15 @@ class DashboardStatsSection extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Center(child: _buildStatItem('완독', '$completedCount권')),
+                child: Center(
+                  child: _buildStatItem('완독', '$completedCount권', appColors),
+                ),
               ),
-              Container(
-                width: 2,
-                height: 40,
-                color: Colors.black.withValues(alpha: 0.1),
-              ),
+              Container(width: 2, height: 40, color: appColors.border),
               Expanded(
-                child: Center(child: _buildStatItem('총 페이지', '$totalPages쪽')),
+                child: Center(
+                  child: _buildStatItem('총 페이지', '$totalPages쪽', appColors),
+                ),
               ),
             ],
           ),
@@ -160,20 +167,20 @@ class DashboardStatsSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(String label, String value, AppColors appColors) {
     return Column(
       children: [
         Text(
           value,
           style: AppTypography.displaySmall.copyWith(
-            color: DesignTokens.primaryMain,
+            color: appColors.textPrimary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: AppTypography.labelMedium.copyWith(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: appColors.textSecondary,
           ),
         ),
       ],

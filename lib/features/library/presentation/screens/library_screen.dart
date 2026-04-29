@@ -5,6 +5,8 @@ import 'package:snippet_app/components/app_tab_bar.dart';
 import 'package:snippet_app/components/app_refresh_indicator.dart';
 import 'package:snippet_app/components/search_field.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_provider.dart';
 import 'package:snippet_app/features/library/presentation/providers/library_tab_provider.dart';
@@ -489,24 +491,22 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
           Icon(
             icon,
             size: 64,
-            color: Colors.black.withValues(alpha: 0.2),
+            color: context.colors.textDisabled,
           ),
           const SizedBox(height: 16),
           Text(
             text,
-            style: TextStyle(
-              fontSize: 16,
+            style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.w300,
-              color: Colors.black.withValues(alpha: 0.5),
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subText,
-            style: TextStyle(
-              fontSize: 14,
+            style: AppTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w300,
-              color: Colors.black.withValues(alpha: 0.3),
+              color: context.colors.textTertiary,
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
@@ -49,13 +50,13 @@ class ReadingSessionCard extends StatelessWidget {
                 Text(
                   _formatDate(session.sessionDate),
                   style: AppTypography.labelMedium.copyWith(
-                    color: DesignTokens.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 Text(
                   _formatDuration(session.durationSeconds),
                   style: AppTypography.labelMedium.copyWith(
-                    color: DesignTokens.primaryMain,
+                    color: context.colors.primary,
                     fontWeight: DesignTokens.fontMedium,
                   ),
                 ),
@@ -64,16 +65,16 @@ class ReadingSessionCard extends StatelessWidget {
             const SizedBox(height: DesignTokens.space12),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.menu_book_outlined,
                   size: 16,
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
                 const SizedBox(width: DesignTokens.space8),
                 Text(
                   '${session.startPage} → ${session.endPage} 페이지',
                   style: AppTypography.bodyMedium.copyWith(
-                    color: DesignTokens.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -89,16 +90,16 @@ class ReadingSessionCard extends StatelessWidget {
             const SizedBox(height: DesignTokens.space8),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.speed_outlined,
                   size: 16,
-                  color: DesignTokens.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
                 const SizedBox(width: DesignTokens.space8),
                 Text(
                   '페이스: ${_formatPace(session.secondsPerPage)}',
                   style: AppTypography.bodySmall.copyWith(
-                    color: DesignTokens.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],

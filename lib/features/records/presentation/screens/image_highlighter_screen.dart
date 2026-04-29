@@ -8,6 +8,7 @@ import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/components/app_button.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/records/data/models/ocr_result.dart';
 
 /// 수평 직선 밑줄 데이터
@@ -287,7 +288,7 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       appBar: AppAppBar(
         title: '영역 선택',
         letterSpacing: 2,
@@ -306,18 +307,18 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            color: DesignTokens.primaryMain.withValues(alpha: 0.1),
+            color: context.colors.primary.withValues(alpha: 0.1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.info_outline, color: DesignTokens.primaryMain, size: 20),
+                    Icon(Icons.info_outline, color: context.colors.primary, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '손가락으로 텍스트에 밑줄을 그어주세요',
-                        style: AppTypography.bodySmall.copyWith(color: DesignTokens.primaryMain),
+                        style: AppTypography.bodySmall.copyWith(color: context.colors.primary),
                       ),
                     ),
                   ],
@@ -330,11 +331,11 @@ class _ImageHighlighterScreenState extends State<ImageHighlighterScreen> {
                     children: [
                       Text(
                         '• 자동으로 수평선으로 변환됩니다',
-                        style: AppTypography.caption.copyWith(color: DesignTokens.primaryMain),
+                        style: AppTypography.caption.copyWith(color: context.colors.primary),
                       ),
                       Text(
                         '• 밑줄을 탭하면 삭제할 수 있습니다',
-                        style: AppTypography.caption.copyWith(color: DesignTokens.primaryMain),
+                        style: AppTypography.caption.copyWith(color: context.colors.primary),
                       ),
                     ],
                   ),

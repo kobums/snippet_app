@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/features/snippet/presentation/widgets/swipe_card.dart';
 import 'package:snippet_app/features/snippet/presentation/providers/snippet_provider.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -36,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           "더 이상 카드가 없습니다.\n보관함이나 위젯을 확인해보세요!",
                           textAlign: TextAlign.center,
                           style: AppTypography.bodyMedium.copyWith(
-                            color: DesignTokens.textSecondary,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       )
@@ -97,14 +98,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Text(
                   '← Pass',
                   style: AppTypography.caption.copyWith(
-                    color: DesignTokens.textTertiary,
+                    color: context.colors.textTertiary,
                   ),
                 ),
                 const SizedBox(width: DesignTokens.space48),
                 Text(
                   'Like →',
                   style: AppTypography.caption.copyWith(
-                    color: DesignTokens.textTertiary,
+                    color: context.colors.textTertiary,
                   ),
                 ),
               ],

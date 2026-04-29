@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/presentation/providers/popular_book_provider.dart';
 
 class PopularBookFilterBar extends ConsumerWidget {
@@ -13,7 +14,7 @@ class PopularBookFilterBar extends ConsumerWidget {
     final notifier = ref.read(popularBooksProvider.notifier);
 
     return Container(
-      color: Colors.white,
+      color: context.colors.surface,
       child: Column(
         children: [
           // 기간 필터
@@ -22,7 +23,9 @@ class PopularBookFilterBar extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space16, vertical: 6),
+                horizontal: DesignTokens.space16,
+                vertical: 6,
+              ),
               children: PopularBooksPeriod.values.map((period) {
                 final selected = state.selectedPeriod == period;
                 return Padding(
@@ -42,7 +45,9 @@ class PopularBookFilterBar extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space16, vertical: 6),
+                horizontal: DesignTokens.space16,
+                vertical: 6,
+              ),
               children: kdcCategories.map((kdc) {
                 final selected = state.selectedKdc == kdc;
                 return Padding(
@@ -63,7 +68,9 @@ class PopularBookFilterBar extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space16, vertical: 6),
+                horizontal: DesignTokens.space16,
+                vertical: 6,
+              ),
               children: ageFilters.map((age) {
                 final selected = state.selectedAge == age;
                 return Padding(
@@ -83,7 +90,9 @@ class PopularBookFilterBar extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space16, vertical: 6),
+                horizontal: DesignTokens.space16,
+                vertical: 6,
+              ),
               children: genderFilters.map((gender) {
                 final selected = state.selectedGender == gender;
                 return Padding(
@@ -97,10 +106,7 @@ class PopularBookFilterBar extends ConsumerWidget {
               }).toList(),
             ),
           ),
-          Divider(
-              height: 1,
-              thickness: 1,
-              color: DesignTokens.neutral200),
+          Divider(height: 1, thickness: 1, color: context.colors.border),
         ],
       ),
     );
@@ -123,30 +129,24 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = selected
-        ? DesignTokens.primaryMain
-        : DesignTokens.neutral100;
-    final fg = selected ? Colors.white : DesignTokens.textSecondary;
+        ? context.colors.primary
+        : context.colors.surfaceSecondary;
+    final fg = selected ? context.colors.surface : context.colors.textSecondary;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
           border: Border.all(
-            color: selected
-                ? DesignTokens.primaryMain
-                : DesignTokens.neutral300,
+            color: selected ? context.colors.primary : context.colors.border,
             width: 1,
           ),
         ),
-        child: Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(color: fg),
-        ),
+        child: Text(label, style: AppTypography.labelSmall.copyWith(color: fg)),
       ),
     );
   }
