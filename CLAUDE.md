@@ -49,6 +49,7 @@ lib/
 │   ├── app_tab_bar.dart
 │   ├── app_refresh_indicator.dart  # pull-to-refresh + 햅틱
 │   ├── app_app_bar.dart / app_card.dart / app_fab.dart / app_input.dart / app_select.dart
+│   ├── app_book_header.dart        # 책 표지+제목+저자+배지 공용 헤더 (record, session 공유)
 │   ├── search_field.dart / section_header.dart
 │   └── month_navigator.dart / year_navigator.dart
 ├── widgets/                       # 공통 위젯
@@ -145,7 +146,7 @@ AppRoutes:
 - **AppTypography**: 텍스트 계층 (Display → Caption), withColor/withWeight 유틸리티
 - **AppTheme**: Material 3, scaffold 배경 transparent, Inter 폰트
 - **GlassContainer**: 글래스모피즘 효과 (subtle/medium/strong 3단계)
-- 모든 화면 흰색 배경 사용
+- 모든 화면 흰색 배경 사용 (다크 모드는 `context.colors.*` 시맨틱 토큰 사용)
 
 ## 컨벤션
 - Feature 모듈: `features/{name}/data|domain|presentation/`
