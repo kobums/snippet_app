@@ -33,11 +33,7 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
   static const double _tabAnimationThreshold = 0.1;
   static const double _swipeDetectionThreshold = 0.05;
 
-  static const _bookTypes = [
-    BookType.have,
-    BookType.borrow,
-    BookType.wish,
-  ];
+  static const _bookTypes = [BookType.have, BookType.borrow, BookType.wish];
 
   // ============================================================================
   // State
@@ -83,59 +79,61 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
 
     _scrollAnimationControllers = List.generate(
       _tabCount,
-      (_) => AnimationController(
-        duration: Duration.zero,
-        vsync: this,
-      )..addListener(() => setState(() {})),
+      (_) =>
+          AnimationController(duration: Duration.zero, vsync: this)
+            ..addListener(() => setState(() {})),
     );
 
-    _searchControllers = List.generate(_tabCount, (_) => TextEditingController());
+    _searchControllers = List.generate(
+      _tabCount,
+      (_) => TextEditingController(),
+    );
 
     // Provider 상태와 TextController 동기화
     for (int i = 0; i < _tabCount; i++) {
       _searchControllers[i].addListener(() {
-        ref.read(libraryTabProvider.notifier).setSearchQuery(
-          i,
-          _searchControllers[i].text,
-        );
+        ref
+            .read(libraryTabProvider.notifier)
+            .setSearchQuery(i, _searchControllers[i].text);
       });
     }
   }
 
   void _listenForRecoverableSession() {
-    ref.listenManual(
-      readingSessionProvider.select((s) => s.isRecoverable),
-      (_, isRecoverable) {
-        if (!isRecoverable || !mounted) return;
-        final notifier = ref.read(readingSessionProvider.notifier);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('이전 독서 세션이 있습니다. 이어서 읽을까요?'),
-            duration: const Duration(seconds: 6),
-            action: SnackBarAction(
-              label: '이어 읽기',
-              onPressed: () {
-                notifier.recoverSession().then((_) {
-                  final book = ref.read(readingSessionProvider).book;
-                  if (mounted && book != null) {
-                    context.push(AppRoutes.activeSession, extra: book);
-                  }
-                });
-              },
-            ),
-            dismissDirection: DismissDirection.horizontal,
+    ref.listenManual(readingSessionProvider.select((s) => s.isRecoverable), (
+      _,
+      isRecoverable,
+    ) {
+      if (!isRecoverable || !mounted) return;
+      final notifier = ref.read(readingSessionProvider.notifier);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('이전 독서 세션이 있습니다. 이어서 읽을까요?'),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: '이어 읽기',
+            onPressed: () {
+              notifier.recoverSession().then((_) {
+                final book = ref.read(readingSessionProvider).book;
+                if (mounted && book != null) {
+                  context.push(AppRoutes.activeSession, extra: book);
+                }
+              });
+            },
           ),
-        );
-        notifier.dismissRecovery();
-      },
-      fireImmediately: true,
-    );
+          dismissDirection: DismissDirection.horizontal,
+        ),
+      );
+      notifier.dismissRecovery();
+    }, fireImmediately: true);
   }
 
   void _setupTabListeners() {
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        ref.read(libraryTabProvider.notifier).setCurrentTab(_tabController.index);
+        ref
+            .read(libraryTabProvider.notifier)
+            .setCurrentTab(_tabController.index);
       }
       setState(() {});
     });
@@ -150,8 +148,12 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     if (animationValue.abs() > _swipeDetectionThreshold) {
       if (_scrollAnimationControllers[currentTab].value > 0) {
         _scrollAnimationControllers[currentTab].reset();
-        ref.read(libraryTabProvider.notifier).setFixedHeaderVisible(currentTab, false);
-        ref.read(libraryTabProvider.notifier).setScrollPosition(currentTab, 0.0);
+        ref
+            .read(libraryTabProvider.notifier)
+            .setFixedHeaderVisible(currentTab, false);
+        ref
+            .read(libraryTabProvider.notifier)
+            .setScrollPosition(currentTab, 0.0);
         setState(() {});
       }
     }
@@ -177,8 +179,10 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
 
-    const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
-    final isInHeaderScroll = metrics.maxScrollExtent < combinedHeaderHeight + 50;
+    final combinedHeaderHeight =
+        kToolbarHeight + kTextTabBarHeight + topPadding;
+    final isInHeaderScroll =
+        metrics.maxScrollExtent < combinedHeaderHeight + 50;
 
     // 무한 스크롤: 하단 근처에 도달하면 더 로드
     if (metrics.pixels >= metrics.maxScrollExtent - 200) {
@@ -189,7 +193,12 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
       _handleScrollDown(currentTab, pixels, triggerHeight);
     } else {
       _handleScrollUp(
-          currentTab, pixels, topPadding, isInHeaderScroll, isContextSwitch);
+        currentTab,
+        pixels,
+        topPadding,
+        isInHeaderScroll,
+        isContextSwitch,
+      );
     }
 
     _syncHeaderAnimation(currentTab);
@@ -298,7 +307,11 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
     );
   }
 
-  Widget _buildFixedHeaders(int currentTab, double topPadding, bool isScrolled) {
+  Widget _buildFixedHeaders(
+    int currentTab,
+    double topPadding,
+    bool isScrolled,
+  ) {
     if (!isScrolled) return const SizedBox.shrink();
 
     return Positioned(
@@ -330,11 +343,15 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
             controller: _searchControllers[tabIndex],
             hintText: '제목이나 저자로 검색...',
             onChanged: (value) {
-              ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, value);
+              ref
+                  .read(libraryTabProvider.notifier)
+                  .setSearchQuery(tabIndex, value);
             },
             onClear: () {
               _searchControllers[tabIndex].clear();
-              ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, '');
+              ref
+                  .read(libraryTabProvider.notifier)
+                  .setSearchQuery(tabIndex, '');
             },
           ),
         ),
@@ -387,27 +404,26 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
               child: SizedBox(
                 height: _fixedHeaderHeight,
                 child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SearchField(
-                      controller: _searchControllers[tabIndex],
-                      hintText: '제목이나 저자로 검색...',
-                      onChanged: (value) {
-                        ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, value);
-                      },
-                      onClear: () {
-                        _searchControllers[tabIndex].clear();
-                        ref.read(libraryTabProvider.notifier).setSearchQuery(tabIndex, '');
-                      },
-                    ),
+                  child: SearchField(
+                    controller: _searchControllers[tabIndex],
+                    hintText: '제목이나 저자로 검색...',
+                    onChanged: (value) {
+                      ref
+                          .read(libraryTabProvider.notifier)
+                          .setSearchQuery(tabIndex, value);
+                    },
+                    onClear: () {
+                      _searchControllers[tabIndex].clear();
+                      ref
+                          .read(libraryTabProvider.notifier)
+                          .setSearchQuery(tabIndex, '');
+                    },
                   ),
                 ),
               ),
             )
           else
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 64),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 64)),
 
           // Content
           if (filteredBooks.isEmpty && !libraryState.isLoading)
@@ -415,12 +431,8 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
               hasScrollBody: false,
               child: _buildEmptyState(
                 emptyState.icon,
-                searchQuery.isEmpty
-                    ? emptyState.text
-                    : '검색 결과가 없습니다',
-                searchQuery.isEmpty
-                    ? emptyState.subText
-                    : '다른 검색어를 시도해보세요',
+                searchQuery.isEmpty ? emptyState.text : '검색 결과가 없습니다',
+                searchQuery.isEmpty ? emptyState.subText : '다른 검색어를 시도해보세요',
               ),
             )
           else
@@ -428,34 +440,31 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
               padding: const EdgeInsets.all(DesignTokens.space16),
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 3,
+                  crossAxisCount: MediaQuery.of(context).size.width < 600
+                      ? 2
+                      : 3,
                   childAspectRatio: 0.65,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index >= filteredBooks.length) {
-                      return const SizedBox.shrink();
-                    }
-                    final book = filteredBooks[index];
-                    return BookGridCard(
-                      book: book,
-                      onTap: () =>
-                          context.push(AppRoutes.bookDetail, extra: book),
-                    );
-                  },
-                  childCount: filteredBooks.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index >= filteredBooks.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final book = filteredBooks[index];
+                  return BookGridCard(
+                    book: book,
+                    onTap: () =>
+                        context.push(AppRoutes.bookDetail, extra: book),
+                  );
+                }, childCount: filteredBooks.length),
               ),
             ),
 
           if (libraryState.isLoading)
             const SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -488,11 +497,7 @@ class LibraryScreenState extends ConsumerState<LibraryScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 64,
-            color: context.colors.textDisabled,
-          ),
+          Icon(icon, size: 64, color: context.colors.textDisabled),
           const SizedBox(height: 16),
           Text(
             text,

@@ -123,7 +123,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen>
     final topPadding = MediaQuery.of(context).padding.top;
     final triggerHeight = _fixedHeaderHeight + topPadding;
 
-    const combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight;
+    final combinedHeaderHeight = kToolbarHeight + kTextTabBarHeight + topPadding;
     final isInHeaderScroll = metrics.maxScrollExtent < combinedHeaderHeight + 50;
 
     if (isScrollingDown) {
