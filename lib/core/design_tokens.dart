@@ -66,6 +66,26 @@ class DesignTokens {
   /// Accent Colors
   static const Color accentPurple = Color(0xFFB794F4);
 
+  // ========== Dark Mode Colors ==========
+
+  /// Dark Background Colors (iOS 다크모드 팔레트 기반)
+  static const Color darkBgPrimary = Color(0xFF1C1C1E);
+  static const Color darkBgSecondary = Color(0xFF2C2C2E);
+  static const Color darkBgTertiary = Color(0xFF3A3A3C);
+
+  /// Dark Text Colors
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFFAEAEB2);
+  static const Color darkTextTertiary = Color(0xFF636366);
+  static const Color darkTextDisabled = Color(0xFF48484A);
+
+  /// Dark Neutral Colors
+  static const Color darkNeutral200 = Color(0xFF3A3A3C);
+  static const Color darkNeutral300 = Color(0xFF48484A);
+  static const Color darkNeutral400 = Color(0xFF636366);
+  static const Color darkNeutral500 = Color(0xFF8E8E93);
+  static const Color darkNeutral800 = Color(0xFFD1D1D6);
+
   // ========== Typography ==========
 
   /// Font Sizes
