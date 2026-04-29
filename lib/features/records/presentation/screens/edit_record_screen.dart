@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/app_book_header.dart';
 import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
-import 'package:snippet_app/widgets/glass_container.dart';
 
 class EditRecordScreen extends ConsumerStatefulWidget {
   final RecordDto record;
@@ -188,51 +188,12 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Book title and Type (read-only)
-              GlassContainer(
-                padding: const EdgeInsets.all(DesignTokens.space12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '책',
-                            style: AppTypography.caption.copyWith(
-                              color: context.colors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.record.bookTitle,
-                            style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.colors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-                      ),
-                      child: Text(
-                        widget.record.type.label,
-                        style: AppTypography.caption.copyWith(
-                          color: context.colors.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              // Book header (read-only)
+              AppBookHeader(
+                title: widget.record.bookTitle,
+                author: widget.record.bookAuthor,
+                coverUrl: widget.record.bookCoverUrl,
+                badgeText: widget.record.type.label,
               ),
               const SizedBox(height: 16),
 

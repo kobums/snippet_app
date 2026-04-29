@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/components/app_book_header.dart';
 import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
@@ -86,7 +87,12 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildBookHeader(appColors),
+            AppBookHeader(
+              title: widget.session.bookTitle,
+              author: widget.session.bookAuthor,
+              coverUrl: widget.session.bookCoverUrl,
+              badgeText: '독서 완료',
+            ),
             const SizedBox(height: DesignTokens.space24),
             _buildDateBadge(appColors),
             const SizedBox(height: DesignTokens.space24),
@@ -98,86 +104,6 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             const SizedBox(height: DesignTokens.space32),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBookHeader(AppColors appColors) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.session.bookCoverUrl.isNotEmpty)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-            child: Image.network(
-              widget.session.bookCoverUrl,
-              width: 72,
-              height: 100,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _bookCoverPlaceholder(appColors),
-            ),
-          )
-        else
-          _bookCoverPlaceholder(appColors),
-        const SizedBox(width: DesignTokens.space16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.session.bookTitle,
-                style: AppTypography.h4.copyWith(color: appColors.textPrimary),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (widget.session.bookAuthor.isNotEmpty) ...[
-                const SizedBox(height: DesignTokens.space4),
-                Text(
-                  widget.session.bookAuthor,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: appColors.textSecondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              const SizedBox(height: DesignTokens.space8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: DesignTokens.space8,
-                  vertical: DesignTokens.space4,
-                ),
-                decoration: BoxDecoration(
-                  color: appColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
-                ),
-                child: Text(
-                  '독서 완료',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: appColors.primary,
-                    fontWeight: DesignTokens.fontMedium,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _bookCoverPlaceholder(AppColors appColors) {
-    return Container(
-      width: 72,
-      height: 100,
-      decoration: BoxDecoration(
-        color: appColors.surfaceSecondary,
-        borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-      ),
-      child: Icon(
-        Icons.menu_book_outlined,
-        color: appColors.textTertiary,
-        size: 28,
       ),
     );
   }

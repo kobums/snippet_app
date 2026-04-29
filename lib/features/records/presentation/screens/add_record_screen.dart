@@ -5,11 +5,11 @@ import 'package:snippet_app/features/records/data/models/record.dart';
 import 'package:snippet_app/features/records/presentation/providers/record_provider.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
+import 'package:snippet_app/components/app_book_header.dart';
 import 'package:snippet_app/components/app_select.dart';
 import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
-import 'package:snippet_app/widgets/glass_container.dart';
 
 class AddRecordScreenParams {
   final List<UserBookDto> books;
@@ -169,47 +169,21 @@ class _AddRecordScreenState extends ConsumerState<AddRecordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Book info (read-only) or book selector
-              if (singleBook)
-                GlassContainer(
-                  padding: const EdgeInsets.all(DesignTokens.space12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '책',
-                              style: AppTypography.caption.copyWith(
-                                color: context.colors.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _selectedBook!.title,
-                              style: AppTypography.bodyMedium.copyWith(color: context.colors.textPrimary),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else ...[
-                Text(
-                  '책',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+              // Book info
+              if (_selectedBook != null)
+                AppBookHeader(
+                  title: _selectedBook!.title,
+                  author: _selectedBook!.author,
+                  coverUrl: _selectedBook!.coverUrl,
+                  badgeText: _selectedType.label,
                 ),
-                const SizedBox(height: 8),
+              if (!singleBook) ...[
+                const SizedBox(height: DesignTokens.space12),
                 DropdownButtonFormField<UserBookDto>(
                   initialValue: _selectedBook,
                   isExpanded: true,
                   decoration: InputDecoration(
+                    labelText: '책 변경',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
                     ),
