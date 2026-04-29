@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/widgets/glass_bottom_nav.dart';
 import 'package:snippet_app/components/app_fab.dart';
 import 'package:snippet_app/app/router.dart';
@@ -33,7 +34,7 @@ class MainScreen extends ConsumerWidget {
     final index = _currentIndex(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       extendBody: false,
       body: child,
       floatingActionButton: _buildFab(context, ref, index),
