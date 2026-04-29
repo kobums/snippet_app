@@ -28,6 +28,8 @@ class RecordDto {
   final int id;
   final int bookId;
   final String bookTitle;
+  final String bookAuthor;
+  final String bookCoverUrl;
   final RecordType type;
   final String text;
   final String? tag;
@@ -38,6 +40,8 @@ class RecordDto {
     required this.id,
     required this.bookId,
     required this.bookTitle,
+    required this.bookAuthor,
+    required this.bookCoverUrl,
     required this.type,
     required this.text,
     this.tag,
@@ -50,6 +54,8 @@ class RecordDto {
       id: json['id'] as int,
       bookId: json['bookId'] as int,
       bookTitle: json['bookTitle'] as String,
+      bookAuthor: json['bookAuthor'] as String? ?? '',
+      bookCoverUrl: json['bookCoverUrl'] as String? ?? '',
       type: RecordType.fromJson(json['type'] as String),
       text: json['text'] as String,
       tag: json['tag'] as String?,
@@ -63,6 +69,8 @@ class RecordDto {
       'id': id,
       'bookId': bookId,
       'bookTitle': bookTitle,
+      'bookAuthor': bookAuthor,
+      'bookCoverUrl': bookCoverUrl,
       'type': type.toJson(),
       'text': text,
       'tag': tag,
@@ -75,6 +83,8 @@ class RecordDto {
     int? id,
     int? bookId,
     String? bookTitle,
+    String? bookAuthor,
+    String? bookCoverUrl,
     RecordType? type,
     String? text,
     String? tag,
@@ -85,6 +95,8 @@ class RecordDto {
       id: id ?? this.id,
       bookId: bookId ?? this.bookId,
       bookTitle: bookTitle ?? this.bookTitle,
+      bookAuthor: bookAuthor ?? this.bookAuthor,
+      bookCoverUrl: bookCoverUrl ?? this.bookCoverUrl,
       type: type ?? this.type,
       text: text ?? this.text,
       tag: tag ?? this.tag,
