@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 
-/// App Select Component
-/// 드롭다운 선택 위젯
+/// App Select Component — 드롭다운 선택 위젯
 class AppSelect<T> extends StatelessWidget {
   final String label;
   final String? hint;
@@ -30,97 +30,86 @@ class AppSelect<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Label
         if (label.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(bottom: dense ? DesignTokens.space4 : DesignTokens.space8),
+            padding: EdgeInsets.only(
+              bottom: dense ? DesignTokens.space4 : DesignTokens.space8,
+            ),
             child: Text(
               label,
               style: (dense ? AppTypography.caption : AppTypography.labelMedium).copyWith(
-                color: enabled
-                    ? DesignTokens.textPrimary
-                    : DesignTokens.textDisabled,
+                color: enabled ? appColors.textPrimary : appColors.textDisabled,
               ),
             ),
           ),
 
-        // Select Box
         Container(
           decoration: BoxDecoration(
-            color: enabled ? DesignTokens.bgPrimary : DesignTokens.neutral100,
-            borderRadius: BorderRadius.circular(dense ? DesignTokens.radiusMd : DesignTokens.radiusLg),
+            color: enabled ? appColors.surface : appColors.surfaceSecondary,
+            borderRadius: BorderRadius.circular(
+              dense ? DesignTokens.radiusMd : DesignTokens.radiusLg,
+            ),
             border: Border.all(
-              color: errorText != null
-                  ? DesignTokens.error
-                  : DesignTokens.neutral200,
+              color: errorText != null ? DesignTokens.error : appColors.border,
               width: 1,
             ),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<T>(
-                isDense: dense,
-                value: value,
-                hint: hint != null
-                    ? Text(
-                        hint!,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: DesignTokens.textTertiary,
-                        ),
-                      )
-                    : null,
-                isExpanded: true,
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: enabled
-                      ? DesignTokens.textSecondary
-                      : DesignTokens.textDisabled,
-                  size: dense ? DesignTokens.iconSm : DesignTokens.iconMd,
-                ),
-                style: (dense ? AppTypography.bodySmall : AppTypography.bodyMedium).copyWith(
-                  color: enabled
-                      ? DesignTokens.textPrimary
-                      : DesignTokens.textDisabled,
-                ),
-                dropdownColor: DesignTokens.bgPrimary,
-                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-                padding: EdgeInsets.symmetric(
-                  horizontal: dense ? DesignTokens.space12 : DesignTokens.space16,
-                  vertical: dense ? DesignTokens.space8 : DesignTokens.space12,
-                ),
-                items: options.map((option) {
-                  return DropdownMenuItem<T>(
-                    value: option.value,
-                    child: Row(
-                      children: [
-                        if (option.icon != null) ...[
-                          Icon(
-                            option.icon,
-                            size: DesignTokens.iconSm,
-                            color: DesignTokens.textSecondary,
-                          ),
-                          const SizedBox(width: DesignTokens.space8),
-                        ],
-                        Expanded(
-                          child: Text(
-                            option.label,
-                            style: dense ? AppTypography.bodySmall : AppTypography.bodyMedium,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: enabled ? onChanged : null,
+              isDense: dense,
+              value: value,
+              hint: hint != null
+                  ? Text(
+                      hint!,
+                      style: AppTypography.bodyMedium.copyWith(color: appColors.textTertiary),
+                    )
+                  : null,
+              isExpanded: true,
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: enabled ? appColors.textSecondary : appColors.textDisabled,
+                size: dense ? DesignTokens.iconSm : DesignTokens.iconMd,
               ),
+              style: (dense ? AppTypography.bodySmall : AppTypography.bodyMedium).copyWith(
+                color: enabled ? appColors.textPrimary : appColors.textDisabled,
+              ),
+              dropdownColor: appColors.surface,
+              borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+              padding: EdgeInsets.symmetric(
+                horizontal: dense ? DesignTokens.space12 : DesignTokens.space16,
+                vertical: dense ? DesignTokens.space8 : DesignTokens.space12,
+              ),
+              items: options.map((option) {
+                return DropdownMenuItem<T>(
+                  value: option.value,
+                  child: Row(
+                    children: [
+                      if (option.icon != null) ...[
+                        Icon(option.icon, size: DesignTokens.iconSm, color: appColors.textSecondary),
+                        const SizedBox(width: DesignTokens.space8),
+                      ],
+                      Expanded(
+                        child: Text(
+                          option.label,
+                          style: dense ? AppTypography.bodySmall : AppTypography.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: enabled ? onChanged : null,
             ),
           ),
+        ),
 
-        // Error Text
         if (errorText != null)
           Padding(
             padding: const EdgeInsets.only(

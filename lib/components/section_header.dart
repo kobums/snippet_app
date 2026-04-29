@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
+import '../core/typography.dart';
 
 /// Section Header Size
 enum SectionHeaderSize {
-  large, // 16px, w300, letterSpacing 1.5
+  large, // 16px, w600, letterSpacing 1.5
   small, // 14px, w400, letterSpacing 1.0
 }
 
 /// Reusable Section Header component
-///
-/// Provides consistent styling for section titles across the app
 class SectionHeader extends StatelessWidget {
   final String title;
   final SectionHeaderSize size;
@@ -23,25 +23,13 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = context.colors.textSecondary;
     final textStyle = size == SectionHeaderSize.large
-        ? TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.5,
-            color: Colors.black.withValues(alpha: 0.6),
-          )
-        : TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 1,
-            color: Colors.black.withValues(alpha: 0.6),
-          );
+        ? AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.5, color: color)
+        : AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w400, letterSpacing: 1.0, color: color);
 
     final text = Text(title, style: textStyle);
-
-    if (padding != null) {
-      return Padding(padding: padding!, child: text);
-    }
+    if (padding != null) return Padding(padding: padding!, child: text);
     return text;
   }
 }

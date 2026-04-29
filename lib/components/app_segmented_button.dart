@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
+import 'package:snippet_app/core/typography.dart';
 
-/// Reusable Neumorphism-style Segmented Button
+/// Reusable Segmented Button
 class AppSegmentedButton extends StatelessWidget {
   final int selectedIndex;
   final List<String> segments;
@@ -18,13 +20,15 @@ class AppSegmentedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return Container(
       alignment: Alignment.center,
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 44,
         decoration: BoxDecoration(
-          color: DesignTokens.neutral100,
+          color: appColors.surfaceSecondary,
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         ),
         padding: const EdgeInsets.all(4),
@@ -39,10 +43,8 @@ class AppSegmentedButton extends StatelessWidget {
                   curve: DesignTokens.curveEaseInOut,
                   decoration: isSelected
                       ? BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                            DesignTokens.radiusSm,
-                          ),
+                          color: appColors.surface,
+                          borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.08),
@@ -60,13 +62,9 @@ class AppSegmentedButton extends StatelessWidget {
                   alignment: Alignment.center,
                   child: AnimatedDefaultTextStyle(
                     duration: DesignTokens.durationNormal,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight:
-                          isSelected ? FontWeight.w500 : FontWeight.w400,
-                      color: isSelected
-                          ? DesignTokens.textPrimary
-                          : DesignTokens.textTertiary,
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                      color: isSelected ? appColors.textPrimary : appColors.textTertiary,
                     ),
                     child: Text(segments[index]),
                   ),

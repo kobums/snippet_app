@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/design_tokens.dart';
+import '../core/app_colors.dart';
+import '../core/typography.dart';
 
 /// Reusable FloatingActionButton component with consistent styling
 class AppFab extends StatelessWidget {
@@ -20,8 +21,8 @@ class AppFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? DesignTokens.primaryMain;
-    final fgColor = foregroundColor ?? Colors.white;
+    final bgColor = backgroundColor ?? context.colors.primary;
+    final fgColor = foregroundColor ?? context.colors.surface;
 
     if (label != null) {
       // Extended FAB with label
@@ -32,8 +33,7 @@ class AppFab extends StatelessWidget {
         icon: Icon(icon),
         label: Text(
           label!,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
+          style: AppTypography.labelMedium.copyWith(
             letterSpacing: 0.5,
           ),
         ),

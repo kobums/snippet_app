@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 
@@ -94,7 +95,7 @@ class _AppInputState extends State<AppInput> {
           Text(
             widget.label!,
             style: AppTypography.labelMedium.copyWith(
-              color: DesignTokens.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: DesignTokens.space8),
@@ -117,11 +118,13 @@ class _AppInputState extends State<AppInput> {
             onFieldSubmitted: widget.onSubmitted,
             inputFormatters: widget.inputFormatters,
             validator: widget.validator,
-            style: AppTypography.bodyMedium,
+            style: AppTypography.bodyMedium.copyWith(
+              color: context.colors.textPrimary,
+            ),
             decoration: InputDecoration(
               hintText: widget.hint,
               hintStyle: AppTypography.bodyMedium.copyWith(
-                color: DesignTokens.textTertiary,
+                color: context.colors.textTertiary,
               ),
               errorText: widget.errorText,
               helperText: widget.helperText,
@@ -133,8 +136,8 @@ class _AppInputState extends State<AppInput> {
                   ? Icon(
                       widget.prefixIcon,
                       color: _isFocused
-                          ? DesignTokens.primaryMain
-                          : DesignTokens.textTertiary,
+                          ? (context.isDark ? Colors.white : DesignTokens.primaryMain)
+                          : context.colors.textTertiary,
                       size: DesignTokens.iconMd,
                     )
                   : null,
@@ -146,7 +149,7 @@ class _AppInputState extends State<AppInput> {
               focusedErrorBorder: _getErrorBorder(),
               filled: widget.variant == AppInputVariant.filled,
               fillColor: widget.variant == AppInputVariant.filled
-                  ? DesignTokens.glassLight
+                  ? context.colors.inputFill
                   : Colors.transparent,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: DesignTokens.space16,
@@ -162,50 +165,42 @@ class _AppInputState extends State<AppInput> {
 
   BoxDecoration _getContainerDecoration() {
     if (widget.variant == AppInputVariant.standard) {
+      final focusColor = context.isDark ? Colors.white : DesignTokens.primaryMain;
       return BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: _isFocused
-                ? DesignTokens.primaryMain
-                : DesignTokens.neutral300,
+            color: _isFocused ? focusColor : context.colors.border,
             width: _isFocused ? 2.0 : 1.0,
           ),
         ),
       );
     }
-    return BoxDecoration();
+    return const BoxDecoration();
   }
 
   InputBorder _getBorder() {
     switch (widget.variant) {
       case AppInputVariant.standard:
         return InputBorder.none;
-
       case AppInputVariant.filled:
       case AppInputVariant.outlined:
         return OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: BorderSide(
-            color: DesignTokens.neutral300,
-            width: 1.0,
-          ),
+          borderSide: BorderSide(color: context.colors.border, width: 1.0),
         );
     }
   }
 
   InputBorder _getFocusedBorder() {
+    final focusColor = context.isDark ? Colors.white : DesignTokens.primaryMain;
     switch (widget.variant) {
       case AppInputVariant.standard:
         return InputBorder.none;
-
       case AppInputVariant.filled:
       case AppInputVariant.outlined:
         return OutlineInputBorder(
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-          borderSide: const BorderSide(
-            color: DesignTokens.primaryMain,
-            width: 2.0,
-          ),
+          borderSide: BorderSide(color: focusColor, width: 2.0),
         );
     }
   }
@@ -214,7 +209,6 @@ class _AppInputState extends State<AppInput> {
     switch (widget.variant) {
       case AppInputVariant.standard:
         return InputBorder.none;
-
       case AppInputVariant.filled:
       case AppInputVariant.outlined:
         return OutlineInputBorder(
@@ -271,7 +265,7 @@ class _AppPasswordInputState extends State<AppPasswordInput> {
       suffixIcon: IconButton(
         icon: Icon(
           _isVisible ? Icons.visibility_off : Icons.visibility,
-          color: DesignTokens.textTertiary,
+          color: context.colors.textTertiary,
           size: DesignTokens.iconMd,
         ),
         onPressed: () {

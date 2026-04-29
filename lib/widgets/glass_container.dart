@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 
 /// Glass Effect Levels
@@ -10,7 +11,7 @@ enum GlassLevel {
 }
 
 /// Fintech Style Glass Container
-/// 향상된 글래스모피즘 효과를 제공하는 컨테이너
+/// 글래스모피즘 효과 — 라이트/다크 테마 자동 대응
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double? borderRadius;
@@ -35,8 +36,10 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+    final isDark = context.isDark;
     final radius = borderRadius ?? DesignTokens.radiusLg;
-    final effectiveColor = _getEffectiveColor();
+    final effectiveColor = _getEffectiveColor(appColors);
     final blurAmount = _getBlurAmount();
     final effectivePadding =
         padding ?? const EdgeInsets.all(DesignTokens.space16);
@@ -53,9 +56,9 @@ class GlassContainer extends StatelessWidget {
               color: effectiveColor,
               borderRadius: BorderRadius.circular(radius),
               border: showBorder
-                  ? Border.all(color: DesignTokens.glassBorder, width: 1.0)
+                  ? Border.all(color: appColors.glassBorder, width: 1.0)
                   : null,
-              gradient: _getGradient(),
+              gradient: _getGradient(isDark),
               boxShadow: showShadow ? DesignTokens.shadowGlass : null,
             ),
             child: child,
@@ -65,18 +68,15 @@ class GlassContainer extends StatelessWidget {
     );
   }
 
-  Color _getEffectiveColor() {
-    if (tintColor != null) {
-      return tintColor!;
-    }
-
+  Color _getEffectiveColor(AppColors appColors) {
+    if (tintColor != null) return tintColor!;
     switch (level) {
       case GlassLevel.subtle:
-        return DesignTokens.glassDark;
+        return appColors.glassDark;
       case GlassLevel.medium:
-        return DesignTokens.glassMedium;
+        return appColors.glassMedium;
       case GlassLevel.strong:
-        return DesignTokens.glassLight;
+        return appColors.glassLight;
     }
   }
 
@@ -91,16 +91,15 @@ class GlassContainer extends StatelessWidget {
     }
   }
 
-  LinearGradient? _getGradient() {
-    // 미묘한 그라디언트 오버레이로 깊이감 추가
+  LinearGradient _getGradient(bool isDark) {
+    final highlightAlpha = isDark ? 0.05 : 0.1;
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        Colors.white.withValues(alpha: 0.1),
+        Colors.white.withValues(alpha: highlightAlpha),
         Colors.white.withValues(alpha: 0.0),
       ],
-      stops: const [0.0, 1.0],
     );
   }
 }

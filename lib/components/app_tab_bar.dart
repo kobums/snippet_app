@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
+import '../core/typography.dart';
 
 /// Reusable TabBar component with consistent styling
 class AppTabBar extends StatelessWidget implements PreferredSizeWidget {
@@ -21,24 +23,21 @@ class AppTabBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = context.isDark ? Colors.white : DesignTokens.primaryMain;
+    final inactiveColor = context.colors.textTertiary;
+
     return Container(
       margin: margin,
       child: TabBar(
         controller: controller,
         onTap: onTap,
-        labelColor: DesignTokens.primaryMain,
-        unselectedLabelColor: DesignTokens.textTertiary,
-        indicatorColor: DesignTokens.primaryMain,
+        labelColor: activeColor,
+        unselectedLabelColor: inactiveColor,
+        indicatorColor: activeColor,
         indicatorWeight: 2,
         dividerHeight: 0,
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w300,
-        ),
+        labelStyle: AppTypography.labelMedium,
+        unselectedLabelStyle: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w300),
         tabs: tabs.map((label) => Tab(text: label)).toList(),
       ),
     );

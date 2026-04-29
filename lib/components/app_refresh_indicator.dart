@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/design_tokens.dart';
+import '../core/app_colors.dart';
 
 /// Instagram-style pull-to-refresh indicator
 /// 배경 원 없이 얇은 스피너만 표시 + 햅틱 피드백
@@ -21,7 +21,7 @@ class AppRefreshIndicator extends StatelessWidget {
         HapticFeedback.mediumImpact();
         await onRefresh();
       },
-      color: DesignTokens.primaryMain,
+      color: context.colors.primary,
       backgroundColor: Colors.transparent,
       elevation: 0,
       strokeWidth: 3.0,

@@ -1,14 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:snippet_app/components/app_button.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/widgets/glass_container.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
 enum BookCardSize {
-  small(imageWidth: 45, imageHeight: 68, titleSize: 14, authorSize: 12, borderRadius: 6),
-  medium(imageWidth: 50, imageHeight: 75, titleSize: 14, authorSize: 12, borderRadius: 8),
-  large(imageWidth: 60, imageHeight: 90, titleSize: 16, authorSize: 14, borderRadius: 8);
+  small(
+    imageWidth: 45,
+    imageHeight: 68,
+    titleSize: 14,
+    authorSize: 12,
+    borderRadius: 6,
+  ),
+  medium(
+    imageWidth: 50,
+    imageHeight: 75,
+    titleSize: 14,
+    authorSize: 12,
+    borderRadius: 8,
+  ),
+  large(
+    imageWidth: 60,
+    imageHeight: 90,
+    titleSize: 16,
+    authorSize: 14,
+    borderRadius: 8,
+  );
 
   const BookCardSize({
     required this.imageWidth,
@@ -47,6 +66,8 @@ class AppBookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
@@ -65,11 +86,11 @@ class AppBookCard extends StatelessWidget {
                   return Container(
                     width: size.imageWidth,
                     height: size.imageHeight,
-                    color: Colors.grey.withValues(alpha: 0.3),
+                    color: appColors.surfaceSecondary,
                     child: Icon(
                       Icons.book,
                       size: size == BookCardSize.small ? 20 : null,
-                      color: Colors.grey.withValues(alpha: 0.5),
+                      color: appColors.textTertiary,
                     ),
                   );
                 },
@@ -82,9 +103,10 @@ class AppBookCard extends StatelessWidget {
                 children: [
                   Text(
                     book.title,
-                    style: TextStyle(
+                    style: AppTypography.bodyMedium.copyWith(
                       fontSize: size.titleSize,
                       fontWeight: FontWeight.w400,
+                      color: appColors.textPrimary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -92,17 +114,17 @@ class AppBookCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     book.author,
-                    style: TextStyle(
+                    style: AppTypography.bodySmall.copyWith(
                       fontSize: size.authorSize,
                       fontWeight: FontWeight.w300,
-                      color: Colors.black.withValues(alpha: 0.5),
+                      color: appColors.textSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (showProgress && book.status == BookStatus.reading) ...[
                     const SizedBox(height: 12),
-                    _buildProgressIndicator(),
+                    _buildProgressIndicator(appColors),
                   ],
                   if (showTotalPage) ...[
                     const SizedBox(height: DesignTokens.space8),
@@ -111,7 +133,7 @@ class AppBookCard extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: appColors.textTertiary,
                       ),
                     ),
                   ],
@@ -164,7 +186,7 @@ class AppBookCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressIndicator() {
+  Widget _buildProgressIndicator(AppColors appColors) {
     if (size == BookCardSize.small) {
       return Row(
         children: [
@@ -174,10 +196,8 @@ class AppBookCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: book.progress,
                 minHeight: 4,
-                backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  DesignTokens.primaryMain,
-                ),
+                backgroundColor: appColors.border,
+                valueColor: AlwaysStoppedAnimation<Color>(appColors.primary),
               ),
             ),
           ),
@@ -187,7 +207,7 @@ class AppBookCard extends StatelessWidget {
             style: AppTypography.labelSmall.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w300,
-              color: Colors.black.withValues(alpha: 0.4),
+              color: appColors.textTertiary,
             ),
           ),
         ],
@@ -202,10 +222,8 @@ class AppBookCard extends StatelessWidget {
           child: LinearProgressIndicator(
             value: book.progress,
             minHeight: 6,
-            backgroundColor: Colors.grey.withValues(alpha: 0.2),
-            valueColor: const AlwaysStoppedAnimation<Color>(
-              DesignTokens.primaryMain,
-            ),
+            backgroundColor: appColors.border,
+            valueColor: AlwaysStoppedAnimation<Color>(appColors.primary),
           ),
         ),
         const SizedBox(height: DesignTokens.space4),
@@ -213,7 +231,7 @@ class AppBookCard extends StatelessWidget {
           '${book.readPage} / ${book.totalPage} 페이지 (${(book.progress * 100).toInt()}%)',
           style: AppTypography.labelSmall.copyWith(
             fontWeight: FontWeight.w300,
-            color: Colors.black.withValues(alpha: 0.4),
+            color: appColors.textTertiary,
           ),
         ),
       ],

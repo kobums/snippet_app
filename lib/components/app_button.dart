@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 
@@ -80,10 +81,10 @@ class _AppButtonState extends State<AppButton>
 
   @override
   Widget build(BuildContext context) {
-    final buttonStyle = _getButtonStyle();
+    final buttonStyle = _getButtonStyle(context);
     final height = _getHeight();
     final padding = _getPadding();
-    final textStyle = _getTextStyle();
+    final textStyle = _getTextStyle(context);
 
     final style = buttonStyle.copyWith(
       padding: WidgetStateProperty.all(padding),
@@ -103,15 +104,15 @@ class _AppButtonState extends State<AppButton>
           child: ElevatedButton(
             onPressed: widget.isLoading ? null : widget.onPressed,
             style: style,
-            child: widget.isLoading ? _buildLoader() : _buildContent(textStyle),
+            child: widget.isLoading ? _buildLoader(context) : _buildContent(textStyle),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLoader() {
-    final loaderColor = _getLoaderColor();
+  Widget _buildLoader(BuildContext context) {
+    final loaderColor = _getLoaderColor(context);
     return SizedBox(
       width: 20,
       height: 20,
@@ -151,48 +152,49 @@ class _AppButtonState extends State<AppButton>
     );
   }
 
-  ButtonStyle _getButtonStyle() {
+  ButtonStyle _getButtonStyle(BuildContext context) {
+    final isDark = context.isDark;
+    final appColors = context.colors;
+    // primary 계열은 다크모드에서 흰 버튼 + 어두운 텍스트
+    final primaryBg = isDark ? Colors.white : DesignTokens.primaryMain;
+    final primaryFg = isDark ? DesignTokens.darkBgPrimary : Colors.white;
+    final outlineFg = isDark ? Colors.white : DesignTokens.primaryMain;
+    final disabledBg = isDark ? DesignTokens.darkNeutral300 : DesignTokens.neutral300;
+    final disabledFg = appColors.textDisabled;
+
+    const shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(DesignTokens.radiusLg)),
+    );
+
     switch (widget.variant) {
       case AppButtonVariant.primary:
         return ElevatedButton.styleFrom(
-          backgroundColor: DesignTokens.primaryMain,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: DesignTokens.neutral300,
-          disabledForegroundColor: DesignTokens.textDisabled,
+          backgroundColor: primaryBg,
+          foregroundColor: primaryFg,
+          disabledBackgroundColor: disabledBg,
+          disabledForegroundColor: disabledFg,
           elevation: 2,
-          shadowColor: DesignTokens.primaryMain.withValues(alpha: 0.3),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          shadowColor: primaryBg.withValues(alpha: 0.3),
+          shape: shape,
         );
 
       case AppButtonVariant.secondary:
         return ElevatedButton.styleFrom(
           backgroundColor: DesignTokens.secondaryMain,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: DesignTokens.neutral300,
-          disabledForegroundColor: DesignTokens.textDisabled,
+          disabledBackgroundColor: disabledBg,
+          disabledForegroundColor: disabledFg,
           elevation: 2,
           shadowColor: DesignTokens.secondaryMain.withValues(alpha: 0.3),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          shape: shape,
         );
 
       case AppButtonVariant.outlined:
         return OutlinedButton.styleFrom(
-          foregroundColor: DesignTokens.primaryMain,
-          disabledForegroundColor: DesignTokens.textDisabled,
-          side: const BorderSide(color: DesignTokens.primaryMain, width: 1.5),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          foregroundColor: outlineFg,
+          disabledForegroundColor: disabledFg,
+          side: BorderSide(color: outlineFg, width: 1.5),
+          shape: shape,
         ).copyWith(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           elevation: WidgetStateProperty.all(0),
@@ -201,13 +203,9 @@ class _AppButtonState extends State<AppButton>
       case AppButtonVariant.outlinedDanger:
         return OutlinedButton.styleFrom(
           foregroundColor: DesignTokens.error,
-          disabledForegroundColor: DesignTokens.textDisabled,
+          disabledForegroundColor: disabledFg,
           side: const BorderSide(color: DesignTokens.error, width: 1.5),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          shape: shape,
         ).copyWith(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           elevation: WidgetStateProperty.all(0),
@@ -215,28 +213,20 @@ class _AppButtonState extends State<AppButton>
 
       case AppButtonVariant.ghost:
         return TextButton.styleFrom(
-          foregroundColor: DesignTokens.primaryMain,
-          disabledForegroundColor: DesignTokens.textDisabled,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          foregroundColor: outlineFg,
+          disabledForegroundColor: disabledFg,
+          shape: shape,
         );
 
       case AppButtonVariant.danger:
         return ElevatedButton.styleFrom(
           backgroundColor: DesignTokens.error,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: DesignTokens.neutral300,
-          disabledForegroundColor: DesignTokens.textDisabled,
+          disabledBackgroundColor: disabledBg,
+          disabledForegroundColor: disabledFg,
           elevation: 2,
           shadowColor: DesignTokens.error.withValues(alpha: 0.3),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(DesignTokens.radiusLg),
-            ),
-          ),
+          shape: shape,
         );
     }
   }
@@ -263,42 +253,43 @@ class _AppButtonState extends State<AppButton>
     }
   }
 
-  TextStyle _getTextStyle() {
+  TextStyle _getTextStyle(BuildContext context) {
     final baseStyle = widget.size == AppButtonSize.small
         ? AppTypography.buttonSmall
         : AppTypography.button;
-
-    final color = _getTextColor();
-    return baseStyle.copyWith(color: color);
+    return baseStyle.copyWith(color: _getTextColor(context));
   }
 
-  Color _getTextColor() {
+  Color _getTextColor(BuildContext context) {
     if (widget.onPressed == null || widget.isLoading) {
-      return DesignTokens.textDisabled;
+      return context.colors.textDisabled;
     }
-
+    final isDark = context.isDark;
     switch (widget.variant) {
       case AppButtonVariant.primary:
+        return isDark ? DesignTokens.darkBgPrimary : Colors.white;
       case AppButtonVariant.secondary:
       case AppButtonVariant.danger:
         return Colors.white;
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
-        return DesignTokens.primaryMain;
+        return isDark ? Colors.white : DesignTokens.primaryMain;
       case AppButtonVariant.outlinedDanger:
         return DesignTokens.error;
     }
   }
 
-  Color _getLoaderColor() {
+  Color _getLoaderColor(BuildContext context) {
+    final isDark = context.isDark;
     switch (widget.variant) {
       case AppButtonVariant.primary:
+        return isDark ? DesignTokens.darkBgPrimary : Colors.white;
       case AppButtonVariant.secondary:
       case AppButtonVariant.danger:
         return Colors.white;
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
-        return DesignTokens.primaryMain;
+        return isDark ? Colors.white : DesignTokens.primaryMain;
       case AppButtonVariant.outlinedDanger:
         return DesignTokens.error;
     }

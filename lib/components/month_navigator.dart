@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../widgets/glass_container.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 import 'app_button.dart';
@@ -57,15 +57,15 @@ class MonthNavigator extends StatelessWidget {
       useRootNavigator: true, // 최상위 네비게이터 사용
       elevation: 10, // FAB 및 다른 요소보다 위에 표시
       builder: (BuildContext context) {
+        final appColors = context.colors;
         return Container(
           height: 300,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: appColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: DesignTokens.space16,
@@ -76,6 +76,7 @@ class MonthNavigator extends StatelessWidget {
                     '년월 선택',
                     style: AppTypography.bodyLarge.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: appColors.textPrimary,
                     ),
                   ),
                 ),
@@ -98,7 +99,7 @@ class MonthNavigator extends StatelessWidget {
                           return Center(
                             child: Text(
                               '$y년',
-                              style: AppTypography.h3,
+                              style: AppTypography.h3.copyWith(color: appColors.textPrimary),
                             ),
                           );
                         }).toList(),
@@ -118,7 +119,7 @@ class MonthNavigator extends StatelessWidget {
                           return Center(
                             child: Text(
                               '$m월',
-                              style: AppTypography.h3,
+                              style: AppTypography.h3.copyWith(color: appColors.textPrimary),
                             ),
                           );
                         }).toList(),
@@ -127,10 +128,9 @@ class MonthNavigator extends StatelessWidget {
                   ],
                 ),
               ),
-              // 하단 완료 버튼
               Container(
                 padding: const EdgeInsets.all(DesignTokens.space16),
-                decoration: const BoxDecoration(color: Colors.white),
+                decoration: BoxDecoration(color: appColors.surface),
                 child: AppButton(
                   text: '완료',
                   onPressed: () {
@@ -159,21 +159,19 @@ class MonthNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: appColors.glassDark,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.5),
-          width: 1,
-        ),
+        border: Border.all(color: appColors.glassBorder, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, size: 20),
+            icon: Icon(Icons.chevron_left, size: DesignTokens.iconSm, color: appColors.textPrimary),
             onPressed: _onPreviousMonth,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -185,15 +183,15 @@ class MonthNavigator extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space8),
               child: Text(
                 '$year년 $month월',
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(color: appColors.textPrimary),
               ),
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.chevron_right,
-              size: 20,
-              color: isCurrentMonth ? Colors.grey.withValues(alpha: 0.3) : null,
+              size: DesignTokens.iconSm,
+              color: isCurrentMonth ? appColors.textDisabled : appColors.textPrimary,
             ),
             onPressed: isCurrentMonth ? null : _onNextMonth,
             padding: EdgeInsets.zero,
@@ -243,6 +241,7 @@ class StickyMonthNavigator extends SliverPersistentHeaderDelegate {
     final currentPadding = topPadding * paddingProgress;
 
     return Container(
+      color: context.colors.surface,
       padding: EdgeInsets.only(top: currentPadding),
       child: Center(
         child: MonthNavigator(

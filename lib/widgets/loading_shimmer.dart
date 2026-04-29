@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 
 /// Fintech Style Loading Shimmer
-/// 세련된 로딩 스켈레톤 효과
+/// 로딩 스켈레톤 효과 — 라이트/다크 테마 자동 대응
 class LoadingShimmer extends StatelessWidget {
   final double width;
   final double height;
@@ -18,17 +19,19 @@ class LoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return Shimmer.fromColors(
-      baseColor: DesignTokens.neutral200,
-      highlightColor: DesignTokens.neutral100,
+      baseColor: appColors.shimmerBase,
+      highlightColor: appColors.shimmerHighlight,
       period: const Duration(milliseconds: 1200),
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: borderRadius ??
-              BorderRadius.circular(DesignTokens.radiusSm),
+          color: appColors.surface,
+          borderRadius:
+              borderRadius ?? BorderRadius.circular(DesignTokens.radiusSm),
         ),
       ),
     );
@@ -41,15 +44,14 @@ class BookCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return Container(
       padding: const EdgeInsets.all(DesignTokens.space16),
       decoration: BoxDecoration(
-        color: DesignTokens.glassLight,
+        color: appColors.glassLight,
         borderRadius: BorderRadius.circular(DesignTokens.radiusLg),
-        border: Border.all(
-          color: DesignTokens.glassBorder,
-          width: 1.0,
-        ),
+        border: Border.all(color: appColors.glassBorder, width: 1.0),
       ),
       child: const Row(
         children: [

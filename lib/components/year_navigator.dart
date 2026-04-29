@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../widgets/glass_container.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 
@@ -19,11 +19,7 @@ class YearNavigator extends StatelessWidget {
 
   Future<void> _showYearPicker(BuildContext context) async {
     final currentYear = DateTime.now().year;
-    final years = List.generate(
-      currentYear - 2000 + 1,
-      (index) => 2000 + index,
-    );
-
+    final years = List.generate(currentYear - 2000 + 1, (i) => 2000 + i);
     int selectedYear = year;
     final initialIndex = years.indexOf(year);
 
@@ -31,25 +27,20 @@ class YearNavigator extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
+        final appColors = context.colors;
         return Container(
           height: 300,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: appColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
-              // Header
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                    ),
+                    bottom: BorderSide(color: appColors.border),
                   ),
                 ),
                 child: Row(
@@ -60,7 +51,7 @@ class YearNavigator extends StatelessWidget {
                       child: Text(
                         '취소',
                         style: AppTypography.bodyLarge.copyWith(
-                          color: DesignTokens.textSecondary,
+                          color: appColors.textSecondary,
                         ),
                       ),
                     ),
@@ -68,6 +59,7 @@ class YearNavigator extends StatelessWidget {
                       '년도 선택',
                       style: AppTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: appColors.textPrimary,
                       ),
                     ),
                     TextButton(
@@ -78,7 +70,7 @@ class YearNavigator extends StatelessWidget {
                       child: Text(
                         '완료',
                         style: AppTypography.bodyLarge.copyWith(
-                          color: DesignTokens.primaryMain,
+                          color: appColors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -86,21 +78,16 @@ class YearNavigator extends StatelessWidget {
                   ],
                 ),
               ),
-              // Picker
               Expanded(
                 child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(
-                    initialItem: initialIndex,
-                  ),
+                  scrollController: FixedExtentScrollController(initialItem: initialIndex),
                   itemExtent: 40,
-                  onSelectedItemChanged: (index) {
-                    selectedYear = years[index];
-                  },
+                  onSelectedItemChanged: (index) => selectedYear = years[index],
                   children: years.map((y) {
                     return Center(
                       child: Text(
                         '$y년',
-                        style: AppTypography.h3,
+                        style: AppTypography.h3.copyWith(color: appColors.textPrimary),
                       ),
                     );
                   }).toList(),
@@ -115,21 +102,19 @@ class YearNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: appColors.glassDark,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.5),
-          width: 1,
-        ),
+        border: Border.all(color: appColors.glassBorder, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, size: 20),
+            icon: const Icon(Icons.chevron_left, size: DesignTokens.iconSm),
             onPressed: () => onYearChanged(year - 1),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -138,19 +123,21 @@ class YearNavigator extends StatelessWidget {
             onTap: () => _showYearPicker(context),
             borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space12, vertical: DesignTokens.space8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: DesignTokens.space12,
+                vertical: DesignTokens.space8,
+              ),
               child: Text(
                 '$year년',
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(color: appColors.textPrimary),
               ),
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.chevron_right,
-              size: 20,
-              color:
-                  isCurrentYear ? Colors.grey.withValues(alpha: 0.3) : null,
+              size: DesignTokens.iconSm,
+              color: isCurrentYear ? appColors.textDisabled : appColors.textPrimary,
             ),
             onPressed: isCurrentYear ? null : () => onYearChanged(year + 1),
             padding: EdgeInsets.zero,
@@ -183,11 +170,7 @@ class StickyYearNavigator extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Center(
       child: YearNavigator(
         year: year,
@@ -199,7 +182,6 @@ class StickyYearNavigator extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant StickyYearNavigator oldDelegate) {
-    return year != oldDelegate.year ||
-        isCurrentYear != oldDelegate.isCurrentYear;
+    return year != oldDelegate.year || isCurrentYear != oldDelegate.isCurrentYear;
   }
 }

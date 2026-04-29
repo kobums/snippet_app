@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
-import '../core/typography.dart';
 
 /// Navigation Item
 class NavItem {
@@ -17,7 +17,7 @@ class NavItem {
 }
 
 /// Fintech Style Glass Bottom Navigation Bar
-/// 향상된 글래스모피즘 효과의 하단 내비게이션
+/// 글래스모피즘 하단 내비게이션 — 라이트/다크 테마 자동 대응
 class GlassBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -54,7 +54,19 @@ class GlassBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+    final isDark = context.isDark;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    final gradientColors = isDark
+        ? [
+            Colors.black.withValues(alpha: 0.85),
+            Colors.black.withValues(alpha: 0.80),
+          ]
+        : [
+            Colors.white.withValues(alpha: 0.80),
+            Colors.white.withValues(alpha: 0.70),
+          ];
 
     return ClipRRect(
       child: BackdropFilter(
@@ -64,26 +76,20 @@ class GlassBottomNav extends StatelessWidget {
         ),
         child: Container(
           height: 42 + bottomPadding,
-          padding: EdgeInsets.only(
-            bottom: bottomPadding,
-            // top: DesignTokens.space8,
-          ),
+          padding: EdgeInsets.only(bottom: bottomPadding),
           decoration: BoxDecoration(
-            color: DesignTokens.glassMedium,
+            color: appColors.glassMedium,
             border: Border(
-              top: BorderSide(color: DesignTokens.glassBorder, width: 1.0),
+              top: BorderSide(color: appColors.glassBorder, width: 1.0),
             ),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withValues(alpha: 0.8),
-                Colors.white.withValues(alpha: 0.7),
-              ],
+              colors: gradientColors,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, -2),
               ),
@@ -112,6 +118,9 @@ class GlassBottomNav extends StatelessWidget {
     NavItem item,
     bool isActive,
   ) {
+    final appColors = context.colors;
+    final activeColor = context.isDark ? Colors.white : DesignTokens.primaryMain;
+
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -120,9 +129,7 @@ class GlassBottomNav extends StatelessWidget {
           duration: DesignTokens.durationNormal,
           curve: DesignTokens.curveEaseOut,
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Indicator
               AnimatedContainer(
                 duration: DesignTokens.durationNormal,
                 curve: DesignTokens.curveEaseOut,
@@ -131,10 +138,10 @@ class GlassBottomNav extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
                   gradient: isActive
-                      ? const LinearGradient(
+                      ? LinearGradient(
                           colors: [
                             Colors.transparent,
-                            DesignTokens.primaryMain,
+                            activeColor,
                             Colors.transparent,
                           ],
                         )
@@ -142,35 +149,16 @@ class GlassBottomNav extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: DesignTokens.space8),
-
-              // Icon
               AnimatedSwitcher(
                 duration: DesignTokens.durationNormal,
                 child: Icon(
                   isActive ? item.activeIcon : item.icon,
                   key: ValueKey(isActive),
                   size: isActive ? 26 : 24,
-                  color: isActive
-                      ? DesignTokens.primaryMain
-                      : DesignTokens.textTertiary,
+                  color: isActive ? activeColor : appColors.textTertiary,
                 ),
               ),
               const SizedBox(height: DesignTokens.space4),
-
-              // Label
-              // AnimatedDefaultTextStyle(
-              //   duration: DesignTokens.durationNormal,
-              //   curve: DesignTokens.curveEaseOut,
-              //   style: AppTypography.captionSmall.copyWith(
-              //     color: isActive
-              //         ? DesignTokens.primaryMain
-              //         : DesignTokens.textTertiary,
-              //     fontWeight: isActive
-              //         ? DesignTokens.fontMedium
-              //         : DesignTokens.fontRegular,
-              //   ),
-              //   child: Text(item.label),
-              // ),
             ],
           ),
         ),

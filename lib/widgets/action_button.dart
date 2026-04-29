@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
 import '../core/typography.dart';
 import 'glass_container.dart';
@@ -25,7 +26,7 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = color ?? DesignTokens.primaryMain;
+    final effectiveColor = color ?? context.colors.primary;
     final verticalPadding = isCompact ? DesignTokens.space12 : DesignTokens.space16;
 
     return GestureDetector(
@@ -76,7 +77,7 @@ class ActionButtonExpanded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = color ?? DesignTokens.primaryMain;
+    final effectiveColor = color ?? context.colors.primary;
 
     return GestureDetector(
       onTap: onTap,

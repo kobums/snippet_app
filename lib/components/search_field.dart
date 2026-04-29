@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 
@@ -40,16 +41,12 @@ class _SearchFieldState extends State<SearchField> {
   @override
   void dispose() {
     _controller.removeListener(_updateState);
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
+    if (widget.controller == null) _controller.dispose();
     super.dispose();
   }
 
   void _updateState() {
-    setState(() {
-      _hasText = _controller.text.isNotEmpty;
-    });
+    setState(() => _hasText = _controller.text.isNotEmpty);
   }
 
   void _handleClear() {
@@ -60,53 +57,43 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+
     return Container(
       margin: widget.margin,
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-        border: Border.all(
-          color: Colors.black.withValues(alpha: 0.15),
-          width: 1,
-        ),
+        border: Border.all(color: appColors.border, width: 1),
       ),
       child: TextField(
         controller: _controller,
         focusNode: widget.focusNode,
         onChanged: widget.onChanged,
         scrollPadding: EdgeInsets.zero,
+        style: AppTypography.bodyMedium.copyWith(color: appColors.textPrimary),
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: AppTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.w300,
-            color: Colors.black.withValues(alpha: 0.4),
+            color: appColors.textTertiary,
           ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.black.withValues(alpha: 0.5),
-          ),
+          prefixIcon: Icon(Icons.search, color: appColors.iconSecondary),
           suffixIcon: _hasText
               ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.black.withValues(alpha: 0.5),
-                  ),
+                  icon: Icon(Icons.clear, color: appColors.iconSecondary),
                   onPressed: _handleClear,
                 )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: DesignTokens.space12),
         ),
-        style: AppTypography.bodyMedium,
       ),
     );
   }
 }
 
 /// 스크롤 시 제자리에서 fade-out 되는 SearchField + 스크롤 콘텐츠 레이아웃
-///
-/// Stack으로 SearchField를 상단에 오버레이하고,
-/// 스크롤 offset에 따라 opacity만 변경합니다.
 class SearchableScrollLayout extends StatefulWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -136,9 +123,7 @@ class _SearchableScrollLayoutState extends State<SearchableScrollLayout> {
 
   bool _onScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      setState(() {
-        _scrollOffset = notification.metrics.pixels;
-      });
+      setState(() => _scrollOffset = notification.metrics.pixels);
     }
     return false;
   }

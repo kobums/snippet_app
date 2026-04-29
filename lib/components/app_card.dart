@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../core/app_colors.dart';
 import '../core/design_tokens.dart';
+import '../core/typography.dart';
 
 /// Card Variants
 enum AppCardVariant {
-  elevated, // 떠있는 카드 (그림자 있음)
-  flat, // 평평한 카드 (그림자 없음)
-  glass, // 글래스모피즘 카드
-  outlined, // 테두리만 있는 카드
+  elevated,  // 떠있는 카드 (그림자 있음)
+  flat,      // 평평한 카드 (그림자 없음)
+  glass,     // 글래스모피즘 카드
+  outlined,  // 테두리만 있는 카드
 }
 
 /// Fintech Style App Card
-/// 일관된 스타일의 카드 컴포넌트
 class AppCard extends StatelessWidget {
   final Widget child;
   final AppCardVariant variant;
@@ -34,15 +35,15 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
     final radius = borderRadius ?? DesignTokens.radiusLg;
 
     Widget cardContent = Container(
       padding: padding ?? const EdgeInsets.all(DesignTokens.space16),
-      decoration: _getDecoration(radius),
+      decoration: _getDecoration(radius, appColors),
       child: child,
     );
 
-    // Glass variant needs backdrop filter
     if (variant == AppCardVariant.glass) {
       cardContent = ClipRRect(
         borderRadius: BorderRadius.circular(radius),
@@ -56,15 +57,14 @@ class AppCard extends StatelessWidget {
       );
     }
 
-    // Wrap with Material for ink splash effect
     if (onTap != null) {
       cardContent = Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(radius),
-          splashColor: DesignTokens.primaryMain.withValues(alpha: 0.1),
-          highlightColor: DesignTokens.primaryMain.withValues(alpha: 0.05),
+          splashColor: appColors.primary.withValues(alpha: 0.1),
+          highlightColor: appColors.primary.withValues(alpha: 0.05),
           child: cardContent,
         ),
       );
@@ -73,26 +73,26 @@ class AppCard extends StatelessWidget {
     return Container(margin: margin, child: cardContent);
   }
 
-  BoxDecoration _getDecoration(double radius) {
+  BoxDecoration _getDecoration(double radius, AppColors appColors) {
     switch (variant) {
       case AppCardVariant.elevated:
         return BoxDecoration(
-          color: backgroundColor ?? DesignTokens.bgPrimary,
+          color: backgroundColor ?? appColors.cardBackground,
           borderRadius: BorderRadius.circular(radius),
           boxShadow: DesignTokens.shadowMd,
         );
 
       case AppCardVariant.flat:
         return BoxDecoration(
-          color: backgroundColor ?? DesignTokens.bgPrimary,
+          color: backgroundColor ?? appColors.cardBackground,
           borderRadius: BorderRadius.circular(radius),
         );
 
       case AppCardVariant.glass:
         return BoxDecoration(
-          color: backgroundColor ?? DesignTokens.glassLight,
+          color: backgroundColor ?? appColors.glassLight,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: DesignTokens.glassBorder, width: 1.0),
+          border: Border.all(color: appColors.glassBorder, width: 1.0),
           boxShadow: DesignTokens.shadowGlass,
         );
 
@@ -100,7 +100,7 @@ class AppCard extends StatelessWidget {
         return BoxDecoration(
           color: backgroundColor ?? Colors.transparent,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: DesignTokens.neutral300, width: 1.0),
+          border: Border.all(color: appColors.border, width: 1.0),
         );
     }
   }
@@ -125,6 +125,9 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+    final color = valueColor ?? appColors.primary;
+
     return AppCard(
       variant: AppCardVariant.glass,
       onTap: onTap,
@@ -135,35 +138,27 @@ class StatsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(DesignTokens.space8),
               decoration: BoxDecoration(
-                color: (valueColor ?? DesignTokens.primaryMain).withValues(
-                  alpha: 0.1,
-                ),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
               ),
-              child: Icon(
-                icon,
-                size: DesignTokens.iconMd,
-                color: valueColor ?? DesignTokens.primaryMain,
-              ),
+              child: Icon(icon, size: DesignTokens.iconMd, color: color),
             ),
             const SizedBox(height: DesignTokens.space12),
           ],
           Text(
             value,
-            style: TextStyle(
-              fontSize: DesignTokens.fontSize32,
+            style: AppTypography.displaySmall.copyWith(
               fontWeight: DesignTokens.fontLight,
-              color: valueColor ?? DesignTokens.primaryMain,
+              color: color,
               height: DesignTokens.lineHeightTight,
             ),
           ),
           const SizedBox(height: DesignTokens.space4),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: DesignTokens.fontSize12,
+            style: AppTypography.bodySmall.copyWith(
               fontWeight: DesignTokens.fontRegular,
-              color: DesignTokens.textSecondary,
+              color: appColors.textSecondary,
             ),
           ),
         ],
@@ -193,6 +188,9 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.colors;
+    final color = iconColor ?? appColors.primary;
+
     return AppCard(
       variant: AppCardVariant.elevated,
       onTap: onTap,
@@ -202,16 +200,10 @@ class InfoCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: (iconColor ?? DesignTokens.primaryMain).withValues(
-                alpha: 0.1,
-              ),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
             ),
-            child: Icon(
-              icon,
-              color: iconColor ?? DesignTokens.primaryMain,
-              size: DesignTokens.iconMd,
-            ),
+            child: Icon(icon, color: color, size: DesignTokens.iconMd),
           ),
           const SizedBox(width: DesignTokens.space16),
           Expanded(
@@ -220,20 +212,16 @@ class InfoCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: DesignTokens.fontSize16,
-                    fontWeight: DesignTokens.fontMedium,
-                    color: DesignTokens.textPrimary,
+                  style: AppTypography.labelLarge.copyWith(
+                    color: appColors.textPrimary,
                   ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: DesignTokens.space4),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
-                      fontSize: DesignTokens.fontSize12,
-                      fontWeight: DesignTokens.fontRegular,
-                      color: DesignTokens.textSecondary,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: appColors.textSecondary,
                     ),
                   ),
                 ],
