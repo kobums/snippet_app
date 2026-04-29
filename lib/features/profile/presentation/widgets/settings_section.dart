@@ -197,11 +197,11 @@ class SettingsSection extends ConsumerWidget {
 
   void _showThemeModeDialog(BuildContext context, WidgetRef ref) {
     final current = ref.read(themeModeProvider);
+    var selected = current;
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
-          var selected = current;
           return AlertDialog(
             title: Text('테마 설정', style: AppTypography.h4.copyWith(color: context.colors.textPrimary)),
             content: Column(

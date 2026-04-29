@@ -19,7 +19,7 @@ class BookGridCard extends StatelessWidget {
     this.onStatusChange,
   });
 
-  Color _getStatusColor(BookStatus status, dynamic context) {
+  Color _getStatusColor(BookStatus status, BuildContext context) {
     switch (status) {
       case BookStatus.waiting:
         return DesignTokens.neutral500;
