@@ -56,6 +56,7 @@ android/Gemfile.lock
 android/vendor/bundle/
 android/fastlane/report.xml
 android/fastlane/google-play-key.json
+ios/fastlane/Preview.html
 android/key.properties
 android/upload-keystore.jks
 
