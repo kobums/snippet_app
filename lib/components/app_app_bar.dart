@@ -43,7 +43,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: IconThemeData(color: appColors.textPrimary, size: 20),
+      iconTheme: IconThemeData(color: appColors.textPrimary, size: DesignTokens.iconSm),
       actions: actions,
       bottom: bottom,
     );
@@ -117,7 +117,7 @@ class _AppSliverAppBar extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: IconThemeData(color: appColors.textPrimary, size: 20),
+      iconTheme: IconThemeData(color: appColors.textPrimary, size: DesignTokens.iconSm),
       actions: actions,
       bottom: bottom,
     );

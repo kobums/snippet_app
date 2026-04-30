@@ -89,7 +89,9 @@ class DesignTokens {
   // ========== Typography ==========
 
   /// Font Sizes
+  static const double fontSize9 = 9.0;
   static const double fontSize10 = 10.0;
+  static const double fontSize11 = 11.0;
   static const double fontSize12 = 12.0;
   static const double fontSize14 = 14.0;
   static const double fontSize16 = 16.0;
@@ -100,6 +102,7 @@ class DesignTokens {
   static const double fontSize32 = 32.0;
   static const double fontSize40 = 40.0;
   static const double fontSize48 = 48.0;
+  static const double fontSize72 = 72.0;
 
   /// Font Weights
   static const FontWeight fontLight = FontWeight.w300;
@@ -238,6 +241,7 @@ class DesignTokens {
 
   /// Icon Sizes
   static const double iconXs = 16.0;
+  static const double iconXxs = 18.0;
   static const double iconSm = 20.0;
   static const double iconMd = 24.0;
   static const double iconLg = 32.0;

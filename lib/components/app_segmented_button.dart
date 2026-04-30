@@ -31,7 +31,7 @@ class AppSegmentedButton extends StatelessWidget {
           color: appColors.surfaceSecondary,
           borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
         ),
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(DesignTokens.space4),
         child: Row(
           children: List.generate(segments.length, (index) {
             final isSelected = index == selectedIndex;

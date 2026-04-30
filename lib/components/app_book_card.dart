@@ -131,7 +131,7 @@ class AppBookCard extends StatelessWidget {
                     Text(
                       '${book.totalPage}쪽',
                       style: AppTypography.labelSmall.copyWith(
-                        fontSize: 11,
+                        fontSize: DesignTokens.fontSize11,
                         fontWeight: FontWeight.w300,
                         color: appColors.textTertiary,
                       ),
@@ -205,7 +205,7 @@ class AppBookCard extends StatelessWidget {
           Text(
             '${(book.progress * 100).toInt()}%',
             style: AppTypography.labelSmall.copyWith(
-              fontSize: 11,
+              fontSize: DesignTokens.fontSize11,
               fontWeight: FontWeight.w300,
               color: appColors.textTertiary,
             ),

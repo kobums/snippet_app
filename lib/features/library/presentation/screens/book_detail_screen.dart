@@ -697,8 +697,16 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                     );
                     context.push(AppRoutes.activeSession, extra: currentBook);
                   },
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('독서 시작'),
+                  icon: Icon(
+                    Icons.play_arrow_rounded,
+                    color: context.colors.surface,
+                  ),
+                  label: Text(
+                    '독서 시작',
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: DesignTokens.fontMedium,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.colors.primary,
                     foregroundColor: Colors.white,

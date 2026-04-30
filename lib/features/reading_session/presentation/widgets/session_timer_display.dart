@@ -20,7 +20,7 @@ class SessionTimerDisplay extends StatelessWidget {
       child: Text(
         formattedTime,
         style: AppTypography.displayLarge.copyWith(
-          fontSize: 72,
+          fontSize: DesignTokens.fontSize72,
           fontWeight: DesignTokens.fontLight,
           color: Colors.white,
           letterSpacing: 4,

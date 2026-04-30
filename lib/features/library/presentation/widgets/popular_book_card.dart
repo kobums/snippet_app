@@ -187,12 +187,12 @@ class _AddButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showAddSheet(context),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(DesignTokens.space8),
         decoration: BoxDecoration(
           color: context.colors.primary,
           shape: BoxShape.circle,
         ),
-        child: Icon(Icons.add, color: context.colors.surface, size: 18),
+        child: Icon(Icons.add, color: context.colors.surface, size: DesignTokens.iconXxs),
       ),
     );
   }

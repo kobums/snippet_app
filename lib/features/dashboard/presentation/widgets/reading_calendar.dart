@@ -215,7 +215,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                 '${books.length}권',
                 style: AppTypography.captionSmall.copyWith(
                   color: Colors.white,
-                  fontSize: 9,
+                  fontSize: DesignTokens.fontSize9,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -238,7 +238,7 @@ class _ReadingCalendarState extends State<ReadingCalendar> {
                   '$day',
                   style: AppTypography.captionSmall.copyWith(
                     color: Colors.white,
-                    fontSize: 9,
+                    fontSize: DesignTokens.fontSize9,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
