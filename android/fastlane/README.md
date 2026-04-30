@@ -45,7 +45,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane android deploy
 ```
 
-프로덕션 배포
+프로덕션 배포 (make release에서 iOS 버전 bump 후 실행)
 
 ----
 

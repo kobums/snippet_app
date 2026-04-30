@@ -39,6 +39,14 @@ patch 버전 bump 후 App Store 업로드
 
 버전 bump 후 TestFlight 배포
 
+### ios promo
+
+```sh
+[bundle exec] fastlane ios promo
+```
+
+프로모션 텍스트 업데이트
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

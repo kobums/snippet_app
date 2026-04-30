@@ -83,7 +83,8 @@ platform :ios do
       skip_screenshots: true,
       skip_metadata: false,
       run_precheck_before_submit: false,
-      submit_for_review: false  # true로 바꾸면 자동 심사 제출
+      submit_for_review: false,  # true로 바꾸면 자동 심사 제출
+      force: true                # HTML 프리뷰 확인 생략 (non-interactive 환경)
     )
 
     puts "✅ v#{new_version}+#{new_build} App Store 업로드 완료! App Store Connect에서 심사 제출하세요."
@@ -143,7 +144,8 @@ platform :ios do
       skip_screenshots: true,
       skip_metadata: false,
       run_precheck_before_submit: false,
-      submit_for_review: false
+      submit_for_review: false,
+      force: true
     )
 
     puts "✅ 프로모션 텍스트 업데이트 완료!"

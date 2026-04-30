@@ -1,6 +1,6 @@
 .PHONY: ios-beta ios-ship ios-release ios-promo \
         android-internal android-alpha android-deploy \
-        ship release
+        ship release release-internal
 
 # ── iOS ──────────────────────────────────────────────
 # TestFlight 업로드 (빌드 번호 bump 없음)
@@ -37,6 +37,14 @@ android-deploy:
 ship:
 	cd ios && fastlane ship & cd android && fastlane internal & wait
 
-# iOS(App Store) + Android(프로덕션) 동시 업로드
+# iOS(App Store) + Android(프로덕션) 순차 업로드
+# iOS가 먼저 패치 버전 bump → Android가 동일 버전 코드로 빌드/업로드
 release:
-	cd ios && fastlane release & cd android && fastlane deploy & wait
+	cd ios && fastlane release
+	cd android && fastlane deploy
+
+# iOS(App Store) + Android(비공개 테스트) 순차 업로드
+# iOS 심사 제출 + Android 내부 테스트 동시 진행 시 사용
+release-internal:
+	cd ios && fastlane release
+	cd android && fastlane internal
