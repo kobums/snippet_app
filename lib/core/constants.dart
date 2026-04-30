@@ -40,6 +40,10 @@ class ApiConstants {
   static const String readingSessions = '/readingsessions';
   static const String readingSessionsByBook = '/readingsessions/bybook';
   static const String readingSessionsStats = '/readingsessions/stats';
+
+  // Suggestions
+  static const String suggestions = '/suggestions';
+  static const String suggestionsMine = '/suggestions/mine';
 }
 
 class AppConstants {

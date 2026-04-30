@@ -24,6 +24,7 @@ import 'package:snippet_app/features/library/presentation/screens/popular_books_
 import 'package:snippet_app/features/library/presentation/screens/barcode_scanner_screen.dart';
 import 'package:snippet_app/features/library/data/models/user_book.dart';
 import 'package:snippet_app/features/profile/presentation/screens/mypage_screen.dart';
+import 'package:snippet_app/features/suggestion/presentation/screens/suggestion_screen.dart';
 import 'package:snippet_app/features/reading_session/presentation/screens/active_session_screen.dart';
 import 'package:snippet_app/features/reading_session/presentation/screens/session_complete_screen.dart';
 import 'package:snippet_app/features/reading_session/presentation/screens/session_detail_screen.dart';
@@ -58,6 +59,7 @@ class AppRoutes {
   static const activeSession = '/activeSession';
   static const sessionComplete = '/sessionComplete';
   static const sessionDetail = '/sessionDetail';
+  static const suggestion = '/suggestion';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -270,6 +272,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.sessionDetail,
         builder: (context, state) =>
             SessionDetailScreen(session: state.extra as ReadingSessionDto),
+      ),
+      GoRoute(
+        path: AppRoutes.suggestion,
+        builder: (context, state) => const SuggestionScreen(),
       ),
     ],
   );

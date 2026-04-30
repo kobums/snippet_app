@@ -8,6 +8,8 @@ import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/core/config/ocr_config.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/features/records/records_providers.dart';
 
 class SettingsSection extends ConsumerWidget {
@@ -392,6 +394,13 @@ class SettingsSection extends ConsumerWidget {
             title: '앱 정보',
             subtitle: 'Snippet 버전 및 정보',
             onTap: () => _showAboutDialog(context),
+          ),
+          const Divider(height: 1),
+          SettingsTile(
+            icon: Icons.lightbulb_outline,
+            title: '기능 제안하기',
+            subtitle: '원하는 기능이나 개선사항을 알려주세요',
+            onTap: () => context.push(AppRoutes.suggestion),
           ),
         ],
       ),
