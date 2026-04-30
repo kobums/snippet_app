@@ -76,23 +76,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 140,
                       height: 140,
-                      decoration: BoxDecoration(
-                        color: context.colors.glassDark,
-                        borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
-                        border: Border.all(
-                          color: context.colors.glassBorder,
-                          width: 1,
-                        ),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   color: context.colors.glassDark,
+                      //   borderRadius: BorderRadius.circular(
+                      //     DesignTokens.radius2xl,
+                      //   ),
+                      //   border: Border.all(
+                      //     color: context.colors.glassBorder,
+                      //     width: 1,
+                      //   ),
+                      // ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(DesignTokens.radius2xl),
                         child: Padding(
                           padding: const EdgeInsets.all(DesignTokens.space16),
                           child: Image.asset(
-                            'images/snippetbook.png',
+                            'images/snippetbook-removebg.png',
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -100,7 +101,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     Text(
                       'Snippet',
-                      style: AppTypography.brand.copyWith(color: context.colors.primary),
+                      style: AppTypography.brand.copyWith(
+                        color: context.colors.primary,
+                      ),
                     ),
                     const SizedBox(height: DesignTokens.space40),
                     GlassContainer(
@@ -116,7 +119,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               labelText: 'Email',
                               prefixIcon: const Icon(Icons.email_outlined),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  DesignTokens.radiusMd,
+                                ),
                               ),
                               filled: true,
                               fillColor: context.colors.inputFill,
@@ -153,7 +158,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 },
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                                borderRadius: BorderRadius.circular(
+                                  DesignTokens.radiusMd,
+                                ),
                               ),
                               filled: true,
                               fillColor: context.colors.inputFill,

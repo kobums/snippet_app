@@ -51,23 +51,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
+              SizedBox(
                 width: 140,
                 height: 140,
-                decoration: BoxDecoration(
-                  color: context.colors.glassDark,
-                  borderRadius: BorderRadius.circular(DesignTokens.radius3xl),
-                  border: Border.all(
-                    color: context.colors.glassBorder,
-                    width: 1,
-                  ),
-                ),
+                // decoration: BoxDecoration(
+                //   color: context.colors.glassDark,
+                //   borderRadius: BorderRadius.circular(DesignTokens.radius3xl),
+                //   border: Border.all(
+                //     color: context.colors.glassBorder,
+                //     width: 1,
+                //   ),
+                // ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(DesignTokens.radius3xl),
                   child: Padding(
                     padding: const EdgeInsets.all(DesignTokens.space20),
                     child: Image.asset(
-                      'images/snippetbook.png',
+                      'images/snippetbook-removebg.png',
                       fit: BoxFit.contain,
                     ),
                   ),
