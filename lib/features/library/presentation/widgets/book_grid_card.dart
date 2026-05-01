@@ -108,7 +108,7 @@ class BookGridCard extends StatelessWidget {
                         child: Text(
                           _getStatusText(book.status),
                           style: AppTypography.captionSmall.copyWith(
-                            color: Colors.white,
+                            color: context.colors.surface,
                             fontWeight: DesignTokens.fontMedium,
                           ),
                         ),
