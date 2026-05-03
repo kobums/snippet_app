@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
@@ -93,6 +94,18 @@ class ShareCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 로컬 사진 배경은 내용물을 알 수 없으므로 항상 흰색 텍스트 유지
+    // 책 표지(surface 배경) / 그라디언트는 테마에 맞춰 반전
+    final bool hasPhotoBackground = data.localPhotoPath != null;
+    final Color contentColor =
+        hasPhotoBackground ? Colors.white : context.colors.textPrimary;
+    final Color contentColorSubtle = hasPhotoBackground
+        ? Colors.white.withValues(alpha: 0.55)
+        : context.colors.textSecondary;
+    final Color badgeBackground = hasPhotoBackground
+        ? Colors.white.withValues(alpha: 0.15)
+        : context.colors.textPrimary.withValues(alpha: 0.08);
+
     return AspectRatio(
       aspectRatio: 1080 / 1350,
       child: ClipRRect(
@@ -106,43 +119,25 @@ class ShareCardWidget extends StatelessWidget {
             else if (data.networkCoverUrl != null)
               _NetworkPhoto(url: data.networkCoverUrl!)
             else
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF1A1A1A), Color(0xFF2D2D2D)],
-                  ),
-                ),
-              ),
-
-            // 콘텐츠 오버레이 (어두운 그라디언트)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.25),
-                    Colors.black.withValues(alpha: 0.75),
-                  ],
-                ),
-              ),
-            ),
+              _GradientBackground(isDark: context.isDark),
 
             Padding(
               padding: const EdgeInsets.all(DesignTokens.space28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 우상단 아이콘
+                  // 우상단 아이콘 — 배경색과 반대 색으로 틴트
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Image.asset(
-                        'images/snippetbook-removebg.png',
-                        width: 32,
-                        height: 32,
+                      ColorFiltered(
+                        colorFilter:
+                            ColorFilter.mode(contentColor, BlendMode.srcIn),
+                        child: Image.asset(
+                          'images/snippetbook-removebg.png',
+                          width: 32,
+                          height: 32,
+                        ),
                       ),
                     ],
                   ),
@@ -155,7 +150,7 @@ class ShareCardWidget extends StatelessWidget {
                     style: AppTypography.displayLarge.copyWith(
                       fontSize: 52,
                       fontWeight: DesignTokens.fontLight,
-                      color: Colors.white,
+                      color: contentColor,
                       letterSpacing: 2,
                       fontFeatures: [const FontFeature.tabularFigures()],
                     ),
@@ -168,12 +163,16 @@ class ShareCardWidget extends StatelessWidget {
                       _StatBadge(
                         icon: Icons.menu_book_rounded,
                         label: '${data.pagesRead} pages',
+                        contentColor: contentColor,
+                        backgroundColor: badgeBackground,
                       ),
                       const SizedBox(width: DesignTokens.space8),
                       if (data.pagesRead > 0)
                         _StatBadge(
                           icon: Icons.speed_rounded,
                           label: data.paceLabel,
+                          contentColor: contentColor,
+                          backgroundColor: badgeBackground,
                         ),
                     ],
                   ),
@@ -184,7 +183,7 @@ class ShareCardWidget extends StatelessWidget {
                     Text(
                       data.bookTitle,
                       style: AppTypography.bodyMedium.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: contentColor.withValues(alpha: 0.9),
                         fontWeight: DesignTokens.fontMedium,
                       ),
                       maxLines: 2,
@@ -194,7 +193,7 @@ class ShareCardWidget extends StatelessWidget {
                       Text(
                         data.bookAuthor,
                         style: AppTypography.bodySmall.copyWith(
-                          color: Colors.white.withValues(alpha: 0.55),
+                          color: contentColorSubtle,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -211,6 +210,26 @@ class ShareCardWidget extends StatelessWidget {
 }
 
 // ─── 배경 이미지 위젯 ─────────────────────────────────────────────────────────
+
+class _GradientBackground extends StatelessWidget {
+  final bool isDark;
+  const _GradientBackground({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
+              : [const Color(0xFFE8E8E8), const Color(0xFFF5F5F5)],
+        ),
+      ),
+    );
+  }
+}
 
 class _LocalPhoto extends StatelessWidget {
   final String path;
@@ -233,7 +252,7 @@ class _NetworkPhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.white,
+      color: context.colors.surface,
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Image.network(
@@ -251,8 +270,15 @@ class _NetworkPhoto extends StatelessWidget {
 class _StatBadge extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color contentColor;
+  final Color backgroundColor;
 
-  const _StatBadge({required this.icon, required this.label});
+  const _StatBadge({
+    required this.icon,
+    required this.label,
+    required this.contentColor,
+    required this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -262,18 +288,18 @@ class _StatBadge extends StatelessWidget {
         vertical: DesignTokens.space4,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(DesignTokens.radiusFull),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: Colors.white),
+          Icon(icon, size: 12, color: contentColor),
           const SizedBox(width: 4),
           Text(
             label,
             style: AppTypography.bodySmall.copyWith(
-              color: Colors.white,
+              color: contentColor,
               fontWeight: DesignTokens.fontMedium,
             ),
           ),
