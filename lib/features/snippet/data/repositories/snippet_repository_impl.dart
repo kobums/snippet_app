@@ -2,8 +2,8 @@ import 'package:snippet_app/core/error/app_error.dart';
 import 'package:snippet_app/core/error/error_handler.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/snippet/data/datasources/snippet_remote_datasource.dart';
-import 'package:snippet_app/features/snippet/data/models/snippet.dart';
 import 'package:snippet_app/features/snippet/data/models/snippet_archive.dart';
+import 'package:snippet_app/features/snippet/data/models/snippet_fetch_result.dart';
 import 'package:snippet_app/features/snippet/domain/repositories/snippet_repository.dart';
 
 class SnippetRepositoryImpl implements SnippetRepository {
@@ -12,10 +12,10 @@ class SnippetRepositoryImpl implements SnippetRepository {
   SnippetRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Result<List<Snippet>>> fetchSnippets(int count) async {
+  Future<Result<SnippetFetchResult>> fetchSnippets(int count) async {
     try {
-      final snippets = await _remoteDataSource.fetchSnippets(count);
-      return Success(snippets);
+      final result = await _remoteDataSource.fetchSnippets(count);
+      return Success(result);
     } on AppError catch (e) {
       return Failure(e);
     } catch (e) {
