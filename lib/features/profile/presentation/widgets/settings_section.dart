@@ -11,6 +11,7 @@ import 'package:snippet_app/core/config/ocr_config.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/features/records/records_providers.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/theme_mode_dialog.dart';
 
 class SettingsSection extends ConsumerWidget {
   const SettingsSection({super.key});
@@ -307,52 +308,6 @@ class SettingsSection extends ConsumerWidget {
     };
   }
 
-  void _showThemeModeDialog(BuildContext context, WidgetRef ref) {
-    final current = ref.read(themeModeProvider);
-    var selected = current;
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text(
-              '테마 설정',
-              style: AppTypography.h4.copyWith(
-                color: context.colors.textPrimary,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: ThemeMode.values.map((mode) {
-                return ListTile(
-                  leading: Radio<ThemeMode>(
-                    value: mode,
-                    groupValue: selected,
-                    onChanged: (value) => setState(() => selected = value!),
-                  ),
-                  title: Text(_getThemeModeName(mode)),
-                  onTap: () => setState(() => selected = mode),
-                );
-              }).toList(),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('취소'),
-              ),
-              TextButton(
-                onPressed: () {
-                  ref.read(themeModeProvider.notifier).setMode(selected);
-                  Navigator.pop(context);
-                },
-                child: const Text('적용'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -386,7 +341,7 @@ class SettingsSection extends ConsumerWidget {
             icon: Icons.palette_outlined,
             title: '테마 설정',
             subtitle: _getThemeModeName(ref.watch(themeModeProvider)),
-            onTap: () => _showThemeModeDialog(context, ref),
+            onTap: () => ThemeModeDialog.show(context, ref),
           ),
           const Divider(height: 1),
           SettingsTile(
