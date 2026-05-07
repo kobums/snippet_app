@@ -40,7 +40,7 @@ class SettingsSection extends ConsumerWidget {
     );
   }
 
-  void _showAboutDialog(BuildContext context) {
+  void _showAboutDialog(BuildContext context, String version) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -94,7 +94,7 @@ class SettingsSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: DesignTokens.space4),
                   Text(
-                    'v1.0.5',
+                    'v$version',
                     style: AppTypography.bodySmall.copyWith(
                       color: Colors.white.withValues(alpha: 0.75),
                     ),
@@ -312,6 +312,7 @@ class SettingsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedEngine = ref.watch(selectedOcrEngineProvider);
+    final version = ref.watch(packageVersionProvider).asData?.value ?? '';
 
     return GlassContainer(
       child: Column(
@@ -348,7 +349,7 @@ class SettingsSection extends ConsumerWidget {
             icon: Icons.info_outline,
             title: '앱 정보',
             subtitle: 'Snippet 버전 및 정보',
-            onTap: () => _showAboutDialog(context),
+            onTap: () => _showAboutDialog(context, version),
           ),
           const Divider(height: 1),
           SettingsTile(

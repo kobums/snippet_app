@@ -52,6 +52,7 @@ dependencies:
   flutter_foreground_task: ^8.14.0
   path_provider: ^2.1.5
   gal: ^2.3.0
+  package_info_plus: ^8.1.0
 
   # OCR 및 카메라 관련
   camera: ^0.11.0+2
