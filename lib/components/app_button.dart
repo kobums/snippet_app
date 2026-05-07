@@ -7,6 +7,7 @@ import '../core/typography.dart';
 enum AppButtonVariant {
   primary, // Filled primary color
   secondary, // Filled secondary color
+  neutral, // Filled gray (cancel/secondary actions)
   outlined, // Outlined primary
   outlinedDanger, // Outlined danger (red border)
   ghost, // Text only
@@ -189,6 +190,16 @@ class _AppButtonState extends State<AppButton>
           shape: shape,
         );
 
+      case AppButtonVariant.neutral:
+        return ElevatedButton.styleFrom(
+          backgroundColor: appColors.surfaceSecondary,
+          foregroundColor: appColors.textSecondary,
+          disabledBackgroundColor: disabledBg,
+          disabledForegroundColor: disabledFg,
+          elevation: 0,
+          shape: shape,
+        );
+
       case AppButtonVariant.outlined:
         return OutlinedButton.styleFrom(
           foregroundColor: outlineFg,
@@ -271,6 +282,8 @@ class _AppButtonState extends State<AppButton>
       case AppButtonVariant.secondary:
       case AppButtonVariant.danger:
         return Colors.white;
+      case AppButtonVariant.neutral:
+        return context.colors.textSecondary;
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return isDark ? Colors.white : DesignTokens.primaryMain;
@@ -287,6 +300,8 @@ class _AppButtonState extends State<AppButton>
       case AppButtonVariant.secondary:
       case AppButtonVariant.danger:
         return Colors.white;
+      case AppButtonVariant.neutral:
+        return context.colors.textSecondary;
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return isDark ? Colors.white : DesignTokens.primaryMain;
