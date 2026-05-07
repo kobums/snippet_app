@@ -3,12 +3,14 @@ class User {
   final String email;
   final String name;
   final String? token;
+  final String? refreshToken;
 
   User({
     required this.id,
     required this.email,
     required this.name,
     this.token,
+    this.refreshToken,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class User {
       email: json['email'] as String,
       name: json['name'] as String,
       token: json['token'] as String?,
+      refreshToken: json['refreshToken'] as String?,
     );
   }
 
@@ -26,6 +29,7 @@ class User {
       'email': email,
       'name': name,
       'token': token,
+      'refreshToken': refreshToken,
     };
   }
 
@@ -34,12 +38,14 @@ class User {
     String? email,
     String? name,
     String? token,
+    String? refreshToken,
   }) {
     return User(
       id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
       token: token ?? this.token,
+      refreshToken: refreshToken ?? this.refreshToken,
     );
   }
 }

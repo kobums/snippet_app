@@ -8,6 +8,9 @@ abstract class AuthLocalDataSource {
   Future<String?> getToken();
   Future<void> saveToken(String token);
   Future<void> deleteToken();
+  Future<String?> getRefreshToken();
+  Future<void> saveRefreshToken(String token);
+  Future<void> deleteRefreshToken();
   Future<User?> getUser();
   Future<void> saveUser(User user);
   Future<void> deleteUser();
@@ -36,6 +39,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
+  Future<String?> getRefreshToken() async {
+    return await _secureStorage.read(key: StorageConstants.refreshTokenKey);
+  }
+
+  @override
+  Future<void> saveRefreshToken(String token) async {
+    await _secureStorage.write(key: StorageConstants.refreshTokenKey, value: token);
+  }
+
+  @override
+  Future<void> deleteRefreshToken() async {
+    await _secureStorage.delete(key: StorageConstants.refreshTokenKey);
+  }
+
+  @override
   Future<User?> getUser() async {
     final userJson = _prefs.getString(StorageConstants.userKey);
     if (userJson == null) return null;
@@ -58,6 +76,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearAuthData() async {
     await deleteToken();
+    await deleteRefreshToken();
     await deleteUser();
   }
 }

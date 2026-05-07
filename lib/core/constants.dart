@@ -8,6 +8,7 @@ class ApiConstants {
   // Auth
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
+  static const String authRefresh = '/auth/refresh';
   static const String authDeleteAccount = '/auth/account';
   static const String authEmailCode = '/auth/emailcode';
 
@@ -57,5 +58,6 @@ class AppConstants {
 
 class StorageConstants {
   static const String tokenKey = 'auth_token';
+  static const String refreshTokenKey = 'auth_refresh_token';
   static const String userKey = 'current_user';
 }

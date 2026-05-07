@@ -75,8 +75,36 @@ final dioProvider = Provider<Dio>((ref) {
       onError: (error, handler) async {
         if (error.response?.statusCode == 401) {
           final path = error.requestOptions.path;
-          if (!path.contains('/auth/')) {
+          if (path.contains('/auth/')) {
+            return handler.next(error);
+          }
+
+          final refreshToken = await secureStorage.read(key: StorageConstants.refreshTokenKey);
+          if (refreshToken == null) {
             await secureStorage.delete(key: StorageConstants.tokenKey);
+            return handler.next(error);
+          }
+
+          try {
+            final refreshDio = Dio(BaseOptions(baseUrl: dio.options.baseUrl));
+            final response = await refreshDio.post(
+              ApiConstants.authRefresh,
+              data: {'refreshToken': refreshToken},
+            );
+
+            final newToken = response.data['token'] as String;
+            final newRefreshToken = response.data['refreshToken'] as String;
+            await secureStorage.write(key: StorageConstants.tokenKey, value: newToken);
+            await secureStorage.write(key: StorageConstants.refreshTokenKey, value: newRefreshToken);
+
+            final retryOptions = error.requestOptions;
+            retryOptions.headers['Authorization'] = 'Bearer $newToken';
+            final retryResponse = await dio.fetch(retryOptions);
+            return handler.resolve(retryResponse);
+          } catch (_) {
+            await secureStorage.delete(key: StorageConstants.tokenKey);
+            await secureStorage.delete(key: StorageConstants.refreshTokenKey);
+            return handler.next(error);
           }
         }
         return handler.next(error);

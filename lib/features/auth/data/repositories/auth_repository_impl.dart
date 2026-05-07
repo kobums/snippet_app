@@ -22,6 +22,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user.token != null) {
         await _localDataSource.saveToken(user.token!);
       }
+      if (user.refreshToken != null) {
+        await _localDataSource.saveRefreshToken(user.refreshToken!);
+      }
       await _localDataSource.saveUser(user);
 
       return Success(user);
@@ -49,6 +52,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _remoteDataSource.register(params);
       if (user.token != null) {
         await _localDataSource.saveToken(user.token!);
+      }
+      if (user.refreshToken != null) {
+        await _localDataSource.saveRefreshToken(user.refreshToken!);
       }
       await _localDataSource.saveUser(user);
       return Success(user);

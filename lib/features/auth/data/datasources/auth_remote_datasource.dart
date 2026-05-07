@@ -10,6 +10,7 @@ abstract class AuthRemoteDataSource {
   Future<User> register(RegisterParams params);
   Future<void> sendEmailCode(String email);
   Future<void> deleteAccount();
+  Future<Map<String, String>> refreshToken(String refreshToken);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -69,6 +70,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await _dio.delete(ApiConstants.authDeleteAccount);
       if (response.statusCode == 200) return;
       throw const ServerError('회원탈퇴에 실패했습니다');
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<Map<String, String>> refreshToken(String refreshToken) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.authRefresh,
+        data: {'refreshToken': refreshToken},
+      );
+      if (response.statusCode == 200) {
+        return {
+          'token': response.data['token'] as String,
+          'refreshToken': response.data['refreshToken'] as String,
+        };
+      }
+      throw const ServerError('토큰 갱신에 실패했습니다');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
