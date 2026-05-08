@@ -58,4 +58,16 @@ class SnippetRepositoryImpl implements SnippetRepository {
       return Failure(ErrorHandler.handleException(e));
     }
   }
+
+  @override
+  Future<Result<void>> skipSnippet(int id) async {
+    try {
+      await _remoteDataSource.skipSnippet(id);
+      return const Success(null);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
 }

@@ -10,6 +10,6 @@ class HandleSwipeUseCase {
     if (isLike) {
       return _repository.likeSnippet(id);
     }
-    return const Success(null);
+    return _repository.skipSnippet(id);
   }
 }

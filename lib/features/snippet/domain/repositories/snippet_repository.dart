@@ -7,4 +7,5 @@ abstract class SnippetRepository {
   Future<Result<List<SnippetArchive>>> fetchArchive();
   Future<Result<void>> likeSnippet(int id);
   Future<Result<void>> unlikeSnippet(int id);
+  Future<Result<void>> skipSnippet(int id);
 }

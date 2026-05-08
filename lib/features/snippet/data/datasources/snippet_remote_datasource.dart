@@ -10,6 +10,7 @@ abstract class SnippetRemoteDataSource {
   Future<List<SnippetArchive>> fetchArchive();
   Future<void> addArchive(int snippetId);
   Future<void> removeArchive(int snippetId);
+  Future<void> skipSnippet(int snippetId);
 }
 
 class SnippetRemoteDataSourceImpl implements SnippetRemoteDataSource {
@@ -69,6 +70,15 @@ class SnippetRemoteDataSourceImpl implements SnippetRemoteDataSource {
   Future<void> removeArchive(int snippetId) async {
     try {
       await _dio.delete('${ApiConstants.snippetsArchive}/$snippetId');
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<void> skipSnippet(int snippetId) async {
+    try {
+      await _dio.post('${ApiConstants.snippetsSkip}/$snippetId/skip');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

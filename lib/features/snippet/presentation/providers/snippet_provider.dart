@@ -87,8 +87,12 @@ class SnippetNotifier extends Notifier<SnippetState> {
         if (isLike) {
           ref.invalidate(archiveProvider);
         }
+        final newRemaining = state.remainingToday > 0
+            ? state.remainingToday - 1
+            : state.remainingToday;
+        state = state.copyWith(remainingToday: newRemaining);
         if (updated.length < AppConstants.snippetLowThreshold &&
-            state.remainingToday != 0) {
+            newRemaining != 0) {
           fetchSnippets();
         }
       },

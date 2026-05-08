@@ -15,6 +15,7 @@ class ApiConstants {
   // Snippets
   static const String snippetsCards = '/snippets/cards';
   static const String snippetsArchive = '/snippets/archive';
+  static const String snippetsSkip = '/snippets';
 
   // UserBooks
   static const String userbooks = '/userbooks';
