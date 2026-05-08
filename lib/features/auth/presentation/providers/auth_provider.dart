@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/core/error/app_error.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/auth/auth_providers.dart';
@@ -57,6 +58,10 @@ class AuthNotifier extends Notifier<AuthState> {
     _logoutUseCase = ref.read(logoutUseCaseProvider);
     _deleteAccountUseCase = ref.read(deleteAccountUseCaseProvider);
     _sendVerificationCodeUseCase = ref.read(sendVerificationCodeUseCaseProvider);
+
+    ref.listen<int>(forceLogoutTriggerProvider, (prev, next) {
+      if (prev != null && next > prev) logout();
+    });
 
     _checkAuth();
     return AuthState(isInitializing: true);

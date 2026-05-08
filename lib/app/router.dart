@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:snippet_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:snippet_app/features/auth/presentation/screens/splash_screen.dart';
 import 'package:snippet_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:snippet_app/features/auth/presentation/screens/register_screen.dart';
@@ -62,9 +63,29 @@ class AppRoutes {
   static const suggestion = '/suggestion';
 }
 
+class _AuthChangeNotifier extends ChangeNotifier {
+  void notify() => notifyListeners();
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
+  final authNotifier = _AuthChangeNotifier();
+  ref.listen<AuthState>(authProvider, (_, __) => authNotifier.notify());
+  ref.onDispose(authNotifier.dispose);
+
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    refreshListenable: authNotifier,
+    redirect: (context, state) {
+      final auth = ref.read(authProvider);
+      if (auth.isInitializing) return null;
+
+      final loc = state.matchedLocation;
+      final isAuthPage = loc == AppRoutes.login || loc == AppRoutes.register;
+      final isSplash = loc == AppRoutes.splash;
+
+      if (!auth.isAuthenticated && !isAuthPage && !isSplash) return AppRoutes.login;
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,

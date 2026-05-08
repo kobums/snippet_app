@@ -12,6 +12,16 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('SharedPreferences must be overridden in main()');
 });
 
+// Dio interceptor가 강제 로그아웃을 트리거할 때 사용 (auth_provider가 listen)
+class _ForceLogoutNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+  void trigger() => state++;
+}
+
+final forceLogoutTriggerProvider =
+    NotifierProvider<_ForceLogoutNotifier, int>(_ForceLogoutNotifier.new);
+
 const _themeModeKey = 'themeMode';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
@@ -110,6 +120,7 @@ final dioProvider = Provider<Dio>((ref) {
           } catch (_) {
             await secureStorage.delete(key: StorageConstants.tokenKey);
             await secureStorage.delete(key: StorageConstants.refreshTokenKey);
+            ref.read(forceLogoutTriggerProvider.notifier).trigger();
             return handler.next(error);
           }
         }
