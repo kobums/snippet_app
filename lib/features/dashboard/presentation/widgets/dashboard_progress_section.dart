@@ -60,7 +60,13 @@ class _DashboardProgressSectionState
           else
             // 빈 공간으로 높이 유지 (부드러운 스크롤)
             const SliverToBoxAdapter(child: SizedBox(height: 64)),
-          _buildBookListSliver(currentTabBooks),
+          if (bookState.isLoading && bookState.books.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else
+            _buildBookListSliver(currentTabBooks),
         ],
       ),
     );

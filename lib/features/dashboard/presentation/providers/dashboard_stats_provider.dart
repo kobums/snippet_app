@@ -46,7 +46,7 @@ class DashboardStatsNotifier extends Notifier<DashboardStatsState> {
   DashboardStatsState build() {
     _fetchMonthlyBooksUseCase = ref.read(fetchMonthlyBooksUseCaseProvider);
     Future.microtask(() => loadBooks());
-    return DashboardStatsState();
+    return DashboardStatsState(isLoading: true);
   }
 
   Future<void> loadBooks([int? year, int? month]) async {

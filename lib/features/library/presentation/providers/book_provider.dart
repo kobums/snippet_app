@@ -54,7 +54,7 @@ class BookNotifier extends Notifier<BookState> {
     _updateBookUseCase = ref.read(updateBookUseCaseProvider);
     _deleteBookUseCase = ref.read(deleteBookUseCaseProvider);
     Future.microtask(() => loadDashboard());
-    return BookState();
+    return BookState(isLoading: true);
   }
 
   Future<void> loadDashboard([int? year, int? month]) async {
