@@ -22,7 +22,7 @@ platform :ios do
   lane :beta do
     # 1. Flutter 빌드
     Dir.chdir("../..") do
-      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release")
+      sh("unset GEM_HOME GEM_PATH GEM_ROOT && export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release")
     end
 
     # 2. TestFlight 업로드
@@ -60,7 +60,7 @@ platform :ios do
 
     # Flutter 빌드
     Dir.chdir("../..") do
-      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
+      sh("unset GEM_HOME GEM_PATH GEM_ROOT && export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
     end
 
     # changelogs/{version}.txt → metadata/ko/release_notes.txt 복사
@@ -113,7 +113,7 @@ platform :ios do
 
     # Flutter 빌드
     Dir.chdir("../..") do
-      sh("export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
+      sh("unset GEM_HOME GEM_PATH GEM_ROOT && export PATH=\"/opt/homebrew/bin:$PATH\" && flutter build ipa --release --build-number=#{new_build}")
     end
 
     # TestFlight 업로드
