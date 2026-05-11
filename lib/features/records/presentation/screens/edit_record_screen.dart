@@ -8,6 +8,7 @@ import 'package:snippet_app/components/app_book_header.dart';
 import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/features/records/presentation/widgets/notes_export_section.dart';
 
 class EditRecordScreen extends ConsumerStatefulWidget {
   final RecordDto record;
@@ -40,6 +41,46 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
     _tagController.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _showExportModal() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.fromLTRB(
+            DesignTokens.space24,
+            DesignTokens.space8,
+            DesignTokens.space24,
+            DesignTokens.space32,
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: DesignTokens.space20),
+                decoration: BoxDecoration(
+                  color: context.colors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              NotesExportSection(record: widget.record),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _updateRecord() async {
@@ -158,6 +199,11 @@ class _EditRecordScreenState extends ConsumerState<EditRecordScreen> {
           title: '기록 수정',
           letterSpacing: 2,
           actions: [
+            IconButton(
+              icon: Icon(Icons.download_outlined, color: context.colors.textSecondary),
+              tooltip: '이미지로 내보내기',
+              onPressed: _showExportModal,
+            ),
             IconButton(
               icon: const Icon(
                 Icons.delete_outline,
