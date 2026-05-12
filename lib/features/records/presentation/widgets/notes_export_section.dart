@@ -55,13 +55,19 @@ class _NotesExportSectionState extends State<NotesExportSection> {
   }
 
   static int _charsPerPage(String text, double bodyW, int maxLines) {
-    const style = TextStyle(fontSize: 15.0, height: _lineH / 15.0);
+    const textStyle = TextStyle(fontSize: 15.0, height: _lineH / 15.0, letterSpacing: -0.1);
+    const strutStyle = StrutStyle(
+      fontSize: 15.0,
+      height: _lineH / 15.0,
+      forceStrutHeight: true,
+    );
 
     bool fits(int len) {
       final p = TextPainter(
-        text: TextSpan(text: text.substring(0, len), style: style),
+        text: TextSpan(text: text.substring(0, len), style: textStyle),
         textDirection: TextDirection.ltr,
         maxLines: maxLines,
+        strutStyle: strutStyle,
       )..layout(maxWidth: bodyW);
       return !p.didExceedMaxLines;
     }
@@ -492,6 +498,10 @@ class _RuledBody extends StatelessWidget {
     required this.lineColor,
   });
 
+  // 선을 텍스트 descender 바로 아래에 맞추기 위한 오프셋
+  // lineH 박스 하단 기준으로 halfLeading만큼 위로 올림
+  static const double _lineOffset = (_lineH - _fontSize) * 0.45; // ≈ 5.0
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
@@ -502,11 +512,15 @@ class _RuledBody extends StatelessWidget {
           width: double.infinity,
           child: Text(
             text,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: _fontSize,
               height: _lineH / _fontSize,
-              color: textColor,
               letterSpacing: -0.1,
+            ).copyWith(color: textColor),
+            strutStyle: const StrutStyle(
+              fontSize: _fontSize,
+              height: _lineH / _fontSize,
+              forceStrutHeight: true, // 폰트 메트릭 무관하게 정확히 26px 고정 → drift 제거
             ),
           ),
         ),
@@ -524,7 +538,8 @@ class _LinedPaperPainter extends CustomPainter {
     final paint = Paint()
       ..color = lineColor
       ..strokeWidth = 1.0;
-    double y = _RuledBody._vPad + _RuledBody._lineH;
+    // 선을 박스 하단이 아닌 descender 직후(_lineOffset만큼 위로)에 그림
+    double y = _RuledBody._vPad + _RuledBody._lineH - _RuledBody._lineOffset;
     while (y < size.height - _RuledBody._vPad / 2) {
       canvas.drawLine(
         Offset(_RuledBody._hPad, y),
