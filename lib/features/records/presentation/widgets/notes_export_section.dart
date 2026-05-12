@@ -7,11 +7,9 @@ import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/records/data/models/record.dart';
-import 'package:snippet_app/features/records/presentation/widgets/notes_export_card.dart';
 
 class NotesExportSection extends StatefulWidget {
   final RecordDto record;
-
   const NotesExportSection({super.key, required this.record});
 
   @override
@@ -20,41 +18,165 @@ class NotesExportSection extends StatefulWidget {
 
 class _NotesExportSectionState extends State<NotesExportSection> {
   final _screenshotController = ScreenshotController();
+  final _pageController = PageController();
   final _shareButtonKey = GlobalKey();
+
   bool _isDark = false;
   bool _isSharing = false;
+  int _currentPage = 0;
 
-  Future<void> _share() async {
+  // 페이지 분할 결과 캐시
+  List<String>? _cachedPages;
+  double? _cachedCardW;
+
+  // ── 레이아웃 상수 (논리 px) ──────────────────────────────────────────────────
+  static const double _lineH      = 26.0;
+  static const double _bodyHPad   = 20.0;
+  static const double _bodyVPad   = 14.0;
+  static const double _firstHdrH  = 14 + 22 + 12 + 65 + 13.0; // badge/date+title+divider
+  static const double _contHdrH   = 10 + 20 + 10 + 13.0;       // mini header+divider
+  static const double _footerH    = 1 + 10 + 14 + 16.0;             // divider+icon row
+
+  List<String> _getPages(double cardW) {
+    if (_cachedCardW != cardW) {
+      _cachedPages = _splitIntoPages(widget.record.text, cardW);
+      _cachedCardW = cardW;
+    }
+    return _cachedPages!;
+  }
+
+  static int _maxLines(double cardW, bool isFirst) {
+    final bodyH = cardW * 5 / 4
+        - (isFirst ? _firstHdrH : _contHdrH)
+        - _footerH
+        - _bodyVPad * 2;
+    return (bodyH / _lineH).floor().clamp(1, 999);
+  }
+
+  static int _charsPerPage(String text, double bodyW, int maxLines) {
+    const style = TextStyle(fontSize: 15.0, height: _lineH / 15.0);
+
+    bool fits(int len) {
+      final p = TextPainter(
+        text: TextSpan(text: text.substring(0, len), style: style),
+        textDirection: TextDirection.ltr,
+        maxLines: maxLines,
+      )..layout(maxWidth: bodyW);
+      return !p.didExceedMaxLines;
+    }
+
+    if (fits(text.length)) return text.length;
+
+    int lo = 0, hi = text.length;
+    while (lo < hi) {
+      final mid = (lo + hi + 1) ~/ 2;
+      fits(mid) ? lo = mid : hi = mid - 1;
+    }
+    return lo;
+  }
+
+  static List<String> _splitIntoPages(String text, double cardW) {
+    if (text.isEmpty) return [text];
+    final bodyW = cardW - _bodyHPad * 2;
+    final pages = <String>[];
+    String remaining = text;
+    bool isFirst = true;
+
+    while (remaining.isNotEmpty) {
+      final n = _charsPerPage(remaining, bodyW, _maxLines(cardW, isFirst));
+      if (n >= remaining.length) {
+        pages.add(remaining);
+        break;
+      }
+      int cut = n;
+      if (cut < remaining.length) {
+        final lastNL = remaining.lastIndexOf('\n', cut);
+        final lastSP = remaining.lastIndexOf(' ', cut);
+        final boundary = lastNL > lastSP ? lastNL : lastSP;
+        if (boundary > 0) cut = boundary;
+      }
+      pages.add(remaining.substring(0, cut).trimRight());
+      remaining = remaining.substring(cut).trimLeft();
+      isFirst = false;
+    }
+
+    return pages.isEmpty ? [text] : pages;
+  }
+
+  Future<void> _export(List<String> pages, double cardW) async {
     final box = _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
     final origin = box != null
         ? box.localToGlobal(Offset.zero) & box.size
         : Rect.fromLTWH(0, MediaQuery.of(context).size.height / 2, 1, 1);
+    final captureContext = context;
 
     setState(() => _isSharing = true);
     try {
-      final image = await _screenshotController.capture(pixelRatio: 3.0);
-      if (image == null) return;
       final dir = await getTemporaryDirectory();
-      final path = '${dir.path}/notes_${DateTime.now().millisecondsSinceEpoch}.png';
-      await File(path).writeAsBytes(image);
-      await Share.shareXFiles([XFile(path)], sharePositionOrigin: origin);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final files = <XFile>[];
+
+      for (int i = 0; i < pages.length; i++) {
+        final bytes = await _screenshotController.captureFromWidget(
+          SizedBox(
+            width: cardW,
+            child: AspectRatio(
+              aspectRatio: 4 / 5,
+              child: _NotesPageCard(
+                record: widget.record,
+                bodyText: pages[i],
+                isDark: _isDark,
+                isFirstPage: i == 0,
+                pageIndex: i,
+                totalPages: pages.length,
+              ),
+            ),
+          ),
+          pixelRatio: 3.0,
+          context: captureContext,
+        );
+
+        final path = '${dir.path}/notes_${ts}_${i + 1}.png';
+        await File(path).writeAsBytes(bytes);
+        files.add(XFile(path));
+      }
+
+      await Share.shareXFiles(files, sharePositionOrigin: origin);
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final cardW = MediaQuery.of(context).size.width - DesignTokens.space24 * 2;
+    final pages = _getPages(cardW);
+    final cardH = cardW * 5 / 4;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row
+        // 헤더
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '메모 이미지',
-              style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('메모 이미지',
+                    style: AppTypography.h4
+                        .copyWith(color: context.colors.textPrimary)),
+                if (pages.length > 1)
+                  Text('총 ${pages.length}장',
+                      style: AppTypography.captionSmall
+                          .copyWith(color: context.colors.textTertiary)),
+              ],
             ),
             _ModeToggle(
               isDark: _isDark,
@@ -64,28 +186,74 @@ class _NotesExportSectionState extends State<NotesExportSection> {
         ),
         const SizedBox(height: DesignTokens.space16),
 
-        // Card preview
-        Screenshot(
-          controller: _screenshotController,
-          child: NotesExportCard(record: widget.record, isDark: _isDark),
+        // 좌우 스크롤 미리보기
+        SizedBox(
+          height: cardH,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: pages.length,
+            onPageChanged: (i) => setState(() => _currentPage = i),
+            itemBuilder: (_, i) => _NotesPageCard(
+              record: widget.record,
+              bodyText: pages[i],
+              isDark: _isDark,
+              isFirstPage: i == 0,
+              pageIndex: i,
+              totalPages: pages.length,
+            ),
+          ),
         ),
+
+        // 페이지 도트
+        if (pages.length > 1) ...[
+          const SizedBox(height: DesignTokens.space12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(pages.length, (i) {
+              final active = i == _currentPage;
+              return GestureDetector(
+                onTap: () => _pageController.animateToPage(
+                  i,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: active ? 16 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? context.colors.primary
+                        : context.colors.border,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
         const SizedBox(height: DesignTokens.space20),
 
-        // Share button
+        // 내보내기 버튼
         _isSharing
             ? const Center(child: CircularProgressIndicator())
             : SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
                   key: _shareButtonKey,
-                  onPressed: _share,
+                  onPressed: () => _export(pages, cardW),
                   icon: const Icon(Icons.ios_share_rounded),
-                  label: const Text('이미지로 내보내기'),
+                  label: Text(pages.length > 1
+                      ? '${pages.length}장으로 내보내기'
+                      : '이미지로 내보내기'),
                   style: FilledButton.styleFrom(
                     backgroundColor: context.colors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: DesignTokens.space16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: DesignTokens.space16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
+                      borderRadius:
+                          BorderRadius.circular(DesignTokens.radiusMd),
                     ),
                   ),
                 ),
@@ -94,6 +262,276 @@ class _NotesExportSectionState extends State<NotesExportSection> {
     );
   }
 }
+
+// ── 4:5 단일 페이지 카드 ──────────────────────────────────────────────────────
+
+class _NotesPageCard extends StatelessWidget {
+  final RecordDto record;
+  final String bodyText;
+  final bool isDark;
+  final bool isFirstPage;
+  final int pageIndex;
+  final int totalPages;
+
+  static const Color _yellow = Color(0xFFFFCC00);
+  static const Color _yellowLabel = Color(0xFF8B6914);
+
+  const _NotesPageCard({
+    required this.record,
+    required this.bodyText,
+    required this.isDark,
+    required this.isFirstPage,
+    required this.pageIndex,
+    required this.totalPages,
+  });
+
+  String _formatDate(String iso) {
+    try {
+      final d = DateTime.parse(iso);
+      return '${d.year}년 ${d.month}월 ${d.day}일';
+    } catch (_) {
+      return iso;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final textSecondary =
+        isDark ? const Color(0xFF8E8E93) : const Color(0xFF6C6C70);
+    final dividerColor =
+        isDark ? const Color(0xFF38383A) : const Color(0xFFE5E5EA);
+    final lineColor =
+        isDark ? const Color(0xFF252527) : const Color(0xFFF0F0F5);
+
+    return ClipRect(
+      child: Container(
+        color: bg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 헤더
+            if (isFirstPage) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _yellow.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        record.type.label,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: _yellowLabel,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _formatDate(record.createDate),
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: textSecondary,
+                          letterSpacing: -0.1),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      record.bookTitle,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    if (record.bookAuthor.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        record.bookAuthor,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: textSecondary,
+                            letterSpacing: -0.1),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ] else ...[
+              // 이어지는 페이지: 미니 헤더
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        record.bookTitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: textPrimary,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${pageIndex + 1} / $totalPages',
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // 구분선
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Divider(color: dividerColor, height: 1, thickness: 1),
+            ),
+
+            // 본문 (남은 공간 채움)
+            Expanded(
+              child: _RuledBody(
+                text: bodyText,
+                textColor: textPrimary,
+                lineColor: lineColor,
+              ),
+            ),
+
+            // 하단 구분선
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Divider(color: dividerColor, height: 1, thickness: 1),
+            ),
+
+            // 푸터: 페이지 번호 + 아이콘 + 앱 이름
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (totalPages > 1) ...[
+                    Text(
+                      '${pageIndex + 1} / $totalPages',
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(width: 1, height: 12, color: dividerColor),
+                    const SizedBox(width: 8),
+                  ],
+                  ColorFiltered(
+                    colorFilter:
+                        ColorFilter.mode(textSecondary, BlendMode.srcIn),
+                    child: Image.asset(
+                      'images/snippetbook-removebg.png',
+                      width: 14,
+                      height: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'snippet',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: textSecondary,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── 줄지어진 본문 ─────────────────────────────────────────────────────────────
+
+class _RuledBody extends StatelessWidget {
+  final String text;
+  final Color textColor;
+  final Color lineColor;
+
+  static const double _lineH   = 26.0;
+  static const double _fontSize = 15.0;
+  static const double _hPad    = 20.0;
+  static const double _vPad    = 14.0;
+
+  const _RuledBody(
+      {required this.text,
+      required this.textColor,
+      required this.lineColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _LinedPaperPainter(lineColor: lineColor),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(_hPad, _vPad, _hPad, _vPad),
+        child: SizedBox(
+          width: double.infinity,
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: _fontSize,
+              height: _lineH / _fontSize,
+              color: textColor,
+              letterSpacing: -0.1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LinedPaperPainter extends CustomPainter {
+  final Color lineColor;
+  const _LinedPaperPainter({required this.lineColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 1.0;
+    double y = _RuledBody._vPad + _RuledBody._lineH;
+    while (y < size.height - _RuledBody._vPad / 2) {
+      canvas.drawLine(
+        Offset(_RuledBody._hPad, y),
+        Offset(size.width - _RuledBody._hPad, y),
+        paint,
+      );
+      y += _RuledBody._lineH;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LinedPaperPainter old) => old.lineColor != lineColor;
+}
+
+// ── 라이트/다크 토글 ─────────────────────────────────────────────────────────
 
 class _ModeToggle extends StatelessWidget {
   final bool isDark;
@@ -112,32 +550,24 @@ class _ModeToggle extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ToggleButton(
-            icon: Icons.light_mode_rounded,
-            label: '라이트',
-            selected: !isDark,
-            onTap: () => onToggle(false),
-          ),
+          _Btn(icon: Icons.light_mode_rounded, label: '라이트',
+              selected: !isDark, onTap: () => onToggle(false)),
           const SizedBox(width: 2),
-          _ToggleButton(
-            icon: Icons.dark_mode_rounded,
-            label: '다크',
-            selected: isDark,
-            onTap: () => onToggle(true),
-          ),
+          _Btn(icon: Icons.dark_mode_rounded, label: '다크',
+              selected: isDark, onTap: () => onToggle(true)),
         ],
       ),
     );
   }
 }
 
-class _ToggleButton extends StatelessWidget {
+class _Btn extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  const _ToggleButton({
+  const _Btn({
     required this.icon,
     required this.label,
     required this.selected,
@@ -151,11 +581,12 @@ class _ToggleButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignTokens.space12,
-          vertical: DesignTokens.space8,
-        ),
+            horizontal: DesignTokens.space12,
+            vertical: DesignTokens.space8),
         decoration: BoxDecoration(
-          color: selected ? context.colors.cardBackground : Colors.transparent,
+          color: selected
+              ? context.colors.cardBackground
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
           boxShadow: selected
               ? [
@@ -170,19 +601,21 @@ class _ToggleButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 14,
-              color: selected ? context.colors.textPrimary : context.colors.textSecondary,
-            ),
+            Icon(icon,
+                size: 14,
+                color: selected
+                    ? context.colors.textPrimary
+                    : context.colors.textSecondary),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTypography.captionSmall.copyWith(
-                color: selected ? context.colors.textPrimary : context.colors.textSecondary,
-                fontWeight: selected ? DesignTokens.fontSemiBold : FontWeight.normal,
-              ),
-            ),
+            Text(label,
+                style: AppTypography.captionSmall.copyWith(
+                  color: selected
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
+                  fontWeight: selected
+                      ? DesignTokens.fontSemiBold
+                      : FontWeight.normal,
+                )),
           ],
         ),
       ),
