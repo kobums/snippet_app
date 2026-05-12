@@ -21,7 +21,6 @@ class _NotesExportSectionState extends State<NotesExportSection> {
   final _pageController = PageController();
   final _shareButtonKey = GlobalKey();
 
-  bool _isDark = false;
   bool _isSharing = false;
   int _currentPage = 0;
 
@@ -30,12 +29,13 @@ class _NotesExportSectionState extends State<NotesExportSection> {
   double? _cachedCardW;
 
   // ── 레이아웃 상수 (논리 px) ──────────────────────────────────────────────────
-  static const double _lineH      = 26.0;
-  static const double _bodyHPad   = 20.0;
-  static const double _bodyVPad   = 14.0;
-  static const double _firstHdrH  = 14 + 22 + 12 + 65 + 13.0; // badge/date+title+divider
-  static const double _contHdrH   = 10 + 20 + 10 + 13.0;       // mini header+divider
-  static const double _footerH    = 1 + 10 + 14 + 16.0;             // divider+icon row
+  static const double _lineH = 26.0;
+  static const double _bodyHPad = 20.0;
+  static const double _bodyVPad = 14.0;
+  static const double _firstHdrH =
+      14 + 22 + 12 + 65 + 13.0; // badge/date+title+divider
+  static const double _contHdrH = 10 + 20 + 10 + 13.0; // mini header+divider
+  static const double _footerH = 1 + 10 + 14 + 16.0; // divider+icon row
 
   List<String> _getPages(double cardW) {
     if (_cachedCardW != cardW) {
@@ -46,10 +46,11 @@ class _NotesExportSectionState extends State<NotesExportSection> {
   }
 
   static int _maxLines(double cardW, bool isFirst) {
-    final bodyH = cardW * 5 / 4
-        - (isFirst ? _firstHdrH : _contHdrH)
-        - _footerH
-        - _bodyVPad * 2;
+    final bodyH =
+        cardW * 5 / 4 -
+        (isFirst ? _firstHdrH : _contHdrH) -
+        _footerH -
+        _bodyVPad * 2;
     return (bodyH / _lineH).floor().clamp(1, 999);
   }
 
@@ -103,8 +104,9 @@ class _NotesExportSectionState extends State<NotesExportSection> {
     return pages.isEmpty ? [text] : pages;
   }
 
-  Future<void> _export(List<String> pages, double cardW) async {
-    final box = _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+  Future<void> _export(List<String> pages, double cardW, bool isDark) async {
+    final box =
+        _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
     final origin = box != null
         ? box.localToGlobal(Offset.zero) & box.size
         : Rect.fromLTWH(0, MediaQuery.of(context).size.height / 2, 1, 1);
@@ -125,7 +127,7 @@ class _NotesExportSectionState extends State<NotesExportSection> {
               child: _NotesPageCard(
                 record: widget.record,
                 bodyText: pages[i],
-                isDark: _isDark,
+                isDark: isDark,
                 isFirstPage: i == 0,
                 pageIndex: i,
                 totalPages: pages.length,
@@ -155,6 +157,7 @@ class _NotesExportSectionState extends State<NotesExportSection> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
     final cardW = MediaQuery.of(context).size.width - DesignTokens.space24 * 2;
     final pages = _getPages(cardW);
     final cardH = cardW * 5 / 4;
@@ -169,18 +172,20 @@ class _NotesExportSectionState extends State<NotesExportSection> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('메모 이미지',
-                    style: AppTypography.h4
-                        .copyWith(color: context.colors.textPrimary)),
+                Text(
+                  '메모 이미지',
+                  style: AppTypography.h4.copyWith(
+                    color: context.colors.textPrimary,
+                  ),
+                ),
                 if (pages.length > 1)
-                  Text('총 ${pages.length}장',
-                      style: AppTypography.captionSmall
-                          .copyWith(color: context.colors.textTertiary)),
+                  Text(
+                    '총 ${pages.length}장',
+                    style: AppTypography.captionSmall.copyWith(
+                      color: context.colors.textTertiary,
+                    ),
+                  ),
               ],
-            ),
-            _ModeToggle(
-              isDark: _isDark,
-              onToggle: (v) => setState(() => _isDark = v),
             ),
           ],
         ),
@@ -196,7 +201,7 @@ class _NotesExportSectionState extends State<NotesExportSection> {
             itemBuilder: (_, i) => _NotesPageCard(
               record: widget.record,
               bodyText: pages[i],
-              isDark: _isDark,
+              isDark: isDark,
               isFirstPage: i == 0,
               pageIndex: i,
               totalPages: pages.length,
@@ -242,18 +247,20 @@ class _NotesExportSectionState extends State<NotesExportSection> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   key: _shareButtonKey,
-                  onPressed: () => _export(pages, cardW),
+                  onPressed: () => _export(pages, cardW, isDark),
                   icon: const Icon(Icons.ios_share_rounded),
-                  label: Text(pages.length > 1
-                      ? '${pages.length}장으로 내보내기'
-                      : '이미지로 내보내기'),
+                  label: Text(
+                    pages.length > 1 ? '${pages.length}장으로 내보내기' : '이미지로 내보내기',
+                  ),
                   style: FilledButton.styleFrom(
                     backgroundColor: context.colors.primary,
                     padding: const EdgeInsets.symmetric(
-                        vertical: DesignTokens.space16),
+                      vertical: DesignTokens.space16,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(DesignTokens.radiusMd),
+                      borderRadius: BorderRadius.circular(
+                        DesignTokens.radiusMd,
+                      ),
                     ),
                   ),
                 ),
@@ -298,12 +305,15 @@ class _NotesPageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = isDark ? const Color(0xFF1C1C1E) : Colors.white;
     final textPrimary = isDark ? Colors.white : const Color(0xFF1C1C1E);
-    final textSecondary =
-        isDark ? const Color(0xFF8E8E93) : const Color(0xFF6C6C70);
-    final dividerColor =
-        isDark ? const Color(0xFF38383A) : const Color(0xFFE5E5EA);
-    final lineColor =
-        isDark ? const Color(0xFF252527) : const Color(0xFFF0F0F5);
+    final textSecondary = isDark
+        ? const Color(0xFF8E8E93)
+        : const Color(0xFF6C6C70);
+    final dividerColor = isDark
+        ? const Color(0xFF38383A)
+        : const Color(0xFFE5E5EA);
+    final lineColor = isDark
+        ? const Color(0xFF252527)
+        : const Color(0xFFF0F0F5);
 
     return ClipRect(
       child: Container(
@@ -320,7 +330,9 @@ class _NotesPageCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: _yellow.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(6),
@@ -338,9 +350,10 @@ class _NotesPageCard extends StatelessWidget {
                     Text(
                       _formatDate(record.createDate),
                       style: TextStyle(
-                          fontSize: 11,
-                          color: textSecondary,
-                          letterSpacing: -0.1),
+                        fontSize: 11,
+                        color: textSecondary,
+                        letterSpacing: -0.1,
+                      ),
                     ),
                   ],
                 ),
@@ -365,9 +378,10 @@ class _NotesPageCard extends StatelessWidget {
                       Text(
                         record.bookAuthor,
                         style: TextStyle(
-                            fontSize: 13,
-                            color: textSecondary,
-                            letterSpacing: -0.1),
+                          fontSize: 13,
+                          color: textSecondary,
+                          letterSpacing: -0.1,
+                        ),
                       ),
                     ],
                   ],
@@ -376,7 +390,7 @@ class _NotesPageCard extends StatelessWidget {
             ] else ...[
               // 이어지는 페이지: 미니 헤더
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
                   children: [
                     Expanded(
@@ -429,18 +443,11 @@ class _NotesPageCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (totalPages > 1) ...[
-                    Text(
-                      '${pageIndex + 1} / $totalPages',
-                      style: TextStyle(fontSize: 11, color: textSecondary),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(width: 1, height: 12, color: dividerColor),
-                    const SizedBox(width: 8),
-                  ],
                   ColorFiltered(
-                    colorFilter:
-                        ColorFilter.mode(textSecondary, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      textSecondary,
+                      BlendMode.srcIn,
+                    ),
                     child: Image.asset(
                       'images/snippetbook-removebg.png',
                       width: 14,
@@ -474,15 +481,16 @@ class _RuledBody extends StatelessWidget {
   final Color textColor;
   final Color lineColor;
 
-  static const double _lineH   = 26.0;
+  static const double _lineH = 26.0;
   static const double _fontSize = 15.0;
-  static const double _hPad    = 20.0;
-  static const double _vPad    = 14.0;
+  static const double _hPad = 20.0;
+  static const double _vPad = 14.0;
 
-  const _RuledBody(
-      {required this.text,
-      required this.textColor,
-      required this.lineColor});
+  const _RuledBody({
+    required this.text,
+    required this.textColor,
+    required this.lineColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -529,96 +537,4 @@ class _LinedPaperPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_LinedPaperPainter old) => old.lineColor != lineColor;
-}
-
-// ── 라이트/다크 토글 ─────────────────────────────────────────────────────────
-
-class _ModeToggle extends StatelessWidget {
-  final bool isDark;
-  final ValueChanged<bool> onToggle;
-
-  const _ModeToggle({required this.isDark, required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surfaceSecondary,
-        borderRadius: BorderRadius.circular(DesignTokens.radiusMd),
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _Btn(icon: Icons.light_mode_rounded, label: '라이트',
-              selected: !isDark, onTap: () => onToggle(false)),
-          const SizedBox(width: 2),
-          _Btn(icon: Icons.dark_mode_rounded, label: '다크',
-              selected: isDark, onTap: () => onToggle(true)),
-        ],
-      ),
-    );
-  }
-}
-
-class _Btn extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _Btn({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-            horizontal: DesignTokens.space12,
-            vertical: DesignTokens.space8),
-        decoration: BoxDecoration(
-          color: selected
-              ? context.colors.cardBackground
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 14,
-                color: selected
-                    ? context.colors.textPrimary
-                    : context.colors.textSecondary),
-            const SizedBox(width: 4),
-            Text(label,
-                style: AppTypography.captionSmall.copyWith(
-                  color: selected
-                      ? context.colors.textPrimary
-                      : context.colors.textSecondary,
-                  fontWeight: selected
-                      ? DesignTokens.fontSemiBold
-                      : FontWeight.normal,
-                )),
-          ],
-        ),
-      ),
-    );
-  }
 }
