@@ -54,6 +54,10 @@ dependencies:
   gal: ^2.3.0
   package_info_plus: ^8.1.0
 
+  # Firebase / FCM
+  firebase_core: ^3.13.1
+  firebase_messaging: ^15.2.5
+
   # OCR 및 카메라 관련
   camera: ^0.11.0+2
   image_picker: ^1.1.3

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snippet_app/app/providers.dart';
@@ -16,24 +17,78 @@ import 'package:snippet_app/features/profile/presentation/widgets/theme_mode_dia
 class SettingsSection extends ConsumerWidget {
   const SettingsSection({super.key});
 
-  void _showComingSoonDialog(BuildContext context) {
+  Future<void> _showNotificationSettings(BuildContext context, WidgetRef ref) async {
+    final settings = await FirebaseMessaging.instance.getNotificationSettings();
+    final status = settings.authorizationStatus;
+    final granted = status == AuthorizationStatus.authorized ||
+        status == AuthorizationStatus.provisional;
+
+    if (!context.mounted) return;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.colors.surface,
         title: Text(
-          '준비 중입니다',
+          '알림 설정',
           style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
         ),
-        content: Text(
-          '이 기능은 곧 추가될 예정입니다.',
-          style: AppTypography.bodyMedium.copyWith(
-            color: context.colors.textPrimary,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  granted ? Icons.notifications_active : Icons.notifications_off_outlined,
+                  color: granted ? DesignTokens.success : context.colors.textSecondary,
+                  size: 20,
+                ),
+                const SizedBox(width: DesignTokens.space8),
+                Text(
+                  granted ? '알림이 활성화되어 있습니다' : '알림이 비활성화되어 있습니다',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: DesignTokens.space12),
+            Text(
+              '• 반납 기한 D-3, D-1, D-day 알림\n• 매일 오전 9시 전송',
+              style: AppTypography.bodySmall.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
+            if (!granted) ...[
+              const SizedBox(height: DesignTokens.space12),
+              Text(
+                '알림을 받으려면 기기 설정에서 알림을 허용해주세요.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              ),
+            ],
+          ],
         ),
         actions: [
+          if (!granted)
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await FirebaseMessaging.instance.requestPermission(
+                  alert: true,
+                  badge: true,
+                  sound: true,
+                );
+                ref.read(fcmServiceProvider).initialize();
+              },
+              child: Text('알림 허용',
+                  style: TextStyle(color: context.colors.primary)),
+            ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('닫기',
+                style: TextStyle(color: context.colors.textSecondary)),
           ),
         ],
       ),
@@ -334,8 +389,8 @@ class SettingsSection extends ConsumerWidget {
           SettingsTile(
             icon: Icons.notifications_outlined,
             title: '알림 설정',
-            subtitle: '독서 리마인더 및 알림',
-            onTap: () => _showComingSoonDialog(context),
+            subtitle: '반납 기한 및 독서 리마인더',
+            onTap: () => _showNotificationSettings(context, ref),
           ),
           const Divider(height: 1),
           SettingsTile(

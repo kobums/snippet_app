@@ -72,11 +72,16 @@ class AuthNotifier extends Notifier<AuthState> {
     result.when(
       success: (user) {
         state = state.copyWith(user: user, isInitializing: false);
+        _initFcm();
       },
       failure: (_) {
         state = state.copyWith(isInitializing: false);
       },
     );
+  }
+
+  void _initFcm() {
+    ref.read(fcmServiceProvider).initialize();
   }
 
   Future<void> login(String email, String password) async {
@@ -86,6 +91,7 @@ class AuthNotifier extends Notifier<AuthState> {
     result.when(
       success: (user) {
         state = state.copyWith(user: user, isLoading: false);
+        _initFcm();
       },
       failure: (error) {
         state = state.copyWith(isLoading: false, error: error);
@@ -101,6 +107,7 @@ class AuthNotifier extends Notifier<AuthState> {
     result.when(
       success: (user) {
         state = state.copyWith(user: user, isLoading: false);
+        _initFcm();
       },
       failure: (error) {
         state = state.copyWith(isLoading: false, error: error);

@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_app/core/constants.dart';
+import 'package:snippet_app/core/fcm_service.dart';
 
 // Must be overridden in main() with ProviderScope.overrides
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
@@ -130,4 +131,8 @@ final dioProvider = Provider<Dio>((ref) {
   );
 
   return dio;
+});
+
+final fcmServiceProvider = Provider<FcmService>((ref) {
+  return FcmService(ref.read(dioProvider));
 });
