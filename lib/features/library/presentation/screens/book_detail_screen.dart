@@ -418,6 +418,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   if (_selectedType != BookType.wish) ...[
                     SliverToBoxAdapter(child: _buildProgress()),
                     SliverToBoxAdapter(child: _buildReadingPeriod()),
+                    if (_selectedType == BookType.borrow)
+                      SliverToBoxAdapter(child: _buildReturnDate()),
                     if (_selectedStatus == BookStatus.completed)
                       SliverToBoxAdapter(child: _buildRating()),
                     SliverToBoxAdapter(child: _buildRecordTabs()),
@@ -1148,6 +1150,134 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
     } catch (e) {
       return '날짜 선택';
+    }
+  }
+
+  Widget _buildReturnDate() {
+    final returnDateStr = widget.book.returnDate;
+    final returnDate = returnDateStr != null && returnDateStr.isNotEmpty
+        ? DateTime.tryParse(returnDateStr)
+        : null;
+
+    String dDayText = '';
+    Color dDayColor = DesignTokens.neutral500;
+
+    if (returnDate != null) {
+      final today = DateTime.now();
+      final diff = returnDate.difference(DateTime(today.year, today.month, today.day)).inDays;
+      if (diff < 0) {
+        dDayText = '연체 ${-diff}일';
+        dDayColor = DesignTokens.error;
+      } else if (diff == 0) {
+        dDayText = '오늘 반납';
+        dDayColor = DesignTokens.warning;
+      } else if (diff <= 3) {
+        dDayText = 'D-$diff';
+        dDayColor = DesignTokens.warning;
+      } else {
+        dDayText = 'D-$diff';
+        dDayColor = DesignTokens.success;
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+      child: GlassContainer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '반납 기한',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+                if (dDayText.isNotEmpty) ...[
+                  const SizedBox(width: DesignTokens.space8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DesignTokens.space8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: dDayColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+                      border: Border.all(color: dDayColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      dDayText,
+                      style: AppTypography.captionSmall.copyWith(
+                        color: dDayColor,
+                        fontWeight: DesignTokens.fontMedium,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: DesignTokens.space12),
+            InkWell(
+              onTap: () => _pickReturnDate(),
+              borderRadius: BorderRadius.circular(DesignTokens.radiusSm),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: DesignTokens.space8,
+                  horizontal: DesignTokens.space12,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.event_outlined,
+                      size: 18,
+                      color: returnDate != null && returnDate.difference(DateTime.now()).inDays < 0
+                          ? DesignTokens.error
+                          : context.colors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        returnDate != null
+                            ? _formatDate(returnDateStr!)
+                            : '반납 기한을 설정하세요',
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: returnDate != null
+                              ? context.colors.textPrimary
+                              : context.colors.textTertiary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.edit_calendar,
+                      size: 18,
+                      color: context.colors.textTertiary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickReturnDate() async {
+    final current = widget.book.returnDate != null && widget.book.returnDate!.isNotEmpty
+        ? DateTime.tryParse(widget.book.returnDate!)
+        : null;
+
+    final picked = await _showCustomDatePicker(
+      context: context,
+      initialDate: current ?? DateTime.now().add(const Duration(days: 14)),
+      title: '반납 기한 선택',
+    );
+
+    if (picked != null && mounted) {
+      final dateStr = picked.toIso8601String().split('T')[0];
+      await ref.read(bookProvider.notifier).updateReturnDate(widget.book.id, dateStr);
+      await ref.read(libraryProvider.notifier).loadAllBooks();
     }
   }
 

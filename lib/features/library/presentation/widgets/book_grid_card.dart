@@ -139,6 +139,11 @@ class BookGridCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
 
+            if (book.type == BookType.borrow && book.returnDate != null && book.returnDate!.isNotEmpty) ...[
+              const SizedBox(height: DesignTokens.space4),
+              _ReturnDateBadge(returnDateStr: book.returnDate!),
+            ],
+
             if (book.status == BookStatus.reading) ...[
               const SizedBox(height: DesignTokens.space8),
               ClipRRect(
@@ -196,6 +201,59 @@ class BookGridCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ReturnDateBadge extends StatelessWidget {
+  final String returnDateStr;
+  const _ReturnDateBadge({required this.returnDateStr});
+
+  @override
+  Widget build(BuildContext context) {
+    final returnDate = DateTime.tryParse(returnDateStr);
+    if (returnDate == null) return const SizedBox.shrink();
+
+    final today = DateTime.now();
+    final diff = returnDate.difference(DateTime(today.year, today.month, today.day)).inDays;
+
+    final String label;
+    final Color color;
+    if (diff < 0) {
+      label = '연체 ${-diff}일';
+      color = DesignTokens.error;
+    } else if (diff == 0) {
+      label = '오늘 반납';
+      color = DesignTokens.warning;
+    } else if (diff <= 3) {
+      label = 'D-$diff';
+      color = DesignTokens.warning;
+    } else {
+      label = 'D-$diff';
+      color = DesignTokens.success;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(DesignTokens.radiusXs),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.event_outlined, size: 10, color: color),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: AppTypography.captionSmall.copyWith(
+              color: color,
+              fontWeight: DesignTokens.fontMedium,
+            ),
+          ),
+        ],
       ),
     );
   }
