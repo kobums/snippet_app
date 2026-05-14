@@ -38,6 +38,7 @@ class UserBookDto {
   final String createDate;
   final String startDate;
   final String endDate;
+  final int? rating;
 
   UserBookDto({
     required this.id,
@@ -52,6 +53,7 @@ class UserBookDto {
     required this.createDate,
     required this.startDate,
     required this.endDate,
+    this.rating,
   });
 
   factory UserBookDto.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class UserBookDto {
       createDate: json['createDate'] as String,
       startDate: json['startDate'] as String,
       endDate: json['endDate'] as String,
+      rating: json['rating'] as int?,
     );
   }
 
@@ -85,6 +88,7 @@ class UserBookDto {
       'createDate': createDate,
       'startDate': startDate,
       'endDate': endDate,
+      if (rating != null) 'rating': rating,
     };
   }
 
@@ -101,6 +105,7 @@ class UserBookDto {
     String? createDate,
     String? startDate,
     String? endDate,
+    int? rating,
   }) {
     return UserBookDto(
       id: id ?? this.id,
@@ -115,6 +120,7 @@ class UserBookDto {
       createDate: createDate ?? this.createDate,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      rating: rating ?? this.rating,
     );
   }
 

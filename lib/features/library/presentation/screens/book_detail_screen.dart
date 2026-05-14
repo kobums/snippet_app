@@ -13,6 +13,7 @@ import 'package:snippet_app/features/records/presentation/screens/add_record_scr
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/features/reading_session/presentation/widgets/reading_session_card.dart';
 import 'package:snippet_app/features/reading_session/reading_session_providers.dart';
+import 'package:snippet_app/features/library/presentation/widgets/rating_dialog.dart';
 import 'package:snippet_app/app/router.dart';
 import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/components/app_select.dart';
@@ -206,6 +207,10 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
           _readPage = syncedBook.readPage;
           _isSaving = false; // 저장 완료 - 뒤로가기 허용
         });
+
+        if (status == BookStatus.completed) {
+          _showRatingDialog(syncedBook.rating);
+        }
       }
     } catch (e) {
       // 에러 시 롤백
@@ -320,6 +325,22 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     if (result == true) _loadRecords();
   }
 
+  void _showRatingDialog(int? currentRating) {
+    RatingDialog.show(
+      context,
+      bookTitle: widget.book.title,
+      initialRating: currentRating,
+      onRatingSubmit: (rating) {
+        if (rating != null) {
+          ref.read(bookProvider.notifier).updateRating(widget.book.id, rating);
+          ref.read(libraryProvider.notifier).updateBookLocally(
+            widget.book.copyWith(rating: rating),
+          );
+        }
+      },
+    );
+  }
+
   void _showError(Object e) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -397,6 +418,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                   if (_selectedType != BookType.wish) ...[
                     SliverToBoxAdapter(child: _buildProgress()),
                     SliverToBoxAdapter(child: _buildReadingPeriod()),
+                    if (_selectedStatus == BookStatus.completed)
+                      SliverToBoxAdapter(child: _buildRating()),
                     SliverToBoxAdapter(child: _buildRecordTabs()),
                     _buildRecordsList(),
                   ],
@@ -1126,6 +1149,51 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     } catch (e) {
       return '날짜 선택';
     }
+  }
+
+  Widget _buildRating() {
+    final currentRating = widget.book.rating;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+      child: GlassContainer(
+        child: Row(
+          children: [
+            Text(
+              '별점',
+              style: AppTypography.labelMedium.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
+            const SizedBox(width: DesignTokens.space16),
+            Expanded(
+              child: Row(
+                children: List.generate(5, (i) {
+                  final star = i + 1;
+                  final filled = currentRating != null && star <= currentRating;
+                  return GestureDetector(
+                    onTap: () => _showRatingDialog(currentRating),
+                    child: Icon(
+                      filled ? Icons.star_rounded : Icons.star_outline_rounded,
+                      size: 28,
+                      color: filled ? const Color(0xFFFFB800) : context.colors.border,
+                    ),
+                  );
+                }),
+              ),
+            ),
+            TextButton(
+              onPressed: () => _showRatingDialog(currentRating),
+              child: Text(
+                currentRating != null ? '수정' : '평가하기',
+                style: AppTypography.bodySmall.copyWith(
+                  color: context.colors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildRecordTabs() {

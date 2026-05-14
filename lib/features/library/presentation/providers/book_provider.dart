@@ -165,6 +165,16 @@ class BookNotifier extends Notifier<BookState> {
     );
   }
 
+  Future<void> updateRating(int id, int rating) async {
+    state = state.copyWith(
+      books: state.books.map((b) {
+        if (b.id == id) return b.copyWith(rating: rating);
+        return b;
+      }).toList(),
+    );
+    await _updateBookUseCase(id, {'rating': rating});
+  }
+
   Future<void> updateEndDate(int id, String date) async {
     final oldBooks = state.books;
     state = state.copyWith(
