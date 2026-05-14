@@ -4,6 +4,7 @@ import 'package:snippet_app/core/result/result.dart';
 import 'package:snippet_app/features/reading_session/data/datasources/reading_session_remote_datasource.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session_stats.dart';
+import 'package:snippet_app/features/reading_session/data/models/streak.dart';
 import 'package:snippet_app/features/reading_session/domain/repositories/reading_session_repository.dart';
 
 class ReadingSessionRepositoryImpl implements ReadingSessionRepository {
@@ -52,6 +53,18 @@ class ReadingSessionRepositoryImpl implements ReadingSessionRepository {
     try {
       final stats = await _remote.getStats(userBookId);
       return Success(stats);
+    } on AppError catch (e) {
+      return Failure(e);
+    } catch (e) {
+      return Failure(ErrorHandler.handleException(e));
+    }
+  }
+
+  @override
+  Future<Result<StreakDto>> getStreak() async {
+    try {
+      final streak = await _remote.getStreak();
+      return Success(streak);
     } on AppError catch (e) {
       return Failure(e);
     } catch (e) {

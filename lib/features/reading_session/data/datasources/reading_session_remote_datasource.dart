@@ -3,12 +3,14 @@ import 'package:snippet_app/core/constants.dart';
 import 'package:snippet_app/core/error/error_handler.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session.dart';
 import 'package:snippet_app/features/reading_session/data/models/reading_session_stats.dart';
+import 'package:snippet_app/features/reading_session/data/models/streak.dart';
 
 abstract class ReadingSessionRemoteDataSource {
   Future<int> createSession(ReadingSessionAddRequestDto data);
   Future<List<ReadingSessionDto>> getAllSessions();
   Future<List<ReadingSessionDto>> getSessionsByBook(int userBookId);
   Future<ReadingSessionStatsDto> getStats(int userBookId);
+  Future<StreakDto> getStreak();
 }
 
 class ReadingSessionRemoteDataSourceImpl implements ReadingSessionRemoteDataSource {
@@ -80,6 +82,19 @@ class ReadingSessionRemoteDataSourceImpl implements ReadingSessionRemoteDataSour
         return ReadingSessionStatsDto.fromJson(response.data);
       }
       return ReadingSessionStatsDto.empty();
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<StreakDto> getStreak() async {
+    try {
+      final response = await _dio.get(ApiConstants.readingSessionsStreak);
+      if (response.statusCode == 200) {
+        return StreakDto.fromJson(response.data);
+      }
+      return StreakDto.empty();
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

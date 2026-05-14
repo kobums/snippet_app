@@ -4,9 +4,11 @@ import 'package:snippet_app/features/reading_session/data/datasources/reading_se
 import 'package:snippet_app/features/reading_session/data/datasources/reading_session_remote_datasource.dart';
 import 'package:snippet_app/features/reading_session/data/repositories/reading_session_repository_impl.dart';
 import 'package:snippet_app/features/reading_session/domain/repositories/reading_session_repository.dart';
+import 'package:snippet_app/features/reading_session/data/models/streak.dart';
 import 'package:snippet_app/features/reading_session/domain/usecases/save_reading_session_usecase.dart';
 import 'package:snippet_app/features/reading_session/domain/usecases/fetch_sessions_by_book_usecase.dart';
 import 'package:snippet_app/features/reading_session/domain/usecases/fetch_all_sessions_usecase.dart';
+import 'package:snippet_app/features/reading_session/domain/usecases/fetch_streak_usecase.dart';
 
 // DataSources
 final readingSessionRemoteDataSourceProvider =
@@ -41,6 +43,19 @@ final fetchSessionsByBookUseCaseProvider =
 final fetchAllSessionsUseCaseProvider =
     Provider<FetchAllSessionsUseCase>((ref) {
   return FetchAllSessionsUseCase(ref.read(readingSessionRepositoryProvider));
+});
+
+final fetchStreakUseCaseProvider = Provider<FetchStreakUseCase>((ref) {
+  return FetchStreakUseCase(ref.read(readingSessionRepositoryProvider));
+});
+
+final streakProvider = FutureProvider<StreakDto>((ref) async {
+  final useCase = ref.read(fetchStreakUseCaseProvider);
+  final result = await useCase();
+  return result.when(
+    success: (streak) => streak,
+    failure: (_) => StreakDto.empty(),
+  );
 });
 
 // Signals book_detail_screen to switch to the session tab after a session completes.

@@ -5,6 +5,7 @@ import 'package:snippet_app/features/profile/presentation/widgets/profile_card.d
 import 'package:snippet_app/features/profile/presentation/widgets/settings_section.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/logout_button.dart';
 import 'package:snippet_app/features/profile/presentation/widgets/delete_account_button.dart';
+import 'package:snippet_app/features/profile/presentation/widgets/streak_card.dart';
 import 'package:snippet_app/components/app_app_bar.dart';
 import 'package:snippet_app/core/app_colors.dart';
 import 'package:snippet_app/core/design_tokens.dart';
@@ -31,7 +32,9 @@ class MyPageScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 ProfileCard(user: user),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                const StreakCard(),
+                const SizedBox(height: 16),
                 const SettingsSection(),
                 const SizedBox(height: 24),
                 const LogoutButton(),
