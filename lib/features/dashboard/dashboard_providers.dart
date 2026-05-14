@@ -3,6 +3,7 @@ import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/core/constants.dart';
 import 'package:snippet_app/features/dashboard/data/datasources/calendar_share_datasource.dart';
 import 'package:snippet_app/features/dashboard/data/datasources/stats_remote_datasource.dart';
+import 'package:snippet_app/features/dashboard/data/models/book_recommend.dart';
 import 'package:snippet_app/features/dashboard/data/models/reading_goal.dart';
 import 'package:snippet_app/features/dashboard/data/repositories/stats_repository_impl.dart';
 import 'package:snippet_app/features/dashboard/domain/repositories/stats_repository.dart';
@@ -46,6 +47,21 @@ final fetchCategoryStatsUseCaseProvider =
 
 final fetchInsightsUseCaseProvider = Provider<FetchInsightsUseCase>((ref) {
   return FetchInsightsUseCase(ref.read(statsRepositoryProvider));
+});
+
+// Book Recommendations
+final bookRecommendProvider = FutureProvider<List<BookRecommendDto>>((ref) async {
+  final dio = ref.read(dioProvider);
+  try {
+    final response = await dio.get(
+      ApiConstants.booksRecommend,
+      queryParameters: {'limit': 6},
+    );
+    final List data = response.data;
+    return data.map((e) => BookRecommendDto.fromJson(e)).toList();
+  } catch (_) {
+    return [];
+  }
 });
 
 // Reading Goal

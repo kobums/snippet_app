@@ -14,6 +14,7 @@ import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/core/typography.dart';
 import 'package:snippet_app/features/dashboard/presentation/widgets/reading_goal_card.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/recommendation_card.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   final double headerOpacity;
@@ -111,6 +112,8 @@ class DashboardStatsSection extends ConsumerWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                const RecommendationCard(),
                 const SizedBox(height: 16),
                 if (completedBooks.isNotEmpty) ...[
                   SectionHeader(
