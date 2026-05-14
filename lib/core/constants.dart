@@ -44,6 +44,9 @@ class ApiConstants {
   static const String readingSessionsStats = '/readingsessions/stats';
   static const String readingSessionsStreak = '/readingsessions/streak';
 
+  // Reading Goals
+  static const String readingGoals = '/readinggoals';
+
   // Suggestions
   static const String suggestions = '/suggestions';
   static const String suggestionsMine = '/suggestions/mine';

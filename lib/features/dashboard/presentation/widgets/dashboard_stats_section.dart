@@ -13,6 +13,7 @@ import 'package:snippet_app/components/app_book_card.dart';
 import 'package:snippet_app/components/month_navigator.dart';
 import 'package:snippet_app/components/section_header.dart';
 import 'package:snippet_app/core/typography.dart';
+import 'package:snippet_app/features/dashboard/presentation/widgets/reading_goal_card.dart';
 
 class DashboardStatsSection extends ConsumerWidget {
   final double headerOpacity;
@@ -76,6 +77,8 @@ class DashboardStatsSection extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                const ReadingGoalCard(),
+                const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
                     context.push(AppRoutes.stats);
