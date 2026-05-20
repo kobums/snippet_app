@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,12 +14,9 @@ void main() async {
   // 환경 변수 로드 (API 키 등)
   await dotenv.load(fileName: '.env');
 
-  // Firebase 초기화 (google-services.json / GoogleService-Info.plist 필요)
-  try {
-    await Firebase.initializeApp();
-  } catch (_) {
-    // Firebase 설정 파일이 없으면 FCM 비활성화
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   final prefs = await SharedPreferences.getInstance();
 
