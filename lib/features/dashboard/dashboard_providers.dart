@@ -85,7 +85,7 @@ class ReadingGoalNotifier extends AsyncNotifier<ReadingGoalDto> {
   }
 
   Future<void> setGoal(int targetBooks) async {
-    final current = state.valueOrNull ?? ReadingGoalDto.empty();
+    final current = state.asData?.value ?? ReadingGoalDto.empty();
     state = const AsyncLoading();
     final dio = ref.read(dioProvider);
     try {
