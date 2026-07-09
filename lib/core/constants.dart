@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 class ApiConstants {
   static String get baseUrl => kReleaseMode
       ? 'https://snippetapi.gowoobro.com/api'
-      : 'http://10.0.1.14:8008/api';
+      : 'http://10.0.1.29:8008/api';
 
   // Auth
   static const String authLogin = '/auth/login';
