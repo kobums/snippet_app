@@ -73,6 +73,8 @@ final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
   final dio = ref.read(dioProvider);
 
   return switch (selectedEngine) {
+    // 두 엔진 모두 백엔드 OCR 엔드포인트를 쓰고 engine 파라미터만 다르다.
+    OcrEngine.naverClova => GoogleVisionOcrDataSource(dio, engine: 'naver'),
     OcrEngine.googleVision => GoogleVisionOcrDataSource(dio),
   };
 });

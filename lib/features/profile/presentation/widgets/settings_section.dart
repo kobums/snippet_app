@@ -240,6 +240,43 @@ class SettingsSection extends ConsumerWidget {
             RadioListTile<OcrEngine>(
               title: Row(
                 children: [
+                  const Expanded(child: Text('Naver Clova (한글 특화)')),
+                  if (!OcrConfig.isNaverClovaConfigured) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: Colors.orange[700],
+                    ),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                OcrConfig.isNaverClovaConfigured
+                    ? '서버에서 처리'
+                    : '서버에 Naver Clova가 설정되지 않았습니다',
+                style: AppTypography.bodySmall.copyWith(
+                  color: OcrConfig.isNaverClovaConfigured
+                      ? Colors.green[700]
+                      : Colors.orange[700],
+                ),
+              ),
+              value: OcrEngine.naverClova,
+              groupValue: currentEngine,
+              onChanged: (value) {
+                if (value != null) {
+                  if (!OcrConfig.isNaverClovaConfigured) {
+                    _showApiKeyWarning(context, 'Naver Clova');
+                    return;
+                  }
+                  ref.read(selectedOcrEngineProvider.notifier).setEngine(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<OcrEngine>(
+              title: Row(
+                children: [
                   const Expanded(child: Text('Google Vision (최고 정확도)')),
                   if (!OcrConfig.isGoogleVisionConfigured) ...[
                     const SizedBox(width: 8),
@@ -253,8 +290,8 @@ class SettingsSection extends ConsumerWidget {
               ),
               subtitle: Text(
                 OcrConfig.isGoogleVisionConfigured
-                    ? 'API 키 설정됨'
-                    : '.env 파일에 API 키를 설정하세요',
+                    ? '서버에서 처리'
+                    : '서버에 Google Vision이 설정되지 않았습니다',
                 style: AppTypography.bodySmall.copyWith(
                   color: OcrConfig.isGoogleVisionConfigured
                       ? Colors.green[700]
@@ -295,8 +332,7 @@ class SettingsSection extends ConsumerWidget {
           style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
         ),
         content: Text(
-          '$engineName OCR을 사용하려면 .env 파일에 API 키를 설정해야 합니다.\n\n'
-          '자세한 내용은 README.md를 참고하세요.',
+          '$engineName OCR은 현재 서버에서 사용할 수 없습니다.',
           style: AppTypography.bodyMedium.copyWith(
             color: context.colors.textPrimary,
           ),
@@ -313,6 +349,7 @@ class SettingsSection extends ConsumerWidget {
 
   String _getOcrEngineName(OcrEngine engine) {
     return switch (engine) {
+      OcrEngine.naverClova => 'Naver Clova (한글 특화)',
       OcrEngine.googleVision => 'Google Vision (최고 정확도)',
     };
   }
