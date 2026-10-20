@@ -253,8 +253,8 @@ class SettingsSection extends ConsumerWidget {
               ),
               subtitle: Text(
                 OcrConfig.isNaverClovaConfigured
-                    ? 'API 키 설정됨'
-                    : '.env 파일에 API 키를 설정하세요',
+                    ? '서버에서 처리'
+                    : '서버에 Naver Clova가 설정되지 않았습니다',
                 style: AppTypography.bodySmall.copyWith(
                   color: OcrConfig.isNaverClovaConfigured
                       ? Colors.green[700]
@@ -290,8 +290,8 @@ class SettingsSection extends ConsumerWidget {
               ),
               subtitle: Text(
                 OcrConfig.isGoogleVisionConfigured
-                    ? 'API 키 설정됨'
-                    : '.env 파일에 API 키를 설정하세요',
+                    ? '서버에서 처리'
+                    : '서버에 Google Vision이 설정되지 않았습니다',
                 style: AppTypography.bodySmall.copyWith(
                   color: OcrConfig.isGoogleVisionConfigured
                       ? Colors.green[700]
@@ -332,8 +332,7 @@ class SettingsSection extends ConsumerWidget {
           style: AppTypography.h4.copyWith(color: context.colors.textPrimary),
         ),
         content: Text(
-          '$engineName OCR을 사용하려면 .env 파일에 API 키를 설정해야 합니다.\n\n'
-          '자세한 내용은 README.md를 참고하세요.',
+          '$engineName OCR은 현재 서버에서 사용할 수 없습니다.',
           style: AppTypography.bodyMedium.copyWith(
             color: context.colors.textPrimary,
           ),

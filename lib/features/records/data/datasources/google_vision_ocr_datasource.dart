@@ -4,11 +4,15 @@ import 'package:dio/dio.dart';
 import 'package:snippet_app/core/constants.dart';
 import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
 
+/// 백엔드 OCR(`POST /ocr/extract`) 데이터소스.
+/// [engine]은 백엔드가 사용할 엔진 — 'google'(기본, Google Vision) 또는 'naver'(Naver Clova).
 class GoogleVisionOcrDataSource implements OcrDataSource {
   final Dio _dio;
   final String _baseUrl = ApiConstants.baseUrl;
+  final String _engine;
 
-  GoogleVisionOcrDataSource(this._dio);
+  GoogleVisionOcrDataSource(this._dio, {String engine = 'google'})
+      : _engine = engine;
 
   @override
   Future<String> extractTextFromImage(String imagePath) async {
@@ -29,7 +33,7 @@ class GoogleVisionOcrDataSource implements OcrDataSource {
         imagePath,
         filename: imagePath.split('/').last,
       ),
-      'engine': 'google',
+      'engine': _engine,
     };
 
     if (regions != null && regions.isNotEmpty) {
