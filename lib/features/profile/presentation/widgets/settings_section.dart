@@ -240,43 +240,6 @@ class SettingsSection extends ConsumerWidget {
             RadioListTile<OcrEngine>(
               title: Row(
                 children: [
-                  const Expanded(child: Text('Naver Clova (한글 특화)')),
-                  if (!OcrConfig.isNaverClovaConfigured) ...[
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      size: 16,
-                      color: Colors.orange[700],
-                    ),
-                  ],
-                ],
-              ),
-              subtitle: Text(
-                OcrConfig.isNaverClovaConfigured
-                    ? 'API 키 설정됨'
-                    : '.env 파일에 API 키를 설정하세요',
-                style: AppTypography.bodySmall.copyWith(
-                  color: OcrConfig.isNaverClovaConfigured
-                      ? Colors.green[700]
-                      : Colors.orange[700],
-                ),
-              ),
-              value: OcrEngine.naverClova,
-              groupValue: currentEngine,
-              onChanged: (value) {
-                if (value != null) {
-                  if (!OcrConfig.isNaverClovaConfigured) {
-                    _showApiKeyWarning(context, 'Naver Clova');
-                    return;
-                  }
-                  ref.read(selectedOcrEngineProvider.notifier).setEngine(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<OcrEngine>(
-              title: Row(
-                children: [
                   const Expanded(child: Text('Google Vision (최고 정확도)')),
                   if (!OcrConfig.isGoogleVisionConfigured) ...[
                     const SizedBox(width: 8),
@@ -350,7 +313,6 @@ class SettingsSection extends ConsumerWidget {
 
   String _getOcrEngineName(OcrEngine engine) {
     return switch (engine) {
-      OcrEngine.naverClova => 'Naver Clova (한글 특화)',
       OcrEngine.googleVision => 'Google Vision (최고 정확도)',
     };
   }

@@ -3,7 +3,6 @@ import 'package:snippet_app/app/providers.dart';
 import 'package:snippet_app/core/config/ocr_config.dart';
 import 'package:snippet_app/features/records/data/datasources/record_remote_datasource.dart';
 import 'package:snippet_app/features/records/data/datasources/ocr_datasource.dart';
-import 'package:snippet_app/features/records/data/datasources/naver_clova_ocr_datasource.dart';
 import 'package:snippet_app/features/records/data/datasources/google_vision_ocr_datasource.dart';
 import 'package:snippet_app/features/records/data/repositories/record_repository_impl.dart';
 import 'package:snippet_app/features/records/data/repositories/ocr_repository_impl.dart';
@@ -74,7 +73,6 @@ final ocrDataSourceProvider = Provider<OcrDataSource>((ref) {
   final dio = ref.read(dioProvider);
 
   return switch (selectedEngine) {
-    OcrEngine.naverClova => NaverClovaOcrDataSource(dio),
     OcrEngine.googleVision => GoogleVisionOcrDataSource(dio),
   };
 });

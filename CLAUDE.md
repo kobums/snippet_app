@@ -10,7 +10,7 @@
 - **home_widget** 홈 화면 위젯
 - **Google Fonts** (Inter)
 - **OCR**: camera, image_picker, google_mlkit_text_recognition, image, http
-- **flutter_dotenv** 환경 변수 관리
+- 시크릿은 앱에 두지 않음 (OCR은 백엔드 `POST /api/ocr/extract` 경유, `.env` 에셋·flutter_dotenv 제거)
 
 ## 아키텍처
 

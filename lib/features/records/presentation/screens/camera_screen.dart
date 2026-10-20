@@ -218,14 +218,12 @@ class _OcrEngineSelector extends ConsumerWidget {
   String _getEngineName(OcrEngine engine) {
     return switch (engine) {
       OcrEngine.googleVision => 'Google',
-      OcrEngine.naverClova => 'Naver',
     };
   }
 
   String _getEngineDescription(OcrEngine engine) {
     return switch (engine) {
       OcrEngine.googleVision => '최고 정확도',
-      OcrEngine.naverClova => '한글 특화',
     };
   }
 
